@@ -1,6 +1,6 @@
 <?php
 
-namespace app\controllers;
+namespace app\controllers\frontend;
 
 use app\services\frontend\AdministrationService;
 use Yii;

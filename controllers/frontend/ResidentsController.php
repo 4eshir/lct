@@ -1,7 +1,8 @@
 <?php
 
-namespace app\controllers;
+namespace app\controllers\frontend;
 
+use app\models\forms\QuestionForm;
 use app\services\frontend\ResidentsService;
 use Yii;
 use yii\filters\AccessControl;
@@ -21,5 +22,38 @@ class ResidentsController extends Controller
     {
         parent::__construct($id, $module, $config);
         $this->service = $service;
+    }
+
+    public function actionStartQuestionnaire()
+    {
+        $text = 'Добро пожаловать в голосование';
+
+        if (Yii::$app->request->post()) {
+            return $this->redirect(['quest']);
+        }
+
+        return $this->render('quest-info', [
+            'text' => $text,
+        ]);
+    }
+
+    public function actionQuest()
+    {
+        $model = new QuestionForm();
+
+        return $this->render('question', [
+            'model' => $model,
+        ]);
+    }
+
+    public function actionEndQuestionnaire()
+    {
+        $text = 'Голосование успешно завершено';
+
+        $this->service->endVote();
+
+        return $this->render('quest-info', [
+            'text' => $text,
+        ]);
     }
 }

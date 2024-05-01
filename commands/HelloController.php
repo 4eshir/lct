@@ -7,6 +7,11 @@
 
 namespace app\commands;
 
+use app\components\arrangement\TerritoryArrangementManager;
+use app\components\arrangement\TerritoryConcept;
+use app\models\work\ObjectWork;
+use Yii;
+use yii\base\BaseObject;
 use yii\console\Controller;
 use yii\console\ExitCode;
 
@@ -20,15 +25,31 @@ use yii\console\ExitCode;
  */
 class HelloController extends Controller
 {
-    /**
-     * This command echoes what you have entered as the message.
-     * @param string $message the message to be echoed.
-     * @return int Exit code
-     */
-    public function actionIndex($message = 'hello world')
+    public function actionIndex()
     {
-        echo $message . "\n";
+        $manager = Yii::createObject(TerritoryArrangementManager::class);
+        $manager->territory = TerritoryConcept::make(100, 80, 10);
 
-        return ExitCode::OK;
+        $object1 = new ObjectWork();
+        $object1->id = 12;
+        $object1->length = 15;
+        $object1->width = 10;
+        $object1->dead_zone_size = 5;
+
+        $object2 = new ObjectWork();
+        $object2->id = 25;
+        $object2->length = 22;
+        $object2->width = 32;
+        $object2->dead_zone_size = 6;
+
+        $manager->territory->showDebugMatrix(fopen('php://stdout', 'w'));
+
+        $manager->installObject($object1, 0, 2, TerritoryConcept::HORIZONTAL_POSITION);
+
+        $manager->territory->showDebugMatrix(fopen('php://stdout', 'w'));
+
+        $manager->installObject($object2, 3, 4, TerritoryConcept::HORIZONTAL_POSITION);
+
+        $manager->territory->showDebugMatrix(fopen('php://stdout', 'w'));
     }
 }

@@ -26,14 +26,14 @@ class ResidentsController extends Controller
 
     public function actionStartQuestionnaire()
     {
-        $text = 'Добро пожаловать в голосование';
+        $model = new QuestionForm();
 
         if (Yii::$app->request->post()) {
             return $this->redirect(['quest']);
         }
 
-        return $this->render('quest-info', [
-            'text' => $text,
+        return $this->render('questionnaire', [
+            'model' => $model,
         ]);
     }
 

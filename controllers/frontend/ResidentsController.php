@@ -2,7 +2,10 @@
 
 namespace app\controllers\frontend;
 
+use app\models\common\Questionnaire;
+use app\models\forms\QuestionDecisionForm;
 use app\models\forms\QuestionForm;
+use app\models\work\QuestionnaireWork;
 use app\services\frontend\ResidentsService;
 use Yii;
 use yii\filters\AccessControl;
@@ -28,8 +31,9 @@ class ResidentsController extends Controller
     {
         $model = new QuestionForm();
 
-        if (Yii::$app->request->post()) {
-            return $this->redirect(['quest']);
+        if (Yii::$app->request->post() && $model->load(Yii::$app->request->post())) {
+            Yii::$app->cache->set('questionnaire', $model);
+            return $this->redirect(['final-decision']);
         }
 
         return $this->render('questionnaire', [
@@ -37,11 +41,27 @@ class ResidentsController extends Controller
         ]);
     }
 
-    public function actionQuest()
+    public function actionFinalDecision()
     {
-        $model = new QuestionForm();
+        $model = new QuestionDecisionForm();
 
-        return $this->render('question', [
+        if (Yii::$app->request->post() && $model->load(Yii::$app->request->post())) {
+            /** @var QuestionForm $oldAnswers */
+            $oldAnswers = Yii::$app->cache->get('questionnaire');
+            $questionnaire = new QuestionnaireWork(
+                null,
+                $oldAnswers->answerAge,
+                $oldAnswers->answersSportCoef,
+                $oldAnswers->answersRecreationCoef,
+                $oldAnswers->answersGameCoef,
+                $oldAnswers->answersEducationalCoef,
+                $model->decision
+            );
+            $questionnaire->save();
+            return $this->redirect(['end-questionnaire']);
+        }
+
+        return $this->render('final-decision', [
             'model' => $model,
         ]);
     }

@@ -11,6 +11,7 @@ use Yii;
  * @property string|null $login
  * @property int $municipality_id
  * @property int|null $role 1 - житель, 2 - член администрации, 3 - бог
+ * @property int|null $auth_flag
  *
  * @property Municipality $municipality
  * @property Questionnaire[] $questionnaires
@@ -32,7 +33,7 @@ class User extends \yii\db\ActiveRecord
     {
         return [
             [['municipality_id'], 'required'],
-            [['municipality_id', 'role'], 'integer'],
+            [['municipality_id', 'role', 'auth_flag'], 'integer'],
             [['login'], 'string', 'max' => 255],
             [['municipality_id'], 'exist', 'skipOnError' => true, 'targetClass' => Municipality::class, 'targetAttribute' => ['municipality_id' => 'id']],
         ];
@@ -48,6 +49,7 @@ class User extends \yii\db\ActiveRecord
             'login' => 'Login',
             'municipality_id' => 'Municipality ID',
             'role' => 'Role',
+            'auth_flag' => 'Auth Flag',
         ];
     }
 

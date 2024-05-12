@@ -1,5 +1,7 @@
 <?php
 
+namespace app\helpers;
+
 class MathHelper
 {
     /* количество значимых голосов. на данный момент:

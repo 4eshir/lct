@@ -59,4 +59,15 @@ class TerritoryConcept
 
         fwrite($stream, "\n");
     }
+
+
+    public function getSuitableObject(array $objects, array $weights)
+    {
+
+    }
+
+    public function isFilled()
+    {
+        return false;
+    }
 }

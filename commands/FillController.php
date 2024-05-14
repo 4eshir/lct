@@ -15,7 +15,7 @@ use yii\helpers\ArrayHelper;
 
 class FillController extends Controller
 {
-    const OBJECTS_COUNT = 10;
+    const OBJECTS_COUNT = 50;
 
     const MIN_SIZE = 10;
     const MAX_SIZE = 6000;
@@ -50,16 +50,16 @@ class FillController extends Controller
         for ($i = 0; $i < self::OBJECTS_COUNT; $i++) {
             $object = new ObjectWork();
             $object->name = (new Security())->generateRandomString(20);
-            $object->length = array_rand(range(self::MIN_SIZE, self::MAX_SIZE, 10));
-            $object->width = array_rand(range(self::MIN_SIZE, self::MAX_SIZE, 10));
-            $object->height = array_rand(range(self::MIN_SIZE, self::MAX_SIZE, 10));
-            $object->cost = array_rand(range(self::MIN_COST, self::MAX_COST, 500));
-            $object->created_time = array_rand(range(self::MIN_CTIME, self::MAX_CTIME));
-            $object->install_time = array_rand(range(self::MIN_ITIME, self::MAX_ITIME));
-            $object->worker_count = array_rand(range(self::MIN_WORKERS, self::MAX_WORKERS));
+            $object->length = range(self::MIN_SIZE, self::MAX_SIZE, 10)[array_rand(range(self::MIN_SIZE, self::MAX_SIZE, 10))];
+            $object->width = range(self::MIN_SIZE, self::MAX_SIZE, 10)[array_rand(range(self::MIN_SIZE, self::MAX_SIZE, 10))];
+            $object->height = range(self::MIN_SIZE, self::MAX_SIZE, 10)[array_rand(range(self::MIN_SIZE, self::MAX_SIZE, 10))];
+            $object->cost = range(self::MIN_COST, self::MAX_COST)[array_rand(range(self::MIN_COST, self::MAX_COST, 500))];
+            $object->created_time = range(self::MIN_CTIME, self::MAX_CTIME)[array_rand(range(self::MIN_CTIME, self::MAX_CTIME))];
+            $object->install_time = range(self::MIN_ITIME, self::MAX_ITIME)[array_rand(range(self::MIN_ITIME, self::MAX_ITIME))];
+            $object->worker_count = range(self::MIN_WORKERS, self::MAX_WORKERS)[array_rand(range(self::MIN_WORKERS, self::MAX_WORKERS))];
 
             $typeIds = ArrayHelper::getColumn(ObjectTypeWork::find()->all(), 'id');
-            $object->object_type_id = array_rand($typeIds);
+            $object->object_type_id = $typeIds[array_rand($typeIds)];
             $object->creator = self::CREATORS[array_rand(self::CREATORS)];
             $object->save();
         }

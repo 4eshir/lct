@@ -52,6 +52,7 @@ class GenerateArrangementForm
         }
     }
 
+    // генерация на базовых весах по возрастам
     private function generateBase(TerritoryWork $territory, TerritoryConcept $concept)
     {
         $weights = AgesWeightWork::find()->orderBy(['ages_interval_id' => SORT_ASC])->all();
@@ -62,6 +63,7 @@ class GenerateArrangementForm
         }
     }
 
+    // генерация на измененных весах по возрастам
     private function generateChange(TerritoryWork $territory, TerritoryConcept $concept)
     {
         $weights = AgesWeightChangeableWork::find()->orderBy(['ages_interval_id' => SORT_ASC])->andWhere(['territory_id' => $territory->id])->all();
@@ -72,6 +74,7 @@ class GenerateArrangementForm
         }
     }
 
+    // генерация на личном голосовании одного пользователя
     private function generateVotes(TerritoryWork $territory, TerritoryConcept $concept)
     {
 

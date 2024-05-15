@@ -60,7 +60,7 @@ class TerritoryConcept
         fwrite($stream, "\n");
     }
 
-
+    // подставляет в текущую расстановку подходящий объект
     public function getSuitableObject(array $objects, array $weights)
     {
 

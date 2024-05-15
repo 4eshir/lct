@@ -28,27 +28,18 @@ class HelloController extends Controller
     public function actionIndex()
     {
         $manager = Yii::createObject(TerritoryArrangementManager::class);
-        $manager->territory = TerritoryConcept::make(100, 80, 10);
+        $manager->territory = TerritoryConcept::make(150, 350, TerritoryConcept::STEP);
 
-        $object1 = new ObjectWork();
-        $object1->id = 12;
-        $object1->length = 15;
-        $object1->width = 10;
-        $object1->dead_zone_size = 5;
+        $object1 = ObjectWork::find()->where(['id' => 1])->one();
 
-        $object2 = new ObjectWork();
-        $object2->id = 25;
-        $object2->length = 22;
-        $object2->width = 32;
-        $object2->dead_zone_size = 6;
+        $manager->installObject($object1, 0, 0, TerritoryConcept::HORIZONTAL_POSITION);
+        $manager->installObject($object1, 0, 10, TerritoryConcept::HORIZONTAL_POSITION);
+        $manager->installObject($object1, 0, 20, TerritoryConcept::HORIZONTAL_POSITION);
+        //$manager->installObject($object1, 30, 0, TerritoryConcept::HORIZONTAL_POSITION);
 
-        $manager->territory->showDebugMatrix(fopen('php://stdout', 'w'));
+        //var_dump($manager->allowedInstall($object1, 30, 0, TerritoryConcept::HORIZONTAL_POSITION));
 
-        $manager->installObject($object1, 0, 2, TerritoryConcept::HORIZONTAL_POSITION);
-
-        $manager->territory->showDebugMatrix(fopen('php://stdout', 'w'));
-
-        $manager->installObject($object2, 3, 4, TerritoryConcept::HORIZONTAL_POSITION);
+        var_dump($manager->isFilled(ObjectWork::TYPE_RECREATION));
 
         $manager->territory->showDebugMatrix(fopen('php://stdout', 'w'));
     }

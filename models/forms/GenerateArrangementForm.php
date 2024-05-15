@@ -4,11 +4,13 @@
 namespace app\models\forms;
 
 
+use app\components\arrangement\TerritoryArrangementManager;
 use app\components\arrangement\TerritoryConcept;
 use app\models\work\AgesWeightChangeableWork;
 use app\models\work\AgesWeightWork;
 use app\models\work\ObjectWork;
 use app\models\work\TerritoryWork;
+use Yii;
 
 class GenerateArrangementForm
 {
@@ -38,7 +40,7 @@ class GenerateArrangementForm
      */
     public function generate(TerritoryWork $territory)
     {
-        $concept = new TerritoryConcept();
+        $concept = Yii::createObject(TerritoryArrangementManager::class);
 
         switch ($this->genType) {
             case self::TYPE_BASE_WEIGHTS:
@@ -53,7 +55,7 @@ class GenerateArrangementForm
     }
 
     // генерация на базовых весах по возрастам
-    private function generateBase(TerritoryWork $territory, TerritoryConcept $concept)
+    private function generateBase(TerritoryWork $territory, TerritoryArrangementManager $concept)
     {
         $weights = AgesWeightWork::find()->orderBy(['ages_interval_id' => SORT_ASC])->all();
         $objects = ObjectWork::find()->where(['<=', 'length', $territory->length])->andWhere(['<=', 'width', $territory->width])->all();
@@ -64,7 +66,7 @@ class GenerateArrangementForm
     }
 
     // генерация на измененных весах по возрастам
-    private function generateChange(TerritoryWork $territory, TerritoryConcept $concept)
+    private function generateChange(TerritoryWork $territory, TerritoryArrangementManager $concept)
     {
         $weights = AgesWeightChangeableWork::find()->orderBy(['ages_interval_id' => SORT_ASC])->andWhere(['territory_id' => $territory->id])->all();
         $objects = ObjectWork::find()->where(['<=', 'length', $territory->length])->andWhere(['<=', 'width', $territory->width])->all();

@@ -14,7 +14,13 @@ class TerritoryArrangementManager
         $this->territory = $territory;
     }
 
-    public function installObject(ObjectWork $object, $left, $top, $position)
+    /**
+     * @param $object
+     * @param $left
+     * @param $top
+     * @param $position
+     */
+    public function installObject($object, $left, $top, $position)
     {
         if (!$this->allowedInstall($object, $left, $top, $position)) {
             throw new \DomainException('Здесь нельзя строить!');
@@ -32,7 +38,7 @@ class TerritoryArrangementManager
         }
     }
 
-    public function allowedInstall(ObjectWork $object, $left, $top, $position)
+    public function allowedInstall($object, $left, $top, $position)
     {
         $control = true;
         $side1 = $position == TerritoryConcept::HORIZONTAL_POSITION ? $object->length : $object->width;
@@ -52,12 +58,48 @@ class TerritoryArrangementManager
 
         for ($i = $newTop; $i < $maxTop; $i++) {
             for ($j = $newLeft; $j < $maxLeft; $j++) {
-                if ($this->territory->matrix[$i][$j] != '00') {
+                if ($this->territory->matrix[$i][$j] != '0') {
                     $control = false;
                 }
             }
         }
 
+        if ($left + ObjectWork::convertDistanceToCells($object->length, TerritoryConcept::STEP) > $this->territory->lengthCellCount ||
+            $top + ObjectWork::convertDistanceToCells($object->width, TerritoryConcept::STEP) > $this->territory->widthCellCount) {
+            $control = false;
+        }
+
+
         return $control;
+    }
+
+    // подставляет в текущую расстановку подходящий объект
+    public function getSuitableObject(array $objects, array $weights)
+    {
+
+    }
+
+    // передаем тип очередного объекта и проверяем, есть ли возможность разместить хоть 1 такой объект
+    public function isFilled($anotherObjectType)
+    {
+        if (!in_array($anotherObjectType, ObjectWork::types())) {
+            throw new \DomainException('Неизвестный тип объекта');
+        }
+
+        $objects = ObjectWork::find()->where(['object_type_id' => $anotherObjectType])->all();
+        $allowedFlag = false;
+        foreach ($objects as $object) {
+            for ($i = 0; $i < $this->territory->lengthCellCount; $i++) {
+                for ($j = 0; $j < $this->territory->widthCellCount; $j++) {
+                    if ($this->allowedInstall($object, $i, $j, TerritoryConcept::HORIZONTAL_POSITION) ||
+                        $this->allowedInstall($object, $i, $j, TerritoryConcept::VERTICAL_POSITION)) {
+                        var_dump($object->id.' - '.$i.' '.$j);
+                        $allowedFlag = true;
+                    }
+                }
+            }
+        }
+
+        return $allowedFlag;
     }
 }

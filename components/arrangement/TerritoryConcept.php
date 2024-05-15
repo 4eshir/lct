@@ -23,7 +23,7 @@ class TerritoryConcept
         $entity = new static();
         $entity->lengthCellCount = intdiv($length, $step);
         $entity->widthCellCount = intdiv($width, $step);
-        $entity->matrix = array_fill(0, $entity->lengthCellCount, array_fill('00', $entity->lengthCellCount, '00'));
+        $entity->matrix = array_fill(0, $entity->widthCellCount, array_fill('0', $entity->lengthCellCount, '0'));
 
         return $entity;
     }
@@ -58,16 +58,5 @@ class TerritoryConcept
         }
 
         fwrite($stream, "\n");
-    }
-
-    // подставляет в текущую расстановку подходящий объект
-    public function getSuitableObject(array $objects, array $weights)
-    {
-
-    }
-
-    public function isFilled()
-    {
-        return false;
     }
 }

@@ -67,7 +67,7 @@ class FillController extends Controller
         }
     }
 
-    public function actionFillPeople($territoryId)
+    public function actionPeopleTerritory($territoryId)
     {
         $entity = new PeopleTerritoryWork();
         $entity->territory_id = $territoryId;

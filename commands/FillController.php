@@ -9,6 +9,8 @@ namespace app\commands;
 
 use app\models\work\ObjectTypeWork;
 use app\models\work\ObjectWork;
+use app\models\work\PeopleTerritoryWork;
+use yii\base\BaseObject;
 use yii\base\Security;
 use yii\console\Controller;
 use yii\helpers\ArrayHelper;
@@ -63,5 +65,50 @@ class FillController extends Controller
             $object->creator = self::CREATORS[array_rand(self::CREATORS)];
             $object->save();
         }
+    }
+
+    public function actionFillPeople($territoryId)
+    {
+        $entity = new PeopleTerritoryWork();
+        $entity->territory_id = $territoryId;
+        $entity->ages_interval_id = 1;
+        $entity->count = mt_rand(0, 100);
+        $entity->save();
+
+        $entity = new PeopleTerritoryWork();
+        $entity->territory_id = $territoryId;
+        $entity->ages_interval_id = 2;
+        $entity->count = mt_rand(0, 100);
+        $entity->save();
+
+        $entity = new PeopleTerritoryWork();
+        $entity->territory_id = $territoryId;
+        $entity->ages_interval_id = 3;
+        $entity->count = mt_rand(0, 100);
+        $entity->save();
+
+        $entity = new PeopleTerritoryWork();
+        $entity->territory_id = $territoryId;
+        $entity->ages_interval_id = 4;
+        $entity->count = mt_rand(0, 100);
+        $entity->save();
+
+        $entity = new PeopleTerritoryWork();
+        $entity->territory_id = $territoryId;
+        $entity->ages_interval_id = 5;
+        $entity->count = mt_rand(0, 100);
+        $entity->save();
+
+        $entity = new PeopleTerritoryWork();
+        $entity->territory_id = $territoryId;
+        $entity->ages_interval_id = 6;
+        $entity->count = mt_rand(0, 100);
+        $entity->save();
+
+        $entity = new PeopleTerritoryWork();
+        $entity->territory_id = $territoryId;
+        $entity->ages_interval_id = 7;
+        $entity->count = mt_rand(0, 100);
+        $entity->save();
     }
 }

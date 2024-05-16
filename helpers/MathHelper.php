@@ -21,4 +21,20 @@ class MathHelper
     {
         return $mainWeight / $maxVotes / self::COUNT_RELEVANT_VOTES;
     }
+
+    /**
+     * Функция нормирования списка значений
+     * @param array $values Значения, которые необходимо нормировать
+     * @param float $basis Базис, к которому нормируем
+     */
+    public static function rationing(array $values, float $basis)
+    {
+        $sum = array_sum($values);
+        $rateValues = [];
+        foreach ($values as $value) {
+            $rateValues[] = ($value / $sum) * $basis;
+        }
+
+        return $rateValues;
+    }
 }

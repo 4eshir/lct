@@ -5,6 +5,7 @@ namespace app\components\arrangement;
 
 
 use app\models\work\ObjectWork;
+use Yii;
 
 class TerritoryConcept
 {
@@ -18,9 +19,16 @@ class TerritoryConcept
 
     public $matrix = []; // матрица размещения объектов
 
+    public TerritoryState $state; //данные по территории
+
+    public function __construct(TerritoryState $state)
+    {
+        $this->state = $state;
+    }
+
     public static function make($length, $width, $step)
     {
-        $entity = new static();
+        $entity = Yii::createObject(self::class);
         $entity->lengthCellCount = intdiv($length, $step);
         $entity->widthCellCount = intdiv($width, $step);
         $entity->matrix = array_fill(0, $entity->widthCellCount, array_fill('0', $entity->lengthCellCount, '0'));
@@ -46,6 +54,11 @@ class TerritoryConcept
                 $this->matrix[$i][$j] = (string)$object->id;
             }
         }
+    }
+
+    public function getTerritoryState()
+    {
+
     }
 
     public function showDebugMatrix($stream)

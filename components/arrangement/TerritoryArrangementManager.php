@@ -2,6 +2,7 @@
 
 namespace app\components\arrangement;
 
+use app\helpers\MathHelper;
 use app\models\work\ObjectWork;
 use yii\db\Exception;
 
@@ -12,6 +13,12 @@ class TerritoryArrangementManager
     public function __construct(TerritoryConcept $territory)
     {
         $this->territory = $territory;
+    }
+
+    public function setTerritoryState($recreationPart, $sportPart, $educationalPart, $gamePart)
+    {
+        $values = MathHelper::rationing([$recreationPart, $sportPart, $educationalPart, $gamePart], 1);
+        $this->territory->state->fill($values[0], $values[1], $values[2], $values[3]);
     }
 
     /**

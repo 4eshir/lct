@@ -9,6 +9,8 @@ namespace app\commands;
 
 use app\components\arrangement\TerritoryArrangementManager;
 use app\components\arrangement\TerritoryConcept;
+use app\helpers\MathHelper;
+use app\models\work\AgesWeightWork;
 use app\models\work\ObjectWork;
 use Yii;
 use yii\base\BaseObject;
@@ -28,6 +30,17 @@ class HelloController extends Controller
     public function actionIndex()
     {
         $manager = Yii::createObject(TerritoryArrangementManager::class);
+
+        $weights = AgesWeightWork::find()->orderBy(['ages_interval_id' => SORT_ASC])->all();
+        $recreation = 0;
+        $sport = 0;
+        $educational = 0;
+        $game = 0;
+        foreach ($weights as $weight) {
+
+        }
+
+        $manager->setTerritoryState();
         $manager->territory = TerritoryConcept::make(150, 350, TerritoryConcept::STEP);
 
         $object1 = ObjectWork::find()->where(['id' => 1])->one();
@@ -38,8 +51,7 @@ class HelloController extends Controller
         //$manager->installObject($object1, 30, 0, TerritoryConcept::HORIZONTAL_POSITION);
 
         //var_dump($manager->allowedInstall($object1, 30, 0, TerritoryConcept::HORIZONTAL_POSITION));
-
-        var_dump($manager->isFilled(ObjectWork::TYPE_RECREATION));
+        var_dump($manager->territory->state->sportPart);
 
         $manager->territory->showDebugMatrix(fopen('php://stdout', 'w'));
     }

@@ -14,16 +14,6 @@ use Yii;
 
 class GenerateArrangementForm
 {
-    /**
-     * Типы генерации
-     * base - генерация на основе базовых весов
-     * change - генерация на основе измененных весов для территории
-     * self - генерация на основе голосования человека
-     */
-    const TYPE_BASE_WEIGHTS = 'base';
-    const TYPE_CHANGE_WEIGHTS = 'change';
-    const TYPE_SELF_VOTES = 'self';
-
     public $sportCoef;
     public $gameCoef;
     public $educationalCoef;
@@ -43,11 +33,11 @@ class GenerateArrangementForm
         $concept = Yii::createObject(TerritoryArrangementManager::class);
 
         switch ($this->genType) {
-            case self::TYPE_BASE_WEIGHTS:
+            case TerritoryConcept::TYPE_BASE_WEIGHTS:
                 return $this->generateBase($territory, $concept);
-            case self::TYPE_CHANGE_WEIGHTS:
+            case TerritoryConcept::TYPE_CHANGE_WEIGHTS:
                 return $this->generateChange($territory, $concept);
-            case self::TYPE_SELF_VOTES:
+            case TerritoryConcept::TYPE_SELF_VOTES:
                 return $this->generateVotes($territory, $concept);
             default:
                 return -1;

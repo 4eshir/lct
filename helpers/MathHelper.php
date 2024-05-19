@@ -26,13 +26,26 @@ class MathHelper
      * Функция нормирования списка значений
      * @param array $values Значения, которые необходимо нормировать
      * @param float $basis Базис, к которому нормируем
+     * @param int $precision Точность для округления нормированных значений
      */
-    public static function rationing(array $values, float $basis)
+    public static function rationing(array $values, float $basis, int $precision = 2)
     {
         $sum = array_sum($values);
         $rateValues = [];
         foreach ($values as $value) {
-            $rateValues[] = ($value / $sum) * $basis;
+            $rateValues[] = round(($value / $sum) * $basis, $precision);
+        }
+
+        //корректировка нормирования
+        $diff = array_sum($rateValues) - $basis;
+        if ($diff > 0) {
+            $maxValue = max($rateValues);
+            $maxIndex = array_search($maxValue, $rateValues);
+            $rateValues[$maxIndex] -= $diff;
+        } elseif ($diff < 0) {
+            $minValue = min($rateValues);
+            $minIndex = array_search($minValue, $rateValues);
+            $rateValues[$minIndex] += abs($diff);
         }
 
         return $rateValues;

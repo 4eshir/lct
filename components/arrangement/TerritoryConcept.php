@@ -9,6 +9,16 @@ use Yii;
 
 class TerritoryConcept
 {
+    /**
+     * Типы генерации пространства
+     * base - генерация на основе базовых весов
+     * change - генерация на основе измененных весов для территории
+     * self - генерация на основе голосования человека
+     */
+    const TYPE_BASE_WEIGHTS = 'base';
+    const TYPE_CHANGE_WEIGHTS = 'change';
+    const TYPE_SELF_VOTES = 'self';
+
     const HORIZONTAL_POSITION = 0;
     const VERTICAL_POSITION = 1;
     const STEP = 10; // размер "ячейки" в сантиметрах
@@ -56,9 +66,9 @@ class TerritoryConcept
         }
     }
 
-    public function getTerritoryState()
+    public function getState()
     {
-
+        return $this->state;
     }
 
     public function showDebugMatrix($stream)

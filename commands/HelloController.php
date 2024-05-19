@@ -9,7 +9,9 @@ namespace app\commands;
 
 use app\components\arrangement\TerritoryArrangementManager;
 use app\components\arrangement\TerritoryConcept;
+use app\helpers\FuzzyLogicHelper;
 use app\helpers\MathHelper;
+use app\models\FuzzyIntervals;
 use app\models\work\AgesWeightWork;
 use app\models\work\ObjectWork;
 use Yii;
@@ -31,16 +33,8 @@ class HelloController extends Controller
     {
         $manager = Yii::createObject(TerritoryArrangementManager::class);
 
-        $weights = AgesWeightWork::find()->orderBy(['ages_interval_id' => SORT_ASC])->all();
-        $recreation = 0;
-        $sport = 0;
-        $educational = 0;
-        $game = 0;
-        foreach ($weights as $weight) {
-
-        }
-
-        $manager->setTerritoryState();
+        $manager->setTerritoryState(1, TerritoryConcept::TYPE_BASE_WEIGHTS);
+        var_dump($manager->territory->state);
         $manager->territory = TerritoryConcept::make(150, 350, TerritoryConcept::STEP);
 
         $object1 = ObjectWork::find()->where(['id' => 1])->one();
@@ -54,5 +48,25 @@ class HelloController extends Controller
         var_dump($manager->territory->state->sportPart);
 
         $manager->territory->showDebugMatrix(fopen('php://stdout', 'w'));
+    }
+
+    public function actionTest()
+    {
+        $fuzzy = new FuzzyIntervals();
+        $fuzzy->createIntervals([0, 2, 4, 6]);
+
+        for ($i = 0; $i < count($fuzzy->intervals); $i++) {
+            if ($i == 0) {
+                $intervalType = FuzzyIntervals::INTERVAL_TYPE_START;
+            } else if ($i == count($fuzzy->intervals) - 1) {
+                $intervalType = FuzzyIntervals::INTERVAL_TYPE_END;
+            } else {
+                $intervalType = FuzzyIntervals::INTERVAL_TYPE_MIDDLE;
+            }
+
+            var_dump(FuzzyLogicHelper::calculateSafeInterval($fuzzy->intervals[$i], $intervalType));
+        }
+
+        var_dump($fuzzy->belongToInterval(4.6));
     }
 }

@@ -3,7 +3,10 @@
 namespace app\components\arrangement;
 
 use app\helpers\MathHelper;
+use app\models\work\AgesWeightChangeableWork;
+use app\models\work\AgesWeightWork;
 use app\models\work\ObjectWork;
+use app\models\work\PeopleTerritoryWork;
 use yii\db\Exception;
 
 class TerritoryArrangementManager
@@ -15,9 +18,43 @@ class TerritoryArrangementManager
         $this->territory = $territory;
     }
 
-    public function setTerritoryState($recreationPart, $sportPart, $educationalPart, $gamePart)
+    public function setTerritoryState($territoryId, $genType)
     {
-        $values = MathHelper::rationing([$recreationPart, $sportPart, $educationalPart, $gamePart], 1);
+        $people = PeopleTerritoryWork::find()->where(['territory_id' => $territoryId])->orderBy(['ages_interval_id' => SORT_ASC])->all();
+        $recreationPart = 0;
+        $sportPart = 0;
+        $educationPart = 0;
+        $gamePart = 0;
+        $weights = [];
+
+        foreach ($people as $interval) {
+            /** @var PeopleTerritoryWork $interval */
+            switch ($genType) {
+                case TerritoryConcept::TYPE_BASE_WEIGHTS:
+                    $weights = AgesWeightWork::find()->where(['ages_interval_id' => $interval->ages_interval_id])->one();
+                    break;
+                case TerritoryConcept::TYPE_CHANGE_WEIGHTS:
+                    $weights = AgesWeightChangeableWork::find()->where(['ages_interval_id' => $interval->ages_interval_id])->andWhere(['territory_id' => $territoryId])->one();
+                    break;
+                case TerritoryConcept::TYPE_SELF_VOTES:
+                    // coming soon
+                    break;
+                default:
+                    throw new \DomainException('Неизвестный тип генерации');
+            }
+
+            $recreationPart += $interval->count * $weights->recreation_weight;
+            $sportPart += $interval->count * $weights->sport_weight;
+            $educationPart += $interval->count * $weights->education_weight;
+            $gamePart += $interval->count * $weights->game_weight;
+        }
+
+        $recreationPart = round($recreationPart, 2);
+        $sportPart = round($sportPart, 2);
+        $educationPart = round($educationPart, 2);
+        $gamePart = round($gamePart, 2);
+
+        $values = MathHelper::rationing([$recreationPart, $sportPart, $educationPart, $gamePart], 1);
         $this->territory->state->fill($values[0], $values[1], $values[2], $values[3]);
     }
 

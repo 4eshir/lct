@@ -32,10 +32,15 @@ class HelloController extends Controller
     public function actionIndex()
     {
         $manager = Yii::createObject(TerritoryArrangementManager::class);
-
-        $manager->setTerritoryState(1, TerritoryConcept::TYPE_BASE_WEIGHTS);
-        var_dump($manager->territory->state);
         $manager->territory = TerritoryConcept::make(150, 350, TerritoryConcept::STEP);
+        $cellsCount = $manager->territory->widthCellCount * $manager->territory->lengthCellCount;
+
+        $manager->setTerritoryState(1, TerritoryConcept::TYPE_BASE_WEIGHTS, $cellsCount);
+        $manager->territory->setFullnessIntervals([0, $cellsCount / 4, $cellsCount / 2, $cellsCount / 1.5, $cellsCount]);
+
+        var_dump($manager->territory->fullnessIntervals->intervals);
+        var_dump($manager->territory->lengthCellCount);
+        var_dump($manager->territory->widthCellCount);
 
         $object1 = ObjectWork::find()->where(['id' => 1])->one();
 

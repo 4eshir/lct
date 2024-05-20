@@ -18,7 +18,7 @@ class TerritoryArrangementManager
         $this->territory = $territory;
     }
 
-    public function setTerritoryState($territoryId, $genType)
+    public function setTerritoryState($territoryId, $genType, $cellsCount)
     {
         $people = PeopleTerritoryWork::find()->where(['territory_id' => $territoryId])->orderBy(['ages_interval_id' => SORT_ASC])->all();
         $recreationPart = 0;
@@ -55,7 +55,11 @@ class TerritoryArrangementManager
         $gamePart = round($gamePart, 2);
 
         $values = MathHelper::rationing([$recreationPart, $sportPart, $educationPart, $gamePart], 1);
-        $this->territory->state->fill($values[0], $values[1], $values[2], $values[3]);
+        $this->territory->state->fill(
+            floor($values[0] * $cellsCount),
+            floor($values[1] * $cellsCount),
+            floor($values[2] * $cellsCount),
+            floor($values[3] * $cellsCount));
     }
 
     /**

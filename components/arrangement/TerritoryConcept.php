@@ -4,6 +4,7 @@
 namespace app\components\arrangement;
 
 
+use app\models\FuzzyIntervals;
 use app\models\work\ObjectWork;
 use Yii;
 
@@ -30,10 +31,12 @@ class TerritoryConcept
     public $matrix = []; // матрица размещения объектов
 
     public TerritoryState $state; //данные по территории
+    public FuzzyIntervals $fullnessIntervals; //интервалы нечеткой логики для заполненности
 
-    public function __construct(TerritoryState $state)
+    public function __construct(TerritoryState $state, FuzzyIntervals $fullnessIntervals)
     {
         $this->state = $state;
+        $this->fullnessIntervals = $fullnessIntervals;
     }
 
     public static function make($length, $width, $step)
@@ -44,6 +47,15 @@ class TerritoryConcept
         $entity->matrix = array_fill(0, $entity->widthCellCount, array_fill('0', $entity->lengthCellCount, '0'));
 
         return $entity;
+    }
+
+    /**
+     * @param array $points формат: [0, 2, 4, 6]
+     * @return void
+     */
+    public function setFullnessIntervals(array $points)
+    {
+        $this->fullnessIntervals->createIntervals($points);
     }
 
     // left и top это позиционирование, аналогичное абсолютному в HTML (уже с шагом, т.к. берем из JS)

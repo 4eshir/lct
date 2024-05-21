@@ -33,7 +33,7 @@ class FuzzyIntervals
 
         $this->intervals = [];
         for ($i = 0; $i < count($data) - 1; $i++) {
-            $this->intervals[] = [$data[$i], $data[$i + 1]];
+            $this->intervals[] = [floor($data[$i]), floor($data[$i + 1])];
         }
     }
 
@@ -59,18 +59,36 @@ class FuzzyIntervals
                     // здесь алгоритм присваивания значения к одному из граничных интервалов (если слева)
                     $randomChoice = mt_rand(0, 1);
                     return $randomChoice == 0 ?
-                        $this->intervals[$i] :
-                        $this->intervals[$i - 1];
+                        [$i => $this->intervals[$i]] :
+                        [$i => $this->intervals[$i - 1]];
                 } else if ($value > $safeSection[1]) {
                     // здесь алгоритм присваивания значения к одному из граничных интервалов (если справа)
                     $randomChoice = mt_rand(0, 1);
                     return $randomChoice == 0 ?
-                        $this->intervals[$i] :
-                        $this->intervals[$i + 1];
+                        [$i => $this->intervals[$i]] :
+                        [$i => $this->intervals[$i + 1]];
                 }
             }
         }
 
         return -1;
+    }
+
+    /**
+     * Принадлежность к последнему интервалу
+     * @return bool
+     */
+    public function belongToLastInterval($value)
+    {
+        return array_key_first($this->belongToInterval($value)) == count($this->intervals) - 1;
+    }
+
+    /**
+     * Принадлежность к предпоследнему интервалу
+     * @return bool
+     */
+    public function belongToLastButOneInterval($value)
+    {
+        return $this->belongToInterval($value) == count($this->intervals) - 2;
     }
 }

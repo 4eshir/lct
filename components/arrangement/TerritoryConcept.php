@@ -31,12 +31,17 @@ class TerritoryConcept
     public $matrix = []; // матрица размещения объектов
 
     public TerritoryState $state; //данные по территории
-    public FuzzyIntervals $fullnessIntervals; //интервалы нечеткой логики для заполненности
 
-    public function __construct(TerritoryState $state, FuzzyIntervals $fullnessIntervals)
+    /** @var array ['name' => [0, 2, 4, 6]] @see FuzzyIntervals */
+    public array $fullnessIntervals; //интервалы нечеткой логики для заполненности
+
+    public function __construct(TerritoryState $state)
     {
         $this->state = $state;
-        $this->fullnessIntervals = $fullnessIntervals;
+        $this->fullnessIntervals['sport'] = new FuzzyIntervals();
+        $this->fullnessIntervals['game'] = new FuzzyIntervals();
+        $this->fullnessIntervals['recreation'] = new FuzzyIntervals();
+        $this->fullnessIntervals['education'] = new FuzzyIntervals();
     }
 
     public static function make($length, $width, $step)
@@ -50,12 +55,15 @@ class TerritoryConcept
     }
 
     /**
-     * @param array $points формат: [0, 2, 4, 6]
+     * @param array $points формат: ['name' => [0, 2, 4, 6], ...]
      * @return void
      */
     public function setFullnessIntervals(array $points)
     {
-        $this->fullnessIntervals->createIntervals($points);
+        $this->fullnessIntervals['sport']->createIntervals($points['sport']);
+        $this->fullnessIntervals['game']->createIntervals($points['game']);
+        $this->fullnessIntervals['recreation']->createIntervals($points['recreation']);
+        $this->fullnessIntervals['education']->createIntervals($points['education']);
     }
 
     // left и top это позиционирование, аналогичное абсолютному в HTML (уже с шагом, т.к. берем из JS)

@@ -70,6 +70,8 @@ class TerritoryArrangementManager
      */
     public function installObject($object, $left, $top, $position)
     {
+        /** @var ObjectWork $object */
+
         if (!$this->allowedInstall($object, $left, $top, $position)) {
             throw new \DomainException('Здесь нельзя строить!');
         }
@@ -83,6 +85,24 @@ class TerritoryArrangementManager
                 break;
             default:
                 throw new \DomainException('Неизвестный тип позиционирования');
+        }
+
+        $object->convertDimensionsToCells(TerritoryConcept::STEP);
+        switch ($object->object_type_id) {
+            case ObjectWork::TYPE_RECREATION:
+                $this->territory->state->addRecreation($object->lengthCells * $object->widthCells);
+                break;
+            case ObjectWork::TYPE_SPORT:
+                $this->territory->state->addSport($object->lengthCells * $object->widthCells);
+                break;
+            case ObjectWork::TYPE_EDUCATION:
+                $this->territory->state->addEducation($object->lengthCells * $object->widthCells);
+                break;
+            case ObjectWork::TYPE_GAME:
+                $this->territory->state->addGame($object->lengthCells * $object->widthCells);
+                break;
+            default:
+                throw new Exception('Неизвестный тип объекта');
         }
     }
 

@@ -32,7 +32,7 @@ class HelloController extends Controller
     public function actionIndex()
     {
         $manager = Yii::createObject(TerritoryArrangementManager::class);
-        $manager->territory = TerritoryConcept::make(150, 350, TerritoryConcept::STEP);
+        $manager->territory = TerritoryConcept::make(150, 150, TerritoryConcept::STEP);
         $cellsCount = $manager->territory->widthCellCount * $manager->territory->lengthCellCount;
 
         $manager->setTerritoryState(1, TerritoryConcept::TYPE_BASE_WEIGHTS, $cellsCount);
@@ -47,7 +47,20 @@ class HelloController extends Controller
 
         $object1 = ObjectWork::find()->where(['id' => 1])->one();
 
-        $manager->getSuitableObject();
+        $fills = [
+            ObjectWork::TYPE_RECREATION => $manager->territory->state->recreationPart,
+            ObjectWork::TYPE_SPORT => $manager->territory->state->sportPart,
+            ObjectWork::TYPE_EDUCATION => $manager->territory->state->educationPart,
+            ObjectWork::TYPE_GAME => $manager->territory->state->gamePart,
+        ];
+
+        var_dump($fills);
+
+        $endFlag = true;
+        while (!$manager->isFilled() && $endFlag) {
+            var_dump('boobs');
+            $endFlag = $manager->getSuitableObject();
+        }
         //$manager->installObject($object1, 0, 0, TerritoryConcept::HORIZONTAL_POSITION);
         //$manager->installObject($object1, 0, 10, TerritoryConcept::HORIZONTAL_POSITION);
         //$manager->installObject($object1, 0, 20, TerritoryConcept::HORIZONTAL_POSITION);

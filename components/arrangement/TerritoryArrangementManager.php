@@ -118,11 +118,11 @@ class TerritoryArrangementManager
 
         $maxTop = $top + ObjectWork::convertDistanceToCells($side2,TerritoryConcept::STEP);
         $maxTop = $maxTop + $deadZoneCells < count($this->territory->matrix) ? $maxTop + $deadZoneCells : count($this->territory->matrix);
-        $maxTop -= 1;
+        //$maxTop -= 1;
 
         $maxLeft = $left + ObjectWork::convertDistanceToCells($side1, TerritoryConcept::STEP);
         $maxLeft = $maxLeft + $deadZoneCells < count($this->territory->matrix[0]) ? $maxLeft + $deadZoneCells : count($this->territory->matrix[0]);
-        $maxLeft -= 1;
+        //$maxLeft -= 1;
 
         for ($i = $newTop; $i < $maxTop; $i++) {
             for ($j = $newLeft; $j < $maxLeft; $j++) {
@@ -144,63 +144,63 @@ class TerritoryArrangementManager
     // подставляет в текущую расстановку подходящий объект
     public function getSuitableObject()
     {
-        $fillsArray = [$this->territory->state->fillRecreation, $this->territory->state->fillGame, $this->territory->state->fillEducation, $this->territory->state->fillSport];
-        $objectType = $this->territory->state->getMinimumFilledType($fillsArray);
-        $objectTypeText = 'sport';
-        $fillType = $this->territory->state->fillSport;
-        if ($objectType == 4) {
-            $objectTypeText = 'game';
-            $fillType = $this->territory->state->fillGame;
-        }
-        if ($objectType == 3) {
-            $objectTypeText = 'education';
-            $fillType = $this->territory->state->fillEducation;
-        }
-        if ($objectType == 1) {
-            $objectTypeText = 'recreation';
-            $fillType = $this->territory->state->fillRecreation;
-        }
+        $fills = [
+            ObjectWork::TYPE_RECREATION => $this->territory->state->fillRecreation,
+            ObjectWork::TYPE_SPORT => $this->territory->state->fillSport,
+            ObjectWork::TYPE_EDUCATION => $this->territory->state->fillEducation,
+            ObjectWork::TYPE_GAME => $this->territory->state->fillGame,
+        ];
+
+        $this->territory->state->getSortedFillsDesc($fills);
 
         $installFlag = false;
-        while (count($fillsArray) > 0 && !$installFlag) {
-            $objects = ObjectWork::find()->where(['object_type_id' => $objectType])->all();
+        foreach ($fills as $key => $fill) {
+            $objectTypeText = 'recreation';
+            $fillType = $this->territory->state->fillRecreation;
+            if ($key == 2) {
+                $objectTypeText = 'sport';
+                $fillType = $this->territory->state->fillSport;
+            }
+            if ($key == 3) {
+                $objectTypeText = 'education';
+                $fillType = $this->territory->state->fillEducation;
+            }
+            if ($key == 4) {
+                $objectTypeText = 'game';
+                $fillType = $this->territory->state->fillGame;
+            }
+
+            $objects = ObjectWork::find()->where(['object_type_id' => $key])->all();
             if (!$this->territory->fullnessIntervals[$objectTypeText]->belongToLastInterval($fillType)) {
                 foreach ($objects as $object) {
                     $point = $this->findInstallPoint($object);
+                    var_dump($point);
                     if ($point) {
-                        var_dump($point);
                         $installFlag = true;
                         $this->installObject($object, $point[0], $point[1], $point[2]);
+                        break;
                     }
                 }
             }
-            if (!$installFlag) {
-                unset($fillsArray[array_search($objectTypeText)]);
+            if ($installFlag) {
+                break;
             }
         }
 
 
         // если не получилось подобрать объект
-        return -1;
+        return $installFlag;
     }
 
     // передаем тип очередного объекта и проверяем, есть ли возможность разместить хоть 1 такой объект
-    public function isFilled($anotherObjectType)
+    public function isFilled()
     {
-        if (!in_array($anotherObjectType, ObjectWork::types())) {
-            throw new \DomainException('Неизвестный тип объекта');
-        }
-
-        $objects = ObjectWork::find()->where(['object_type_id' => $anotherObjectType])->all();
-        $allowedFlag = false;
+        $objects = ObjectWork::find()->all();
+        $allowedFlag = true;
         foreach ($objects as $object) {
-            for ($i = 0; $i < $this->territory->lengthCellCount; $i++) {
-                for ($j = 0; $j < $this->territory->widthCellCount; $j++) {
-                    if ($this->allowedInstall($object, $i, $j, TerritoryConcept::HORIZONTAL_POSITION) ||
-                        $this->allowedInstall($object, $i, $j, TerritoryConcept::VERTICAL_POSITION)) {
-                        $allowedFlag = true;
-                    }
-                }
+            $object->convertDimensionsToCells(TerritoryConcept::STEP);
+            if ($this->findInstallPoint($object)) {
+                $allowedFlag = false;
             }
         }
 

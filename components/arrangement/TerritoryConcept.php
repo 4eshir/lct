@@ -32,7 +32,9 @@ class TerritoryConcept
 
     public TerritoryState $state; //данные по территории
 
-    /** @var array ['name' => [0, 2, 4, 6]] @see FuzzyIntervals */
+    /** @var array ['name' => [0, 2, 4, 6]]
+     * @see FuzzyIntervals
+     */
     public array $fullnessIntervals; //интервалы нечеткой логики для заполненности
 
     public function __construct(TerritoryState $state)

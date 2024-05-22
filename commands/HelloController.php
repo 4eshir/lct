@@ -47,17 +47,12 @@ class HelloController extends Controller
 
         $object1 = ObjectWork::find()->where(['id' => 1])->one();
 
-        $manager->installObject($object1, 0, 0, TerritoryConcept::HORIZONTAL_POSITION);
-        $manager->installObject($object1, 0, 10, TerritoryConcept::HORIZONTAL_POSITION);
+        $manager->getSuitableObject();
+        //$manager->installObject($object1, 0, 0, TerritoryConcept::HORIZONTAL_POSITION);
+        //$manager->installObject($object1, 0, 10, TerritoryConcept::HORIZONTAL_POSITION);
         //$manager->installObject($object1, 0, 20, TerritoryConcept::HORIZONTAL_POSITION);
         //$manager->installObject($object1, 30, 0, TerritoryConcept::HORIZONTAL_POSITION);
 
-        var_dump($manager->territory->state->recreationPart);
-        var_dump($manager->territory->state->fillRecreation);
-        //var_dump($manager->allowedInstall($object1, 30, 0, TerritoryConcept::HORIZONTAL_POSITION));
-        var_dump($manager->territory->fullnessIntervals['recreation']->belongToLastInterval($manager->territory->state->fillRecreation));
-        var_dump($manager->territory->fullnessIntervals['recreation']->belongToLastButOneInterval($manager->territory->state->fillRecreation));
-        var_dump($manager->territory->fullnessIntervals['recreation']->belongToInterval($manager->territory->state->fillRecreation));
 
         $manager->territory->showDebugMatrix(fopen('php://stdout', 'w'));
     }

@@ -4,6 +4,7 @@
 namespace app\components\arrangement;
 
 
+use app\models\work\ObjectWork;
 use yii\db\Exception;
 
 class TerritoryState
@@ -68,5 +69,22 @@ class TerritoryState
         }
 
         $this->fillEducation += $cells;
+    }
+
+    public function getMinimumFilledType(array $fills)
+    {
+        $minimum = min($fills);
+        switch ($minimum) {
+            case $this->fillRecreation:
+                return ObjectWork::TYPE_RECREATION;
+            case $this->fillSport:
+                return ObjectWork::TYPE_SPORT;
+            case $this->fillGame:
+                return ObjectWork::TYPE_GAME;
+            case $this->fillEducation:
+                return ObjectWork::TYPE_EDUCATION;
+            default:
+                throw new Exception('Неизвестный тип объекта');
+        }
     }
 }

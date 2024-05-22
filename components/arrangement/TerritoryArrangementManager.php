@@ -142,9 +142,46 @@ class TerritoryArrangementManager
     }
 
     // подставляет в текущую расстановку подходящий объект
-    public function getSuitableObject(array $objects, array $weights)
+    public function getSuitableObject()
     {
+        $fillsArray = [$this->territory->state->fillRecreation, $this->territory->state->fillGame, $this->territory->state->fillEducation, $this->territory->state->fillSport];
+        $objectType = $this->territory->state->getMinimumFilledType($fillsArray);
+        $objectTypeText = 'sport';
+        $fillType = $this->territory->state->fillSport;
+        if ($objectType == 4) {
+            $objectTypeText = 'game';
+            $fillType = $this->territory->state->fillGame;
+        }
+        if ($objectType == 3) {
+            $objectTypeText = 'education';
+            $fillType = $this->territory->state->fillEducation;
+        }
+        if ($objectType == 1) {
+            $objectTypeText = 'recreation';
+            $fillType = $this->territory->state->fillRecreation;
+        }
 
+        $installFlag = false;
+        while (count($fillsArray) > 0 && !$installFlag) {
+            $objects = ObjectWork::find()->where(['object_type_id' => $objectType])->all();
+            if (!$this->territory->fullnessIntervals[$objectTypeText]->belongToLastInterval($fillType)) {
+                foreach ($objects as $object) {
+                    $point = $this->findInstallPoint($object);
+                    if ($point) {
+                        var_dump($point);
+                        $installFlag = true;
+                        $this->installObject($object, $point[0], $point[1], $point[2]);
+                    }
+                }
+            }
+            if (!$installFlag) {
+                unset($fillsArray[array_search($objectTypeText)]);
+            }
+        }
+
+
+        // если не получилось подобрать объект
+        return -1;
     }
 
     // передаем тип очередного объекта и проверяем, есть ли возможность разместить хоть 1 такой объект
@@ -161,7 +198,6 @@ class TerritoryArrangementManager
                 for ($j = 0; $j < $this->territory->widthCellCount; $j++) {
                     if ($this->allowedInstall($object, $i, $j, TerritoryConcept::HORIZONTAL_POSITION) ||
                         $this->allowedInstall($object, $i, $j, TerritoryConcept::VERTICAL_POSITION)) {
-                        var_dump($object->id.' - '.$i.' '.$j);
                         $allowedFlag = true;
                     }
                 }
@@ -169,5 +205,31 @@ class TerritoryArrangementManager
         }
 
         return $allowedFlag;
+    }
+
+    // ищем первую подходящую точку для установки объекта
+
+    /**
+     * @param ObjectWork $object
+     * @return array|false|int[]|mixed формат [left, top, position]
+     */
+    private function findInstallPoint(ObjectWork $object)
+    {
+        $allowedFlag = false;
+        $point = [];
+        for ($i = 0; $i < $this->territory->lengthCellCount; $i++) {
+            for ($j = 0; $j < $this->territory->widthCellCount; $j++) {
+                if ($this->allowedInstall($object, $i, $j, TerritoryConcept::HORIZONTAL_POSITION)) {
+                    $point = count($point) == 0 ? [$i, $j, TerritoryConcept::HORIZONTAL_POSITION] : $point;
+                    $allowedFlag = true;
+                }
+                if ($this->allowedInstall($object, $i, $j, TerritoryConcept::VERTICAL_POSITION)) {
+                    $point = count($point) == 0 ? [$i, $j, TerritoryConcept::VERTICAL_POSITION] : $point;
+                    $allowedFlag = true;
+                }
+            }
+        }
+
+        return $allowedFlag ? $point : false;
     }
 }

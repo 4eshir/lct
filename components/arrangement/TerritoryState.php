@@ -4,6 +4,7 @@
 namespace app\components\arrangement;
 
 
+use app\models\ObjectExtended;
 use app\models\work\ObjectWork;
 use yii\db\Exception;
 
@@ -21,6 +22,12 @@ class TerritoryState
     public $fillGame;
     public $fillRecreation;
     public $fillEducation;
+
+    /** @var array формат [id => count] */
+    public $objectIds = [];
+
+    /** @var ObjectExtended[]  */
+    public $objectsList = [];
 
     public function fill($recreationPart, $sportPart, $educationalPart, $gamePart)
     {
@@ -74,5 +81,53 @@ class TerritoryState
     public function getSortedFillsDesc(array &$fills)
     {
         arsort($fills);
+    }
+
+    public function addToObjectIds($objectId)
+    {
+        if (!array_key_exists($objectId, $this->objectIds)) {
+            $this->objectIds[$objectId] = 1;
+        }
+        else {
+            $this->objectIds[$objectId] += 1;
+        }
+    }
+
+    public function addToObjectsList($object, $left, $top, $position)
+    {
+        $this->objectsList[] = new ObjectExtended($object, $left, $top, $position);
+    }
+
+    public function deleteObjectById($objectId, $left, $top)
+    {
+        if ($this->objectIds[$objectId] - 1 == 0) {
+            unset($this->objectIds[$objectId]);
+        }
+        else {
+            $this->objectIds[$objectId] -= 1;
+        }
+
+        $unsetKey = null;
+        foreach ($this->objectsList as $key => $object) {
+            /** @var ObjectExtended $object */
+            if ($object->object->id == $objectId && $object->left == $left && $object->top == $top) {
+                $unsetKey = $key;
+                break;
+            }
+        }
+
+        if ($unsetKey !== null) {
+            unset($this->objectsList[$unsetKey]);
+        }
+    }
+
+    public function getDebugFill()
+    {
+        return [
+            ObjectWork::TYPE_RECREATION => [$this->recreationPart, $this->fillRecreation],
+            ObjectWork::TYPE_SPORT => [$this->sportPart, $this->fillSport],
+            ObjectWork::TYPE_EDUCATION => [$this->educationPart, $this->fillEducation],
+            ObjectWork::TYPE_GAME => [$this->gamePart, $this->fillGame],
+        ];
     }
 }

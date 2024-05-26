@@ -18,8 +18,18 @@ class TerritoryArrangementManager
         $this->territory = $territory;
     }
 
-    public function setTerritoryState($territoryId, $genType, $cellsCount)
+    /**
+     * @param int $territoryId идентификатор территории
+     * @param int $genType тип генерации (базовые веса, измененные веса, личные голоса)
+     * @param int $cellsCount количество "ячеек" на площадке
+     * @param array $votes необязательный параметр, массив голосов пользователя (пример: [ObjectWork::TYPE_RECREATION => 5, ...])
+     */
+    public function setTerritoryState($territoryId, $genType, $cellsCount, $votes = [])
     {
+        if ($genType == TerritoryConcept::TYPE_SELF_VOTES && count($votes) !== 4) {
+            throw new Exception('Некорректно заполнен массив $votes');
+        }
+
         $people = PeopleTerritoryWork::find()->where(['territory_id' => $territoryId])->orderBy(['ages_interval_id' => SORT_ASC])->all();
         $recreationPart = 0;
         $sportPart = 0;
@@ -43,16 +53,28 @@ class TerritoryArrangementManager
                     throw new \DomainException('Неизвестный тип генерации');
             }
 
-            $recreationPart += $interval->count * $weights->recreation_weight;
-            $sportPart += $interval->count * $weights->sport_weight;
-            $educationPart += $interval->count * $weights->education_weight;
-            $gamePart += $interval->count * $weights->game_weight;
+            if ($genType !== TerritoryConcept::TYPE_SELF_VOTES) {
+                $recreationPart += $interval->count * $weights->recreation_weight;
+                $sportPart += $interval->count * $weights->sport_weight;
+                $educationPart += $interval->count * $weights->education_weight;
+                $gamePart += $interval->count * $weights->game_weight;
+            }
+
         }
 
-        $recreationPart = round($recreationPart, 2);
-        $sportPart = round($sportPart, 2);
-        $educationPart = round($educationPart, 2);
-        $gamePart = round($gamePart, 2);
+        if ($genType !== TerritoryConcept::TYPE_SELF_VOTES) {
+            $recreationPart = round($recreationPart, 2);
+            $sportPart = round($sportPart, 2);
+            $educationPart = round($educationPart, 2);
+            $gamePart = round($gamePart, 2);
+        }
+        else {
+            $recreationPart = round($votes[ObjectWork::TYPE_RECREATION] / 10, 2);
+            $sportPart = round($votes[ObjectWork::TYPE_SPORT] / 10, 2);
+            $educationPart = round($votes[ObjectWork::TYPE_EDUCATION] / 10, 2);
+            $gamePart = round($votes[ObjectWork::TYPE_GAME] / 10, 2);
+        }
+
 
         $values = MathHelper::rationing([$recreationPart, $sportPart, $educationPart, $gamePart], 1);
         $this->territory->state->fill(
@@ -70,40 +92,56 @@ class TerritoryArrangementManager
      */
     public function installObject($object, $left, $top, $position)
     {
-        /** @var ObjectWork $object */
+        try {
+            /** @var ObjectWork $object */
 
-        if (!$this->allowedInstall($object, $left, $top, $position)) {
-            throw new \DomainException('Здесь нельзя строить!');
+            if (!$this->allowedInstall($object, $left, $top, $position)) {
+                throw new \Exception('Здесь нельзя строить!');
+            }
+
+            switch ($position) {
+                case TerritoryConcept::HORIZONTAL_POSITION:
+                    $this->territory->installHorizontalObject($object, $left, $top);
+                    break;
+                case TerritoryConcept::VERTICAL_POSITION:
+                    $this->territory->installVerticalObject($object, $left, $top);
+                    break;
+                default:
+                    throw new \Exception('Неизвестный тип позиционирования');
+            }
+
+            $object->convertDimensionsToCells(TerritoryConcept::STEP);
+
+            switch ($object->object_type_id) {
+                case ObjectWork::TYPE_RECREATION:
+                    $this->territory->state->addRecreation($object->lengthCells * $object->widthCells);
+                    break;
+                case ObjectWork::TYPE_SPORT:
+                    $this->territory->state->addSport($object->lengthCells * $object->widthCells);
+                    break;
+                case ObjectWork::TYPE_EDUCATION:
+                    $this->territory->state->addEducation($object->lengthCells * $object->widthCells);
+                    break;
+                case ObjectWork::TYPE_GAME:
+                    $this->territory->state->addGame($object->lengthCells * $object->widthCells);
+                    break;
+                default:
+                    throw new Exception('Неизвестный тип объекта');
+            }
+        }
+        catch (\Exception $e) {
+            return;
         }
 
-        switch ($position) {
-            case TerritoryConcept::HORIZONTAL_POSITION:
-                $this->territory->installHorizontalObject($object, $left, $top);
-                break;
-            case TerritoryConcept::VERTICAL_POSITION:
-                $this->territory->installVerticalObject($object, $left, $top);
-                break;
-            default:
-                throw new \DomainException('Неизвестный тип позиционирования');
-        }
+        $this->territory->state->addToObjectIds($object->id);
+        $this->territory->state->addToObjectsList($object, $left, $top, $position);
+    }
 
-        $object->convertDimensionsToCells(TerritoryConcept::STEP);
-        switch ($object->object_type_id) {
-            case ObjectWork::TYPE_RECREATION:
-                $this->territory->state->addRecreation($object->lengthCells * $object->widthCells);
-                break;
-            case ObjectWork::TYPE_SPORT:
-                $this->territory->state->addSport($object->lengthCells * $object->widthCells);
-                break;
-            case ObjectWork::TYPE_EDUCATION:
-                $this->territory->state->addEducation($object->lengthCells * $object->widthCells);
-                break;
-            case ObjectWork::TYPE_GAME:
-                $this->territory->state->addGame($object->lengthCells * $object->widthCells);
-                break;
-            default:
-                throw new Exception('Неизвестный тип объекта');
-        }
+    public function removeObject($object, $left, $top, $position)
+    {
+        // тут надо затирать в матрице объект
+
+        $this->territory->state->deleteObjectById($object->id, $left, $top);
     }
 
     public function allowedInstall($object, $left, $top, $position)
@@ -142,7 +180,7 @@ class TerritoryArrangementManager
     }
 
     // подставляет в текущую расстановку подходящий объект
-    public function getSuitableObject()
+    public function setSuitableObject()
     {
         $fills = [
             ObjectWork::TYPE_RECREATION => $this->territory->state->fillRecreation,
@@ -170,12 +208,19 @@ class TerritoryArrangementManager
                 $fillType = $this->territory->state->fillGame;
             }
 
-            $objects = ObjectWork::find()->where(['object_type_id' => $key])->all();
+            $objects = ObjectWork::find()->where(['object_type_id' => $key])->andWhere(['NOT IN', 'id', array_keys($this->territory->state->objectIds)])->all();
+            arsort($this->territory->state->objectIds);
+            $objectIdsCopy = $this->territory->state->objectIds;
+            //var_dump($objectIdsCopy);
+            while (count($objects) == 0 && count($objectIdsCopy) > 0) {
+                $objects = ObjectWork::find()->where(['object_type_id' => $key])->andWhere(['NOT IN', 'id', array_keys($objectIdsCopy)])->all();
+                array_pop($objectIdsCopy);
+            }
             if (!$this->territory->fullnessIntervals[$objectTypeText]->belongToLastInterval($fillType)) {
                 foreach ($objects as $object) {
                     $point = $this->findInstallPoint($object);
-                    var_dump($point);
                     if ($point) {
+                        //$installFlag = !($this->installObject($object, $point[0], $point[1], $point[2]) == false);
                         $installFlag = true;
                         $this->installObject($object, $point[0], $point[1], $point[2]);
                         break;
@@ -186,7 +231,6 @@ class TerritoryArrangementManager
                 break;
             }
         }
-
 
         // если не получилось подобрать объект
         return $installFlag;
@@ -215,6 +259,33 @@ class TerritoryArrangementManager
      */
     private function findInstallPoint(ObjectWork $object)
     {
+        $object->convertDimensionsToCells(TerritoryConcept::STEP);
+        $square = $object->getSquareCells();
+        switch ($object->object_type_id) {
+            case ObjectWork::TYPE_RECREATION:
+                if ($this->territory->state->fillRecreation + $square > $this->territory->state->recreationPart) {
+                    return false;
+                }
+                break;
+            case ObjectWork::TYPE_SPORT:
+                if ($this->territory->state->fillSport + $square > $this->territory->state->sportPart) {
+                    return false;
+                }
+                break;
+            case ObjectWork::TYPE_EDUCATION:
+                if ($this->territory->state->fillEducation + $square > $this->territory->state->educationPart) {
+                    return false;
+                }
+                break;
+            case ObjectWork::TYPE_GAME:
+                if ($this->territory->state->fillGame + $square > $this->territory->state->gamePart) {
+                    return false;
+                }
+                break;
+            default:
+                throw new Exception('Неизвестный тип объекта!');
+        }
+
         $allowedFlag = false;
         $point = [];
         for ($i = 0; $i < $this->territory->lengthCellCount; $i++) {

@@ -31,6 +31,11 @@ class ObjectWork extends ObjectT
         $this->widthCells = self::convertDistanceToCells($this->width, TerritoryConcept::STEP);
     }
 
+    public function getSquareCells()
+    {
+        return $this->lengthCells * $this->widthCells;
+    }
+
     // функция конвертации обычного расстояния в "ячейки"
     public static function convertDistanceToCells($distance, $step)
     {

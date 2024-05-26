@@ -9,6 +9,7 @@ namespace app\commands;
 
 use app\components\arrangement\TerritoryArrangementManager;
 use app\components\arrangement\TerritoryConcept;
+use app\facades\GenerateTerritoryFacade;
 use app\helpers\FuzzyLogicHelper;
 use app\helpers\MathHelper;
 use app\models\FuzzyIntervals;
@@ -31,43 +32,13 @@ class HelloController extends Controller
 {
     public function actionIndex()
     {
-        $manager = Yii::createObject(TerritoryArrangementManager::class);
-        $manager->territory = TerritoryConcept::make(150, 150, TerritoryConcept::STEP);
-        $cellsCount = $manager->territory->widthCellCount * $manager->territory->lengthCellCount;
+        $facade = Yii::createObject(GenerateTerritoryFacade::class);
+        $matrixModel = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS);
+        var_dump($matrixModel->showMatrix(fopen('php://stdout', 'w')));
+        var_dump(count($facade->manager->territory->state->objectsList));
 
-        $manager->setTerritoryState(1, TerritoryConcept::TYPE_BASE_WEIGHTS, $cellsCount);
-        $manager->territory->setFullnessIntervals(
-            [
-                'sport' => [0, $manager->territory->state->sportPart / 2, $manager->territory->state->sportPart / 1.5, $manager->territory->state->sportPart / 1.2, $manager->territory->state->sportPart],
-                'game' => [0, $manager->territory->state->gamePart / 2, $manager->territory->state->gamePart / 1.5, $manager->territory->state->gamePart / 1.2, $manager->territory->state->gamePart],
-                'recreation' => [0, $manager->territory->state->recreationPart / 2, $manager->territory->state->recreationPart / 1.5, $manager->territory->state->recreationPart / 1.2, $manager->territory->state->recreationPart],
-                'education' => [0, $manager->territory->state->educationPart / 2, $manager->territory->state->educationPart / 1.5, $manager->territory->state->educationPart / 1.2, $manager->territory->state->educationPart],
-            ]
-        );
-
-        $object1 = ObjectWork::find()->where(['id' => 1])->one();
-
-        $fills = [
-            ObjectWork::TYPE_RECREATION => $manager->territory->state->recreationPart,
-            ObjectWork::TYPE_SPORT => $manager->territory->state->sportPart,
-            ObjectWork::TYPE_EDUCATION => $manager->territory->state->educationPart,
-            ObjectWork::TYPE_GAME => $manager->territory->state->gamePart,
-        ];
-
-        var_dump($fills);
-
-        $endFlag = true;
-        while (!$manager->isFilled() && $endFlag) {
-            var_dump('boobs');
-            $endFlag = $manager->getSuitableObject();
-        }
-        //$manager->installObject($object1, 0, 0, TerritoryConcept::HORIZONTAL_POSITION);
-        //$manager->installObject($object1, 0, 10, TerritoryConcept::HORIZONTAL_POSITION);
-        //$manager->installObject($object1, 0, 20, TerritoryConcept::HORIZONTAL_POSITION);
-        //$manager->installObject($object1, 30, 0, TerritoryConcept::HORIZONTAL_POSITION);
-
-
-        $manager->territory->showDebugMatrix(fopen('php://stdout', 'w'));
+        $facade->removeObject(ObjectWork::findOne(['id' => 2]), 0, 0, TerritoryConcept::HORIZONTAL_POSITION);
+        var_dump(count($facade->manager->territory->state->objectsList));
     }
 
     public function actionTest()

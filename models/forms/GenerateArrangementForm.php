@@ -51,7 +51,7 @@ class GenerateArrangementForm
         $objects = ObjectWork::find()->where(['<=', 'length', $territory->length])->andWhere(['<=', 'width', $territory->width])->all();
 
         while (!$concept->isFilled()) {
-            $concept->getSuitableObject($objects, $weights);
+            $concept->setSuitableObject($objects, $weights);
         }
     }
 
@@ -62,7 +62,7 @@ class GenerateArrangementForm
         $objects = ObjectWork::find()->where(['<=', 'length', $territory->length])->andWhere(['<=', 'width', $territory->width])->all();
 
         while (!$concept->isFilled()) {
-            $concept->getSuitableObject($objects, $weights);
+            $concept->setSuitableObject($objects, $weights);
         }
     }
 

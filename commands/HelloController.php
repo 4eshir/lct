@@ -34,11 +34,12 @@ class HelloController extends Controller
     {
         $facade = Yii::createObject(GenerateTerritoryFacade::class);
         $matrixModel = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS);
-        var_dump($matrixModel->showMatrix(fopen('php://stdout', 'w')));
+        $matrixModel->showMatrix(fopen('php://stdout', 'w'));
         var_dump(count($facade->manager->territory->state->objectsList));
 
-        $facade->removeObject(ObjectWork::findOne(['id' => 2]), 0, 0, TerritoryConcept::HORIZONTAL_POSITION);
+        $facade->removeObject(ObjectWork::findOne(['id' => 181]), 0, 0, TerritoryConcept::HORIZONTAL_POSITION);
         var_dump(count($facade->manager->territory->state->objectsList));
+        $facade->manager->territory->showDebugMatrix(fopen('php://stdout', 'w'));
     }
 
     public function actionTest()

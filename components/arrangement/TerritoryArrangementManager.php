@@ -139,6 +139,19 @@ class TerritoryArrangementManager
 
     public function removeObject($object, $left, $top, $position)
     {
+        /** @var ObjectWork $object */
+        $object->convertDimensionsToCells(TerritoryConcept::STEP);
+        $length = $position == TerritoryConcept::HORIZONTAL_POSITION ? $object->lengthCells : $object->widthCells;
+        $width = $position == TerritoryConcept::HORIZONTAL_POSITION ? $object->widthCells : $object->lengthCells;
+
+        for ($i = $top; $i < $top + $width; $i++) {
+            for ($j = $left; $j < $left + $length; $j++) {
+                var_dump("[$i,$j] ".$this->territory->matrix[$i][$j]);
+                $this->territory->matrix[$i][$j] = 0;
+                var_dump("[$i,$j] ".$this->territory->matrix[$i][$j]);
+            }
+        }
+
         // тут надо затирать в матрице объект
 
         $this->territory->state->deleteObjectById($object->id, $left, $top);

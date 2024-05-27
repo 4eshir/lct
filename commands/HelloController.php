@@ -37,9 +37,9 @@ class HelloController extends Controller
         $matrixModel->showMatrix(fopen('php://stdout', 'w'));
         var_dump(count($facade->manager->territory->state->objectsList));
 
-        $facade->removeObject(ObjectWork::findOne(['id' => 181]), 0, 0, TerritoryConcept::HORIZONTAL_POSITION);
-        var_dump(count($facade->manager->territory->state->objectsList));
-        $facade->manager->territory->showDebugMatrix(fopen('php://stdout', 'w'));
+        $facade->removeObject(ObjectWork::findOne(['id' => 6]), 7, 6, TerritoryConcept::VERTICAL_POSITION);
+        //var_dump($facade->manager->territory->state->objectsList);
+        $matrixModel->showMatrix(fopen('php://stdout', 'w'));
     }
 
     public function actionTest()

@@ -146,9 +146,9 @@ class TerritoryArrangementManager
 
         for ($i = $top; $i < $top + $width; $i++) {
             for ($j = $left; $j < $left + $length; $j++) {
-                var_dump("[$i,$j] ".$this->territory->matrix[$i][$j]);
+                //var_dump("[$i,$j] ".$this->territory->matrix[$i][$j]);
                 $this->territory->matrix[$i][$j] = 0;
-                var_dump("[$i,$j] ".$this->territory->matrix[$i][$j]);
+                //var_dump("[$i,$j] ".$this->territory->matrix[$i][$j]);
             }
         }
 
@@ -175,19 +175,19 @@ class TerritoryArrangementManager
         $maxLeft = $maxLeft + $deadZoneCells < count($this->territory->matrix[0]) ? $maxLeft + $deadZoneCells : count($this->territory->matrix[0]);
         //$maxLeft -= 1;
 
-        for ($i = $newTop; $i < $maxTop; $i++) {
-            for ($j = $newLeft; $j < $maxLeft; $j++) {
-                if ($this->territory->matrix[$i][$j] != '0') {
-                    $control = false;
+        if ($left + ObjectWork::convertDistanceToCells($side1, TerritoryConcept::STEP) > $this->territory->lengthCellCount ||
+            $top + ObjectWork::convertDistanceToCells($side2, TerritoryConcept::STEP) > $this->territory->widthCellCount) {
+            $control = false;
+        }
+        else {
+            for ($i = $newTop; $i < $maxTop; $i++) {
+                for ($j = $newLeft; $j < $maxLeft; $j++) {
+                    if ($this->territory->matrix[$i][$j] != '0') {
+                        $control = false;
+                    }
                 }
             }
         }
-
-        if ($left + ObjectWork::convertDistanceToCells($object->length, TerritoryConcept::STEP) > $this->territory->lengthCellCount ||
-            $top + ObjectWork::convertDistanceToCells($object->width, TerritoryConcept::STEP) > $this->territory->widthCellCount) {
-            $control = false;
-        }
-
 
         return $control;
     }

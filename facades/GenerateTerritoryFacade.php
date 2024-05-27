@@ -8,6 +8,7 @@ use app\models\work\ObjectWork;
 
 class GenerateTerritoryFacade
 {
+    public ArrangementModelFacade $model;
     public TerritoryArrangementManager $manager;
 
     public function __construct(TerritoryArrangementManager $manager)
@@ -41,7 +42,9 @@ class GenerateTerritoryFacade
             $endFlag = $this->manager->setSuitableObject();
         }
 
-        return new ArrangementModelFacade($this->manager->territory->matrix, $this->manager->territory->state->objectIds);
+        $this->model = new ArrangementModelFacade($this->manager->territory->matrix, $this->manager->territory->state->objectIds);
+
+        return $this->model;
     }
 
     /**
@@ -53,6 +56,7 @@ class GenerateTerritoryFacade
     public function installObject($object, $left, $top, $position)
     {
         $this->manager->installObject($object, $left, $top, $position);
+        $this->model->setMatrix($this->manager->territory->matrix);
     }
 
     /**
@@ -64,5 +68,6 @@ class GenerateTerritoryFacade
     public function removeObject($object, $left, $top, $position)
     {
         $this->manager->removeObject($object, $left, $top, $position);
+        $this->model->setMatrix($this->manager->territory->matrix);
     }
 }

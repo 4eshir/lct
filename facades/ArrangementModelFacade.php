@@ -36,4 +36,9 @@ class ArrangementModelFacade
 
         fwrite($stream, "\n");
     }
+
+    public function setMatrix(array $matrix)
+    {
+        $this->matrix = $matrix;
+    }
 }

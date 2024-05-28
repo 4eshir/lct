@@ -6,7 +6,7 @@ use app\components\arrangement\TerritoryArrangementManager;
 use app\components\arrangement\TerritoryConcept;
 use app\models\work\ObjectWork;
 
-class GenerateTerritoryFacade
+class TerritoryFacade
 {
     public ArrangementModelFacade $model;
     public TerritoryArrangementManager $manager;
@@ -17,6 +17,7 @@ class GenerateTerritoryFacade
     }
 
     /**
+     * Генерация расстановки объектов на территории
      * @param string $generateType тип генерации из списка констант @see TerritoryConcept
      * @param array $votes необязательный параметр, массив голосов пользователя (пример: [ObjectWork::TYPE_RECREATION => 5, ...])
      * @return ArrangementModelFacade
@@ -42,32 +43,65 @@ class GenerateTerritoryFacade
             $endFlag = $this->manager->setSuitableObject();
         }
 
-        $this->model = new ArrangementModelFacade($this->manager->territory->matrix, $this->manager->territory->state->objectIds);
+        $this->model = new ArrangementModelFacade($this->manager->territory->matrix, $this->manager->territory->state->objectIds, $this->manager->territory->state->objectsList);
 
         return $this->model;
     }
 
     /**
+     * Установка объекта в заданную позицию
      * @param $object @see ObjectWork
-     * @param $left
-     * @param $top
-     * @param $position
+     * @param int $left отступ от левого края
+     * @param int $top отступ от верхнего края
+     * @param int $position позиционирование объекта: TerritoryConcept::HORIZONTAL_POSITION / TerritoryConcept::VERTICAL_POSITION
      */
     public function installObject($object, $left, $top, $position)
     {
         $this->manager->installObject($object, $left, $top, $position);
         $this->model->setMatrix($this->manager->territory->matrix);
+        $this->model->setObjectsCount($this->manager->territory->state->objectIds);
+        $this->model->setObjectsList($this->manager->territory->state->objectsList);
     }
 
     /**
+     * Удаление объекта из заданной позиции
      * @param $object @see ObjectWork
-     * @param $left
-     * @param $top
-     * @param $position
+     * @param int $left отступ от левого края
+     * @param int $top отступ от верхнего края
+     * @param int $position позиционирование объекта: TerritoryConcept::HORIZONTAL_POSITION / TerritoryConcept::VERTICAL_POSITION
      */
     public function removeObject($object, $left, $top, $position)
     {
         $this->manager->removeObject($object, $left, $top, $position);
         $this->model->setMatrix($this->manager->territory->matrix);
+        $this->model->setObjectsCount($this->manager->territory->state->objectIds);
+        $this->model->setObjectsList($this->manager->territory->state->objectsList);
+    }
+
+    /**
+     * Возвращает матрицу в сыром виде
+     * @return array
+     */
+    public function getRawMatrix()
+    {
+        return $this->model->getRawMatrix();
+    }
+
+    /**
+     * Возвращает список объектов с позиционированием
+     * @return array
+     */
+    public function getObjectsPosition()
+    {
+        return $this->model->getObjectsList();
+    }
+
+    /**
+     * Возвращает список объектов с количеством
+     * @return array
+     */
+    public function getObjectsCount()
+    {
+        return $this->model->getObjectsCount();
     }
 }

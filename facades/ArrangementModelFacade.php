@@ -4,15 +4,19 @@
 namespace app\facades;
 
 
+use app\models\ObjectExtended;
+
 class ArrangementModelFacade
 {
     private $matrix; // матрица расстановки объектов
     private $objects; // список объектов формата [id => кол-во, ...]
+    private $objectsPosition; /** список объектов @see ObjectExtended */
 
-    public function __construct(array $matrix, array $objects)
+    public function __construct(array $matrix, array $objects, array $objectsList)
     {
         $this->matrix = $matrix;
         $this->objects = $objects;
+        $this->objectsPosition = $objectsList;
     }
 
     public function getRawMatrix()
@@ -20,9 +24,14 @@ class ArrangementModelFacade
         return $this->matrix;
     }
 
-    public function getObjectsList()
+    public function getObjectsCount()
     {
         return $this->objects;
+    }
+
+    public function getObjectsList()
+    {
+        return $this->objectsPosition;
     }
 
     public function showMatrix($stream)
@@ -40,5 +49,15 @@ class ArrangementModelFacade
     public function setMatrix(array $matrix)
     {
         $this->matrix = $matrix;
+    }
+
+    public function setObjectsCount(array $objects)
+    {
+        $this->objects = $objects;
+    }
+
+    public function setObjectsList(array $objectsList)
+    {
+        $this->objectsPosition = $objectsList;
     }
 }

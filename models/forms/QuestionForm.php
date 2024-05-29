@@ -7,6 +7,7 @@ use yii\base\Model;
 class QuestionForm extends Model
 {
     public $userId;
+    public $territory;
     public $answerAge;
     public $answersSportCoef;
     public $answersRecreationCoef;
@@ -16,8 +17,8 @@ class QuestionForm extends Model
     public function rules()
     {
         return [
-            [['answersSportCoef', 'answersRecreationCoef', 'answersGameCoef', 'answersEducationalCoef', 'userId', 'answerAge'], 'required'],
-            [['answersSportCoef', 'answersRecreationCoef', 'answersGameCoef', 'answersEducationalCoef', 'userId', 'answerAge'], 'integer'],
+            [['answersSportCoef', 'answersRecreationCoef', 'answersGameCoef', 'answersEducationalCoef', 'userId', 'answerAge', 'territory'], 'required'],
+            [['answersSportCoef', 'answersRecreationCoef', 'answersGameCoef', 'answersEducationalCoef', 'userId', 'answerAge', 'territory'], 'integer'],
         ];
     }
 

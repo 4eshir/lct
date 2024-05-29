@@ -19,16 +19,17 @@ class TerritoryFacade
     /**
      * Генерация расстановки объектов на территории
      * @param string $generateType тип генерации из списка констант @see TerritoryConcept
+     * @param int $territoryId id территории @see TerritoryWork
      * @param array $votes необязательный параметр, массив голосов пользователя (пример: [ObjectWork::TYPE_RECREATION => 5, ...])
      * @return ArrangementModelFacade
      * @throws \yii\db\Exception
      */
-    public function generateTerritoryArrangement(string $generateType, array $votes = [])
+    public function generateTerritoryArrangement(string $generateType, int $territoryId, array $votes = [])
     {
         $this->manager->territory = TerritoryConcept::make(150, 150, TerritoryConcept::STEP);
         $cellsCount = $this->manager->territory->widthCellCount * $this->manager->territory->lengthCellCount;
 
-        $this->manager->setTerritoryState(1, $generateType, $cellsCount, $votes);
+        $this->manager->setTerritoryState($territoryId, $generateType, $cellsCount, $votes);
         $this->manager->territory->setFullnessIntervals(
             [
                 'sport' => [0, $this->manager->territory->state->sportPart / 2, $this->manager->territory->state->sportPart / 1.5, $this->manager->territory->state->sportPart / 1.2, $this->manager->territory->state->sportPart],

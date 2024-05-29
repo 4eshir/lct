@@ -6,6 +6,7 @@ use app\models\common\Questionnaire;
 use app\models\forms\QuestionDecisionForm;
 use app\models\forms\QuestionForm;
 use app\models\work\QuestionnaireWork;
+use app\models\work\UserWork;
 use app\services\frontend\ResidentsService;
 use Yii;
 use yii\filters\AccessControl;
@@ -32,7 +33,7 @@ class ResidentsController extends Controller
         $model = new QuestionForm();
 
         if (Yii::$app->request->post() && $model->load(Yii::$app->request->post())) {
-            Yii::$app->cache->set('questionnaire', $model);
+            Yii::$app->cache->set('questionnaire', serialize($model));
             return $this->redirect(['final-decision']);
         }
 
@@ -43,13 +44,24 @@ class ResidentsController extends Controller
 
     public function actionFinalDecision()
     {
+        /** @var QuestionForm $questionForm */
+        $questionForm = unserialize(Yii::$app->cache->get('questionnaire'));
         $model = new QuestionDecisionForm();
+        $model->generateVariants(
+            [
+                $questionForm->answersRecreationCoef,
+                $questionForm->answersSportCoef,
+                $questionForm->answersEducationalCoef,
+                $questionForm->answersGameCoef
+            ],
+            $questionForm->territory
+        );
 
         if (Yii::$app->request->post() && $model->load(Yii::$app->request->post())) {
             /** @var QuestionForm $oldAnswers */
-            $oldAnswers = Yii::$app->cache->get('questionnaire');
+            $oldAnswers = unserialize(Yii::$app->cache->get('questionnaire'));
             $questionnaire = new QuestionnaireWork(
-                null,
+                UserWork::getAuthUser()->id,
                 $oldAnswers->answerAge,
                 $oldAnswers->answersSportCoef,
                 $oldAnswers->answersRecreationCoef,
@@ -72,7 +84,7 @@ class ResidentsController extends Controller
 
         $this->service->endVote();
 
-        return $this->render('quest-info', [
+        return $this->render('quest-end', [
             'text' => $text,
         ]);
     }

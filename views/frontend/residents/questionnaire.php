@@ -4,6 +4,7 @@
 
 use app\models\forms\QuestionForm;
 use app\models\work\AgesIntervalWork;
+use app\models\work\TerritoryWork;
 use yii\helpers\Html;
 use yii\jui\SliderInput;
 use yii\widgets\ActiveForm;
@@ -11,6 +12,8 @@ use yii\widgets\ActiveForm;
 
 
 <?php $form = ActiveForm::begin() ?>
+
+<?= $form->field($model, 'territory')->dropDownList(TerritoryWork::GetAllTerritories()) ?>
 
 <?= $form->field($model, 'answerAge')->dropDownList(AgesIntervalWork::GetAllIntervals()) ?>
 

@@ -46,10 +46,10 @@ $username = $user ? $user->login : '---';
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav'],
         'items' => [
-            ['label' => 'Home', 'url' => ['/site/index']],
             ['label' => 'Голосование', 'url' => ['/frontend/residents/start-questionnaire']],
+            ['label' => 'Администрация', 'url' => ['/frontend/administration/index']],
             ['label' => 'Пользователи', 'url' => ['/user/index']],
-            ['label' => "$username", 'url' => ['/user/index']],
+            ['label' => "$username", 'url' => ['/']],
         ]
     ]);
     NavBar::end();

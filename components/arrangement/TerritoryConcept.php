@@ -19,6 +19,7 @@ class TerritoryConcept
     const TYPE_BASE_WEIGHTS = 'base';
     const TYPE_CHANGE_WEIGHTS = 'change';
     const TYPE_SELF_VOTES = 'self';
+    const TYPE_MANUAL = 'manual';
 
     const HORIZONTAL_POSITION = 0;
     const VERTICAL_POSITION = 1;

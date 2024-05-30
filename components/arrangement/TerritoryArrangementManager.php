@@ -2,11 +2,14 @@
 
 namespace app\components\arrangement;
 
+use app\facades\ArrangementModelFacade;
 use app\helpers\MathHelper;
 use app\models\work\AgesWeightChangeableWork;
 use app\models\work\AgesWeightWork;
+use app\models\work\ArrangementWork;
 use app\models\work\ObjectWork;
 use app\models\work\PeopleTerritoryWork;
+use app\models\work\UserWork;
 use yii\db\Exception;
 
 class TerritoryArrangementManager
@@ -315,5 +318,20 @@ class TerritoryArrangementManager
         }
 
         return $allowedFlag ? $point : false;
+    }
+
+    /**
+     * @param ArrangementModelFacade $model модель данных о территории
+     * @param string $generateType тип генерации @see TerritoryConcept
+     * @return void
+     */
+    public static function saveArrangement(ArrangementModelFacade $model, $generateType)
+    {
+        $entity = new ArrangementWork();
+        $entity->model = serialize($model);
+        $entity->user_id = UserWork::getAuthUser()->id;
+        $entity->datetime = date('Y.m.d H:i:s');
+        $entity->generate_type = $generateType;
+        $entity->save();
     }
 }

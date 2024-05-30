@@ -2,6 +2,7 @@
 
 namespace app\controllers\frontend;
 
+use app\components\arrangement\TerritoryConcept;
 use app\models\common\Questionnaire;
 use app\models\forms\QuestionDecisionForm;
 use app\models\forms\QuestionForm;
@@ -9,6 +10,7 @@ use app\models\work\QuestionnaireWork;
 use app\models\work\UserWork;
 use app\services\frontend\ResidentsService;
 use Yii;
+use yii\db\Exception;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -60,6 +62,7 @@ class ResidentsController extends Controller
         if (Yii::$app->request->post() && $model->load(Yii::$app->request->post())) {
             /** @var QuestionForm $oldAnswers */
             $oldAnswers = unserialize(Yii::$app->cache->get('questionnaire'));
+
             $questionnaire = new QuestionnaireWork(
                 UserWork::getAuthUser()->id,
                 $oldAnswers->answerAge,
@@ -67,9 +70,28 @@ class ResidentsController extends Controller
                 $oldAnswers->answersRecreationCoef,
                 $oldAnswers->answersGameCoef,
                 $oldAnswers->answersEducationalCoef,
+                $model->territoires,
                 $model->decision
             );
             $questionnaire->save();
+
+            $genType = '';
+            switch ($model->decision) {
+                case 1:
+                    $genType = TerritoryConcept::TYPE_BASE_WEIGHTS;
+                    break;
+                case 2:
+                    $genType = TerritoryConcept::TYPE_CHANGE_WEIGHTS;
+                    break;
+                case 3:
+                    $genType = TerritoryConcept::TYPE_SELF_VOTES;
+                    break;
+                default:
+                    throw new Exception('Неизвестный тип генерации');
+            }
+
+            $this->service->endVote($model->territoires[(int)$model->decision - 1], $genType);
+
             return $this->redirect(['end-questionnaire']);
         }
 
@@ -82,7 +104,7 @@ class ResidentsController extends Controller
     {
         $text = 'Голосование успешно завершено';
 
-        $this->service->endVote();
+
 
         return $this->render('quest-end', [
             'text' => $text,

@@ -16,6 +16,17 @@ $this->params['breadcrumbs'][] = $this->title;
         height: 600px;
         margin: 0 auto;
     }
+    /*#controls {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1;
+    }*/
+
+    button {
+        display: block;
+        margin-bottom: 5px;
+    }
 </style>
 
 <script type="importmap">
@@ -38,6 +49,12 @@ $this->params['breadcrumbs'][] = $this->title;
     <code><?= __FILE__ ?></code> -->
 
     <div id="scene-container"></div>
+    <div id="controls">
+        <button id="zoomIn">Zoom In</button>
+        <button id="zoomOut">Zoom Out</button>
+        <button id="moveLeft">Move Left</button>
+        <button id="moveRight">Move Right</button>
+    </div>
 </div>
 
 <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -49,26 +66,27 @@ $this->params['breadcrumbs'][] = $this->title;
     // Создание сцены
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('#F0F8FF');
+    const sceneContainer = document.getElementById('scene-container');
+
     const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize( window.innerWidth, window.innerHeight );
-    document.body.appendChild( renderer.domElement );
-
-    const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-    const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-    const cube = new THREE.Mesh( geometry, material );
-    scene.add( cube );
-
     camera.position.z = 5;
     camera.position.y = -10;
+
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(sceneContainer.clientWidth, sceneContainer.clientHeight);
+    sceneContainer.appendChild(renderer.domElement);
+
+    // Добавляем масштабирование камерой
+    var controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableRotate = false;
+
+    //-----------------------------------------------
 
     // Создаем материал для ячеек сетки
     var gridSizeX = 25;
     var gridSizeY = 25;
-    var gridColors = [];
 
-    // Create a group for the grid
+    // Создаем сетку
     var gridGeometry = new THREE.PlaneBufferGeometry(1, 1);
     var gridMesh = new THREE.Group();
 
@@ -80,71 +98,106 @@ $this->params['breadcrumbs'][] = $this->title;
         var cellGeometry = new THREE.BoxBufferGeometry(1, 1, 0.01);
         var cell = new THREE.Mesh(cellGeometry, cellMaterial);
         var edges = new THREE.LineSegments(new THREE.EdgesGeometry(cellGeometry), edgesMaterial);
-        cell.position.set(i % gridSizeX - gridSizeX / 2 + 0.5, Math.floor(i / gridSizeX) - gridSizeY / 2 + 0.5, -1);
+        cell.position.set(i % gridSizeX - gridSizeX / 2 + 0.5, Math.floor(i / gridSizeX) - gridSizeY / 2 + 0.5, 0);
         gridMesh.add(cell);
         cell.add(edges); // Добавляем границы к ячейке
     }
 
-    // Add the grid to the scene
+    // Добавили сетку на сцену
     scene.add(gridMesh);
+    //-----------------------------------------------
 
-    // Добавляем управление камерой
-    var controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.25;
-    controls.enableZoom = true;
 
-    let raycaster = new THREE.Raycaster();
-    let selectedObject = null;
-    let isMovingObject = false;
-    const mouse = new THREE.Vector2();
+    // Тестовый куб
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    const cube = new THREE.Mesh( geometry, material );
+    cube.position.set(0, 0, 0.5);
+    scene.add( cube );
 
-    function onMouseDown(event) {
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    // Создаем прямоугольник
+    var rectangleGeometry = new THREE.BoxGeometry(3, 2, 1);
+    var rectangleMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+    var rectangle = new THREE.Mesh(rectangleGeometry, rectangleMaterial);
+    rectangle.position.set(3, 0, 0.5);
+    scene.add(rectangle);
 
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObjects(scene.children, true);
+    // Создаем шар
+    var sphereGeometry = new THREE.BoxGeometry(1, 2, 1)
+    var sphereMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+    var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+    sphere.position.set(-3, 0, 0.5);
+    scene.add(sphere);
 
-        if (intersects.length > 0 && intersects[0].object.userData.isMovable) {
-            selectedObject = intersects[0].object;
-            isMovingObject = true;
-        }
-    }
+    // Массив разрешенных к взаимодействию объектов
+    var interactableObjects = [rectangle, sphere];
+
+    // Переменные для отслеживания перемещения объекта
+    var isDragging = false;
+    var selectedObject = null;
+    var offset = new THREE.Vector3();
 
     function onMouseMove(event) {
-        if (isMovingObject) {
+        if (isDragging) {
+            var mouse = new THREE.Vector2();
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
+            var raycaster = new THREE.Raycaster();
             raycaster.setFromCamera(mouse, camera);
 
-            const intersects = raycaster.intersectObjects(scene.children, true);
+            var intersects = raycaster.intersectObjects(interactableObjects);
 
             if (intersects.length > 0) {
-                selectedObject.position.copy(intersects[0].point);
+                var intersectionPoint = intersects[0].point;
+
+                // Учитываем половину ширины и половину длины объекта при ограничении перемещения
+                var halfWidth = selectedObject.geometry.parameters.width / 2;
+                var halfHeight = selectedObject.geometry.parameters.height / 2;
+                var newX = Math.max(Math.min(intersectionPoint.x, gridSizeX / 2 - 0.5 - halfWidth), -gridSizeX / 2 + 0.5 + halfWidth);
+                var newY = Math.max(Math.min(intersectionPoint.y, gridSizeY / 2 - 0.5 - halfHeight), -gridSizeY / 2 + 0.5 + halfHeight);
+
+                // Обновляем новое положение объекта
+                selectedObject.position.set(Math.round(newX), Math.round(newY) + 0.5, selectedObject.position.z);
             }
         }
     }
 
-    function onMouseUp() {
-        isMovingObject = false;
+    function onMouseDown(event) {
+        var mouse = new THREE.Vector2();
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        var raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, camera);
+
+        var intersects = raycaster.intersectObjects(interactableObjects);
+
+        if (intersects.length > 0) {
+            isDragging = true;
+            selectedObject = intersects[0].object;
+            var intersectionPoint = intersects[0].point;
+            offset.copy(intersectionPoint).sub(selectedObject.position);
+        }
     }
 
-    window.addEventListener('mousedown', onMouseDown, false);
-    window.addEventListener('mousemove', onMouseMove, false);
-    window.addEventListener('mouseup', onMouseUp, false);
+    function onMouseUp() {
+        isDragging = false;
+        selectedObject = null;
+    }
 
+    document.addEventListener('mousemove', onMouseMove, false);
+    document.addEventListener('mousedown', onMouseDown, false);
+    document.addEventListener('mouseup', onMouseUp, false);
+
+    //------------------------------------
     function animate() {
         requestAnimationFrame( animate );
 
-        //cube.rotation.x += 0.01;
-        //cube.rotation.y += 0.01;
-
-        controls.update();
         renderer.render( scene, camera );
     }
     animate();
+
 </script>
 
 <script type="module">

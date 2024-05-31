@@ -117,25 +117,61 @@ $this->params['breadcrumbs'][] = $this->title;
 
     // Создаем прямоугольник
     var rectangleGeometry = new THREE.BoxGeometry(3, 2, 1);
-    var rectangleMaterial = new THREE.MeshPhongMaterial({ color: 0x0000ff });
+    var rectangleMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
     var rectangle = new THREE.Mesh(rectangleGeometry, rectangleMaterial);
-    rectangle.position.set(3, 0, 0.5);
+    rectangle.position.set(3, 0.5, 0.5);
     scene.add(rectangle);
 
     // Создаем шар
-    var sphereGeometry = new THREE.BoxGeometry(1, 2, 1)
-    var sphereMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+    var sphereGeometry = new THREE.BoxGeometry(1, 3, 1)
+    var sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
     var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    sphere.position.set(-3, 0, 0.5);
+    sphere.position.set(-3, 0.5, 0.5);
     scene.add(sphere);
 
     // Массив разрешенных к взаимодействию объектов
-    var interactableObjects = [rectangle, sphere];
+    var interactiveObjects = [rectangle, sphere];
 
     // Переменные для отслеживания перемещения объекта
     var isDragging = false;
     var selectedObject = null;
     var offset = new THREE.Vector3();
+
+    // Функция для добавления границ черного цвета на объект при наведении мыши
+    function addOutlineOnHover(event) {
+        const obj = event.target;
+
+        const outlineMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
+        const outlineGeometry = new THREE.BufferGeometry().fromGeometry(obj.geometry);
+        const outlineMesh = new THREE.Mesh(outlineGeometry, outlineMaterial);
+        outlineMesh.scale.set(1.05, 1.05, 1.05);
+        obj.add(outlineMesh);
+
+        obj.addEventListener('mouseout', () => {
+            obj.remove(outlineMesh);
+        });
+    }
+
+    var selectedObjectRotateX = false;
+    var selectedObjectRotateY = false;
+
+    // Поворот объектов
+    document.getElementById('scene-container').addEventListener('wheel', (event) => {
+        if (selectedObject != null)
+        {
+            const direction = event.deltaY > 0 ? 1 : -1;
+            selectedObject.rotation.z += (Math.PI / 2) * direction;
+console.log(selectedObject.geometry.parameters.width, selectedObject.geometry.parameters.height);
+console.log(selectedObjectRotateX, selectedObjectRotateY);
+            if (!Number.isInteger(selectedObject.rotation.z / Math.PI))
+            {
+                console.log(selectedObject.geometry.parameters.width, 'lol', );
+                //selectedObject.position.x += 0.5*direction;
+                //selectedObject.position.y += 0.5*direction;
+            }
+            //console.log(selectedObject.position.x, selectedObject.position.y, selectedObject.position.z);
+        }
+    });
 
     function onMouseMove(event) {
         if (isDragging) {
@@ -144,9 +180,10 @@ $this->params['breadcrumbs'][] = $this->title;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
             var raycaster = new THREE.Raycaster();
+
             raycaster.setFromCamera(mouse, camera);
 
-            var intersects = raycaster.intersectObjects(interactableObjects);
+            var intersects = raycaster.intersectObjects(interactiveObjects);
 
             if (intersects.length > 0) {
                 var intersectionPoint = intersects[0].point;
@@ -171,24 +208,35 @@ $this->params['breadcrumbs'][] = $this->title;
         var raycaster = new THREE.Raycaster();
         raycaster.setFromCamera(mouse, camera);
 
-        var intersects = raycaster.intersectObjects(interactableObjects);
+        var intersects = raycaster.intersectObjects(interactiveObjects);
 
         if (intersects.length > 0) {
             isDragging = true;
             selectedObject = intersects[0].object;
             var intersectionPoint = intersects[0].point;
             offset.copy(intersectionPoint).sub(selectedObject.position);
+
+            const outlineMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
+            const outlineMesh = new THREE.Mesh(selectedObject.geometry, outlineMaterial);
+            outlineMesh.scale.set(1.05, 1.05, 1.05);
+            selectedObject.add(outlineMesh);
         }
+
+        selectedObjectRotateX = (selectedObject.geometry.parameters.width !== 1) && (selectedObject.geometry.parameters.width % 2 === 1);
+        selectedObjectRotateY = (selectedObject.geometry.parameters.height !== 1) && (selectedObject.geometry.parameters.height % 2 === 1);
+        controls.enableZoom = false;
     }
 
     function onMouseUp() {
         isDragging = false;
         selectedObject = null;
+        controls.enableZoom = true;
     }
 
     document.addEventListener('mousemove', onMouseMove, false);
     document.addEventListener('mousedown', onMouseDown, false);
     document.addEventListener('mouseup', onMouseUp, false);
+
 
     //------------------------------------
     function animate() {

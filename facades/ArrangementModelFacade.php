@@ -60,4 +60,37 @@ class ArrangementModelFacade
     {
         $this->objectsPosition = $objectsList;
     }
+
+    public function calculateBudget()
+    {
+        $sum = 0;
+        foreach ($this->objectsPosition as $object) {
+            /** @var ObjectExtended $object */
+            $sum += $object->object->cost;
+        }
+
+        return $sum;
+    }
+
+    public function calculateCreatedTime()
+    {
+        $sum = 0;
+        foreach ($this->objectsPosition as $object) {
+            /** @var ObjectExtended $object */
+            $sum += $object->object->created_time;
+        }
+
+        return $sum;
+    }
+
+    public function calculateInstallationTime()
+    {
+        $sum = 0;
+        foreach ($this->objectsPosition as $object) {
+            /** @var ObjectExtended $object */
+            $sum += $object->object->install_time;
+        }
+
+        return $sum;
+    }
 }

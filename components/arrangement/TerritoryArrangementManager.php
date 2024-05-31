@@ -323,15 +323,17 @@ class TerritoryArrangementManager
     /**
      * @param ArrangementModelFacade $model модель данных о территории
      * @param string $generateType тип генерации @see TerritoryConcept
+     * @param int $territoryId id территории
      * @return void
      */
-    public static function saveArrangement(ArrangementModelFacade $model, $generateType)
+    public static function saveArrangement(ArrangementModelFacade $model, $generateType, $territoryId)
     {
         $entity = new ArrangementWork();
         $entity->model = serialize($model);
         $entity->user_id = UserWork::getAuthUser()->id;
         $entity->datetime = date('Y.m.d H:i:s');
         $entity->generate_type = $generateType;
+        $entity->territory_id = $territoryId;
         $entity->save();
     }
 }

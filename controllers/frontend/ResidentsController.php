@@ -63,7 +63,8 @@ class ResidentsController extends Controller
             /** @var QuestionForm $oldAnswers */
             $oldAnswers = unserialize(Yii::$app->cache->get('questionnaire'));
 
-            $questionnaire = new QuestionnaireWork(
+            $questionnaire = new QuestionnaireWork();
+            $questionnaire->fill(
                 UserWork::getAuthUser()->id,
                 $oldAnswers->answerAge,
                 $oldAnswers->answersSportCoef,
@@ -71,7 +72,8 @@ class ResidentsController extends Controller
                 $oldAnswers->answersGameCoef,
                 $oldAnswers->answersEducationalCoef,
                 $model->territoires,
-                $model->decision
+                $model->decision,
+                $oldAnswers->territory
             );
             $questionnaire->save();
 
@@ -90,7 +92,7 @@ class ResidentsController extends Controller
                     throw new Exception('Неизвестный тип генерации');
             }
 
-            $this->service->endVote($model->territoires[(int)$model->decision - 1], $genType);
+            $this->service->endVote($model->territoires[(int)$model->decision - 1], $genType, $oldAnswers->territory);
 
             return $this->redirect(['end-questionnaire']);
         }
@@ -103,8 +105,6 @@ class ResidentsController extends Controller
     public function actionEndQuestionnaire()
     {
         $text = 'Голосование успешно завершено';
-
-
 
         return $this->render('quest-end', [
             'text' => $text,

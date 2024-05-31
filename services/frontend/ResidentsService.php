@@ -8,8 +8,8 @@ use app\facades\ArrangementModelFacade;
 class ResidentsService
 {
 
-    public function endVote(ArrangementModelFacade $model, $generateType)
+    public function endVote(ArrangementModelFacade $model, $generateType, $territoryId)
     {
-        TerritoryArrangementManager::saveArrangement($model, $generateType);
+        TerritoryArrangementManager::saveArrangement($model, $generateType, $territoryId);
     }
 }

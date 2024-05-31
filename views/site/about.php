@@ -116,17 +116,17 @@ $this->params['breadcrumbs'][] = $this->title;
     scene.add( cube );
 
     // Создаем прямоугольник
-    var rectangleGeometry = new THREE.BoxGeometry(3, 2, 1);
+    var rectangleGeometry = new THREE.BoxGeometry(2, 2, 1);
     var rectangleMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
     var rectangle = new THREE.Mesh(rectangleGeometry, rectangleMaterial);
-    rectangle.position.set(3, 0.5, 0.5);
+    rectangle.position.set(3, 0, 0.5);
     scene.add(rectangle);
 
     // Создаем шар
-    var sphereGeometry = new THREE.BoxGeometry(1, 3, 1)
+    var sphereGeometry = new THREE.BoxGeometry(2, 3, 1)
     var sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
     var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-    sphere.position.set(-3, 0.5, 0.5);
+    sphere.position.set(-3, 0, 0.5);
     scene.add(sphere);
 
     // Массив разрешенных к взаимодействию объектов
@@ -152,38 +152,90 @@ $this->params['breadcrumbs'][] = $this->title;
         });
     }
 
+    var outlineMeshSelectedObject = null;
+
     var selectedObjectRotateX = false;
     var selectedObjectRotateY = false;
+    let selectedObjectRotatePoint = {
+        point0deg: {x: 'undefined', y: 'undefined'},
+        point90deg: {x: 'undefined', y: 'undefined'},
+        isEmptyPoint: function () {
+            if (this.point0deg.x === 'undefined' && this.point0deg.y === 'undefined')
+                return true;
+            return false;
+        },
+        clear: function () {
+            this.point0deg.x = 'undefined';
+            this.point0deg.y = 'undefined';
+            this.point90deg.x = 'undefined';
+            this.point90deg.y = 'undefined';
+        },
+        addPoint0deg: function (x, y) {
+            this.point0deg.x = x;
+            this.point0deg.y = y;
+        },
+        addPoint90deg: function (x, y) {
+            this.point90deg.x = x;
+            this.point90deg.y = y;
+        }
+    };
 
-    // Поворот объектов
+    // Обновляем новое положение объекта
+    function updatePositionSelectedObject (newX, newY, reserveX, reserveY) {
+        if (!Number.isInteger(selectedObject.rotation.z / Math.PI))
+        {
+            selectedObject.position.set(newX, newY, selectedObject.position.z);
+        }
+        else
+        {
+            selectedObject.position.set(reserveX, reserveY, selectedObject.position.z);
+        }
+    }
+
+    function getIntersects(event)
+    {
+        var mouse = new THREE.Vector2();
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+        var raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, camera);
+
+        return raycaster.intersectObjects(interactiveObjects);
+    }
+
+    // Поворот объектов вокруг своей оси
     document.getElementById('scene-container').addEventListener('wheel', (event) => {
         if (selectedObject != null)
         {
             const direction = event.deltaY > 0 ? 1 : -1;
             selectedObject.rotation.z += (Math.PI / 2) * direction;
-console.log(selectedObject.geometry.parameters.width, selectedObject.geometry.parameters.height);
-console.log(selectedObjectRotateX, selectedObjectRotateY);
-            if (!Number.isInteger(selectedObject.rotation.z / Math.PI))
+
+            if (selectedObject.rotation.z / Math.PI === 2 || selectedObject.rotation.z / Math.PI === -2)
+                selectedObject.rotation.z = 0;
+
+            // Проверка на необходимость "доворота" фигуры, чтобы попасть в сетку
+            if (selectedObjectRotateX || selectedObjectRotateY)
             {
-                console.log(selectedObject.geometry.parameters.width, 'lol', );
-                //selectedObject.position.x += 0.5*direction;
-                //selectedObject.position.y += 0.5*direction;
+                if (selectedObjectRotatePoint.isEmptyPoint())
+                {
+                    selectedObjectRotatePoint.addPoint0deg(selectedObject.position.x, selectedObject.position.y);
+
+                    var rotateX = selectedObjectRotateX ? 0.5 : 0;
+                    var rotateY = selectedObjectRotateY ? 0.5 : 0;
+
+                    selectedObjectRotatePoint.addPoint90deg(selectedObject.position.x + rotateX - rotateY, selectedObject.position.y + rotateY - rotateX)
+                }
+
+                updatePositionSelectedObject(selectedObjectRotatePoint.point90deg.x, selectedObjectRotatePoint.point90deg.y, selectedObjectRotatePoint.point0deg.x, selectedObjectRotatePoint.point0deg.y);
             }
-            //console.log(selectedObject.position.x, selectedObject.position.y, selectedObject.position.z);
+
         }
     });
 
     function onMouseMove(event) {
         if (isDragging) {
-            var mouse = new THREE.Vector2();
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-            var raycaster = new THREE.Raycaster();
-
-            raycaster.setFromCamera(mouse, camera);
-
-            var intersects = raycaster.intersectObjects(interactiveObjects);
+            var intersects = getIntersects(event);
 
             if (intersects.length > 0) {
                 var intersectionPoint = intersects[0].point;
@@ -194,21 +246,16 @@ console.log(selectedObjectRotateX, selectedObjectRotateY);
                 var newX = Math.max(Math.min(intersectionPoint.x, gridSizeX / 2 - 0.5 - halfWidth), -gridSizeX / 2 + 0.5 + halfWidth);
                 var newY = Math.max(Math.min(intersectionPoint.y, gridSizeY / 2 - 0.5 - halfHeight), -gridSizeY / 2 + 0.5 + halfHeight);
 
-                // Обновляем новое положение объекта
-                selectedObject.position.set(Math.round(newX), Math.round(newY) + 0.5, selectedObject.position.z);
+                var rotateWidth = selectedObjectRotateX ? 0.5 : 0;
+                var rotateHeight = selectedObjectRotateY ? 0.5 : 0;
+
+                updatePositionSelectedObject(Math.round(newX) + rotateHeight, Math.round(newY) + rotateWidth, Math.round(newX) + rotateWidth, Math.round(newY) + rotateHeight);
             }
         }
     }
 
     function onMouseDown(event) {
-        var mouse = new THREE.Vector2();
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-        var raycaster = new THREE.Raycaster();
-        raycaster.setFromCamera(mouse, camera);
-
-        var intersects = raycaster.intersectObjects(interactiveObjects);
+        var intersects = getIntersects(event);
 
         if (intersects.length > 0) {
             isDragging = true;
@@ -217,19 +264,29 @@ console.log(selectedObjectRotateX, selectedObjectRotateY);
             offset.copy(intersectionPoint).sub(selectedObject.position);
 
             const outlineMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
-            const outlineMesh = new THREE.Mesh(selectedObject.geometry, outlineMaterial);
-            outlineMesh.scale.set(1.05, 1.05, 1.05);
-            selectedObject.add(outlineMesh);
+            outlineMeshSelectedObject = new THREE.Mesh(selectedObject.geometry, outlineMaterial);
+            outlineMeshSelectedObject.scale.set(1.05, 1.05, 1.05);
+            selectedObject.add(outlineMeshSelectedObject);
+
+            selectedObjectRotateX = selectedObject.geometry.parameters.width % 2 === 0;
+            selectedObjectRotateY = selectedObject.geometry.parameters.height % 2 === 0;
         }
 
-        selectedObjectRotateX = (selectedObject.geometry.parameters.width !== 1) && (selectedObject.geometry.parameters.width % 2 === 1);
-        selectedObjectRotateY = (selectedObject.geometry.parameters.height !== 1) && (selectedObject.geometry.parameters.height % 2 === 1);
         controls.enableZoom = false;
     }
 
     function onMouseUp() {
         isDragging = false;
+
+        if (outlineMeshSelectedObject) {
+            selectedObject.remove(outlineMeshSelectedObject);
+            outlineMeshSelectedObject = null;
+        }
+
         selectedObject = null;
+        selectedObjectRotateX = false;
+        selectedObjectRotateY = false;
+        selectedObjectRotatePoint.clear();
         controls.enableZoom = true;
     }
 

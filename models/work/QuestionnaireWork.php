@@ -7,7 +7,8 @@ use app\models\common\Questionnaire;
 class QuestionnaireWork extends Questionnaire
 {
     public $territories = [];
-    public function __construct(
+
+    public function fill(
         $userId,
         $agesIntervalId,
         $sportTendency,
@@ -16,9 +17,9 @@ class QuestionnaireWork extends Questionnaire
         $educationTendency,
         $territories,
         $arrangementMatrix,
-        $config = [])
+        $territoryId
+    )
     {
-        parent::__construct($config);
         $this->user_id = $userId;
         $this->ages_interval_id = $agesIntervalId;
         $this->sport_tendency = $sportTendency;
@@ -27,5 +28,6 @@ class QuestionnaireWork extends Questionnaire
         $this->education_tendency = $educationTendency;
         $this->territories = $territories;
         $this->arrangement_matrix = $arrangementMatrix;
+        $this->territory_id = $territoryId;
     }
 }

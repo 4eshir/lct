@@ -3,6 +3,7 @@
 namespace app\controllers\frontend;
 
 use app\models\forms\ChooseTerritoryForm;
+use app\models\forms\ConstructorTerritoryForm;
 use app\services\frontend\AdministrationService;
 use Yii;
 use yii\filters\AccessControl;
@@ -27,13 +28,22 @@ class AdministrationController extends Controller
     public function actionIndex()
     {
         $model = new ChooseTerritoryForm();
+
+        if (Yii::$app->request->post() && $model->load(Yii::$app->request->post())) {
+            return $this->redirect(['constructor', 'tId' => $model->territoryId]);
+        }
+
         return $this->render('index', [
             'model' => $model,
         ]);
     }
 
-    public function actionContructor()
+    public function actionConstructor($tId)
     {
+        $model = new ConstructorTerritoryForm($tId);
 
+        return $this->render('constructor', [
+            'model' => $model
+        ]);
     }
 }

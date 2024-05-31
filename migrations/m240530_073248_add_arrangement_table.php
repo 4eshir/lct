@@ -18,7 +18,24 @@ class m240530_073248_add_arrangement_table extends Migration
             'user_id' => $this->integer(),
             'generate_type' => $this->string()->comment('base - на базовых весах, change - на измененных весах, self - на основе голосов пользователя, manual - собрано вручную'),
             'datetime' => $this->date(),
+            'territory_id' => $this->integer(),
         ]);
+
+        $this->addForeignKey('fk1-arrangement',
+            'arrangement',
+            'user_id',
+            'user',
+            'id',
+            'RESTRICT',
+            'RESTRICT');
+
+        $this->addForeignKey('fk2-arrangement',
+            'arrangement',
+            'territory_id',
+            'territory',
+            'id',
+            'RESTRICT',
+            'RESTRICT');
     }
 
     /**
@@ -26,7 +43,9 @@ class m240530_073248_add_arrangement_table extends Migration
      */
     public function safeDown()
     {
-       $this->dropTable('arrangement');
+        $this->dropForeignKey('fk1-arrangement', 'arrangement');
+        $this->dropForeignKey('fk2-arrangement', 'arrangement');
+        $this->dropTable('arrangement');
 
         return true;
     }

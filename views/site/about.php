@@ -83,19 +83,20 @@ $this->params['breadcrumbs'][] = $this->title;
     //-----------------------------------------------
 
     // Создаем материал для ячеек сетки
-    var gridSizeX = 25;
-    var gridSizeY = 25;
+    var gridSizeX = 9;
+    var gridSizeY = 9;
 
     // Создаем сетку
     var gridGeometry = new THREE.PlaneBufferGeometry(1, 1);
     var gridMesh = new THREE.Group();
 
     var gridColor = new THREE.Color('#808080'); // Серый цвет
-    var cellMaterial = new THREE.MeshBasicMaterial({ color: gridColor, transparent: true, opacity: 0.5, side: THREE.DoubleSide }); // Один цвет и полупрозрачность
+
     var edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000 }); // Черный цвет для границ
 
     for (var i = 0; i < gridSizeX * gridSizeY; i++) {
         var cellGeometry = new THREE.BoxBufferGeometry(1, 1, 0.01);
+        var cellMaterial = new THREE.MeshBasicMaterial({ color: gridColor, transparent: true, opacity: 0.5, side: THREE.DoubleSide }); // Один цвет и полупрозрачность
         var cell = new THREE.Mesh(cellGeometry, cellMaterial);
         var edges = new THREE.LineSegments(new THREE.EdgesGeometry(cellGeometry), edgesMaterial);
         cell.position.set(i % gridSizeX - gridSizeX / 2 + 0.5, Math.floor(i / gridSizeX) - gridSizeY / 2 + 0.5, 0);
@@ -105,29 +106,34 @@ $this->params['breadcrumbs'][] = $this->title;
 
     // Добавили сетку на сцену
     scene.add(gridMesh);
+
+    // Тестовые объекты для отладки
     //-----------------------------------------------
-
-
-    // Тестовый куб
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
     const cube = new THREE.Mesh( geometry, material );
     cube.position.set(0, 0, 0.5);
     scene.add( cube );
 
-    // Создаем прямоугольник
     var rectangleGeometry = new THREE.BoxGeometry(2, 2, 1);
-    var rectangleMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff });
+    var rectangleMaterial = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.8, color: 0x0000ff });
     var rectangle = new THREE.Mesh(rectangleGeometry, rectangleMaterial);
     rectangle.position.set(3, 0, 0.5);
     scene.add(rectangle);
 
-    // Создаем шар
     var sphereGeometry = new THREE.BoxGeometry(2, 3, 1)
-    var sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    var sphereMaterial = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.8, color: 0xff0000, side: THREE.DoubleSide });
     var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
     sphere.position.set(-3, 0, 0.5);
     scene.add(sphere);
+
+
+    // Основные механики
+    //--------------------------------
+
+    function init() {
+        // !!! написать функцию инициализации объектов, не забыть про указание  interactiveObjects и axisZ
+    }
 
     // Массив разрешенных к взаимодействию объектов
     var interactiveObjects = [rectangle, sphere];
@@ -135,24 +141,11 @@ $this->params['breadcrumbs'][] = $this->title;
     // Переменные для отслеживания перемещения объекта
     var isDragging = false;
     var selectedObject = null;
+    var axisZ = 2;   // Высота на которую будем поднимать объекты при перемещении
     var offset = new THREE.Vector3();
 
-    // Функция для добавления границ черного цвета на объект при наведении мыши
-    function addOutlineOnHover(event) {
-        const obj = event.target;
-
-        const outlineMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
-        const outlineGeometry = new THREE.BufferGeometry().fromGeometry(obj.geometry);
-        const outlineMesh = new THREE.Mesh(outlineGeometry, outlineMaterial);
-        outlineMesh.scale.set(1.05, 1.05, 1.05);
-        obj.add(outlineMesh);
-
-        obj.addEventListener('mouseout', () => {
-            obj.remove(outlineMesh);
-        });
-    }
-
     var outlineMeshSelectedObject = null;
+    var outlineMeshSelectedObjectHover = null;
 
     var selectedObjectRotateX = false;
     var selectedObjectRotateY = false;
@@ -180,18 +173,6 @@ $this->params['breadcrumbs'][] = $this->title;
         }
     };
 
-    // Обновляем новое положение объекта
-    function updatePositionSelectedObject (newX, newY, reserveX, reserveY) {
-        if (!Number.isInteger(selectedObject.rotation.z / Math.PI))
-        {
-            selectedObject.position.set(newX, newY, selectedObject.position.z);
-        }
-        else
-        {
-            selectedObject.position.set(reserveX, reserveY, selectedObject.position.z);
-        }
-    }
-
     function getIntersects(event)
     {
         var mouse = new THREE.Vector2();
@@ -199,9 +180,52 @@ $this->params['breadcrumbs'][] = $this->title;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
         var raycaster = new THREE.Raycaster();
+        raycaster.params.PointsCloud = { threshold: 10 };
         raycaster.setFromCamera(mouse, camera);
 
         return raycaster.intersectObjects(interactiveObjects);
+    }
+
+    // Функция для добавления границ на объект при наведении
+    function addOutlineOnHover(event) {
+        if (!isDragging)
+        {
+            var intersects = getIntersects(event);
+
+            if (outlineMeshSelectedObjectHover) {
+                selectedObject.remove(outlineMeshSelectedObjectHover);
+                outlineMeshSelectedObjectHover = null;
+                selectedObject = null;
+            }
+
+            if (intersects.length > 0) {
+                selectedObject = intersects[0].object;
+                var intersectionPoint = intersects[0].point;
+                offset.copy(intersectionPoint).sub(selectedObject.position);
+
+                const outlineMaterial = new THREE.MeshBasicMaterial({color: 0x0fff00, side: THREE.BackSide});
+                outlineMeshSelectedObjectHover = new THREE.Mesh(selectedObject.geometry, outlineMaterial);
+                outlineMeshSelectedObjectHover.scale.set(1.05, 1.05, 1.05);
+                selectedObject.add(outlineMeshSelectedObjectHover);
+            }
+        }
+    }
+
+    // Обновляем новое положение объекта
+    function updatePositionSelectedObject (newX, newY, reserveX, reserveY, newZ = null) {
+        if (newZ === null)
+        {
+            newZ = axisZ;
+        }
+
+        if (!Number.isInteger(selectedObject.rotation.z / Math.PI))
+        {
+            selectedObject.position.set(newX, newY, newZ);
+        }
+        else
+        {
+            selectedObject.position.set(reserveX, reserveY, newZ);
+        }
     }
 
     // Поворот объектов вокруг своей оси
@@ -233,7 +257,59 @@ $this->params['breadcrumbs'][] = $this->title;
         }
     });
 
-    function onMouseMove(event) {
+    // Функция для поиска объекта по точным координатам в группе
+    function findObjectByPosition(group, positionToFind) {
+        group.traverse(function(child) {
+            if (child.isMesh && child.position.equals(positionToFind)) {
+                return child;
+            }
+        });
+
+        return null;
+    }
+
+    function setColorGridMesh()
+    {
+        var rotateWidth = selectedObjectRotateX ? 0.5 : 0;
+        var rotateHeight = selectedObjectRotateY ? 0.5 : 0;
+
+        var halfWidth = selectedObject.geometry.parameters.width / 2;
+        var halfHeight = selectedObject.geometry.parameters.height / 2;
+
+
+        if (!Number.isInteger(selectedObject.rotation.z / Math.PI))
+        {
+            var temp = rotateWidth;
+            rotateWidth = rotateHeight;
+            rotateHeight = temp;
+        }
+
+        for (cellSelectedObject = 0; cellSelectedObject < selectedObject.geometry.parameters.width*selectedObject.geometry.parameters.height; cellSelectedObject++)
+        {
+            const objectPositionToFind = new THREE.Vector3(selectedObject.position.x - rotateWidth, selectedObject.position.y, 0);
+            var cellGrid = findObjectByPosition(gridMesh, objectPositionToFind);
+            cellGrid.material.color.set('#00FF00');
+            // тут нужно придумать смещение для прохода по всей площадью тени образуемой фигурой
+        }
+
+        // и не забыть подтереть нарисованные тени
+        console.log('-------------------------------');
+        console.log(selectedObject.position.x - rotateWidth, selectedObject.position.y - rotateHeight);
+        gridMesh.children.forEach((cell) => {
+            if (cell.position.x === (selectedObject.position.x - rotateWidth) && cell.position.y === (selectedObject.position.y - rotateHeight))
+            {
+                console.log(cell);
+                cell.material.color.set('#00FF00');
+            }
+            else
+            {
+                //cell.material.color.set('#808080');
+            }
+        })
+    }
+
+    // Логика перемещения объекта
+    function dragAndDrop(event) {
         if (isDragging) {
             var intersects = getIntersects(event);
 
@@ -250,29 +326,27 @@ $this->params['breadcrumbs'][] = $this->title;
                 var rotateHeight = selectedObjectRotateY ? 0.5 : 0;
 
                 updatePositionSelectedObject(Math.round(newX) + rotateHeight, Math.round(newY) + rotateWidth, Math.round(newX) + rotateWidth, Math.round(newY) + rotateHeight);
+
+                setColorGridMesh();
             }
         }
     }
 
-    function onMouseDown(event) {
-        var intersects = getIntersects(event);
-
-        if (intersects.length > 0) {
+    function onMouseDown() {
+        if(selectedObject)
+        {
             isDragging = true;
-            selectedObject = intersects[0].object;
-            var intersectionPoint = intersects[0].point;
-            offset.copy(intersectionPoint).sub(selectedObject.position);
 
-            const outlineMaterial = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.BackSide });
+            const outlineMaterial = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.BackSide});
             outlineMeshSelectedObject = new THREE.Mesh(selectedObject.geometry, outlineMaterial);
             outlineMeshSelectedObject.scale.set(1.05, 1.05, 1.05);
             selectedObject.add(outlineMeshSelectedObject);
 
             selectedObjectRotateX = selectedObject.geometry.parameters.width % 2 === 0;
             selectedObjectRotateY = selectedObject.geometry.parameters.height % 2 === 0;
-        }
 
-        controls.enableZoom = false;
+            controls.enableZoom = false;
+        }
     }
 
     function onMouseUp() {
@@ -283,22 +357,30 @@ $this->params['breadcrumbs'][] = $this->title;
             outlineMeshSelectedObject = null;
         }
 
-        selectedObject = null;
-        selectedObjectRotateX = false;
-        selectedObjectRotateY = false;
-        selectedObjectRotatePoint.clear();
+        if (selectedObject)
+        {
+            for(z = axisZ; z > 0.5; z -= 0.01)
+            {
+                updatePositionSelectedObject(selectedObject.position.x, selectedObject.position.y, selectedObject.position.x, selectedObject.position.y, z);
+            }
+
+            selectedObjectRotateX = false;
+            selectedObjectRotateY = false;
+            selectedObjectRotatePoint.clear();
+        }
+
         controls.enableZoom = true;
     }
 
-    document.addEventListener('mousemove', onMouseMove, false);
+    document.addEventListener('mousemove', dragAndDrop, false);
     document.addEventListener('mousedown', onMouseDown, false);
     document.addEventListener('mouseup', onMouseUp, false);
-
+    document.addEventListener('mousemove', addOutlineOnHover, false);
 
     //------------------------------------
+
     function animate() {
         requestAnimationFrame( animate );
-
         renderer.render( scene, camera );
     }
     animate();

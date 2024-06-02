@@ -61,6 +61,8 @@ class SiteController extends Controller
      */
     public function actionIndex()
     {
+        Yii::$app->session->set('header-active', 'index');
+
         return $this->render('index');
     }
 

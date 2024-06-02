@@ -86,3 +86,49 @@ a.desc:after {
 .form-group {
     margin-bottom: 1rem;
 }
+
+
+body {
+    background-color: #C1C8E4;
+}
+
+nav {
+    background-color: #8860D0 !important;
+}
+
+footer {
+    background-color: #8860D0 !important;
+}
+
+footer div {
+    color: white !important;
+    font-family: "Nunito", sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+}
+
+footer a {
+    color: white;
+    font-family: "Nunito", sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+}
+
+.header-link {
+    color: white !important;
+    font-family: "Nunito", sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.header-link-active {
+    color: #ADD8E6 !important;
+    font-family: "Nunito", sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+}
+
+.logo-class {
+    width: 90px;
+    height: 40px;
+}

@@ -62,6 +62,8 @@ class UserController extends Controller
      */
     public function actionIndex()
     {
+        Yii::$app->session->set('header-active', 'user');
+
         $model = User::find()->all();
         return $this->render('index', [
             'model' => $model,

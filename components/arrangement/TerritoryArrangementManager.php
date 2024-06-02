@@ -9,8 +9,11 @@ use app\models\work\AgesWeightWork;
 use app\models\work\ArrangementWork;
 use app\models\work\ObjectWork;
 use app\models\work\PeopleTerritoryWork;
+use app\models\work\TerritoryWork;
 use app\models\work\UserWork;
+use Yii;
 use yii\db\Exception;
+use yii\db\Expression;
 
 class TerritoryArrangementManager
 {
@@ -19,6 +22,24 @@ class TerritoryArrangementManager
     public function __construct(TerritoryConcept $territory)
     {
         $this->territory = $territory;
+    }
+
+    public function setTerritory(string $generateType, int $territoryId, array $votes = [])
+    {
+        $territory = TerritoryWork::find()->where(['id' => $territoryId])->one();
+
+        $this->territory = TerritoryConcept::make($territory->length, $territory->width, TerritoryConcept::STEP);
+        $cellsCount = $this->territory->widthCellCount * $this->territory->lengthCellCount;
+
+        $this->setTerritoryState($territoryId, $generateType, $cellsCount, $votes);
+        $this->territory->setFullnessIntervals(
+            [
+                'sport' => [0, $this->territory->state->sportPart / 2, $this->territory->state->sportPart / 1.5, $this->territory->state->sportPart / 1.2, $this->territory->state->sportPart],
+                'game' => [0, $this->territory->state->gamePart / 2, $this->territory->state->gamePart / 1.5, $this->territory->state->gamePart / 1.2, $this->territory->state->gamePart],
+                'recreation' => [0, $this->territory->state->recreationPart / 2, $this->territory->state->recreationPart / 1.5, $this->territory->state->recreationPart / 1.2, $this->territory->state->recreationPart],
+                'education' => [0, $this->territory->state->educationPart / 2, $this->territory->state->educationPart / 1.5, $this->territory->state->educationPart / 1.2, $this->territory->state->educationPart],
+            ]
+        );
     }
 
     /**
@@ -195,8 +216,13 @@ class TerritoryArrangementManager
         return $control;
     }
 
-    // подставляет в текущую расстановку подходящий объект
-    public function setSuitableObject()
+    /**
+     * Подставляет в текущую расстановку подходящий объект
+     * @param int $economy 0 - обычная расстановка, 1 - расстановка с максимальной экономией бюджета
+     * @return bool
+     * @throws Exception
+     */
+    public function setSuitableObject($economy = 0, $referenceUnitCost = null, $referenceEmptyCells = null)
     {
         $fills = [
             ObjectWork::TYPE_RECREATION => $this->territory->state->fillRecreation,
@@ -208,6 +234,8 @@ class TerritoryArrangementManager
         $this->territory->state->getSortedFillsDesc($fills);
 
         $installFlag = false;
+        $economyDropFlag = false; // флаг для выхода из цикла по причине переполнения по бюджету
+
         foreach ($fills as $key => $fill) {
             $objectTypeText = 'recreation';
             $fillType = $this->territory->state->fillRecreation;
@@ -224,21 +252,44 @@ class TerritoryArrangementManager
                 $fillType = $this->territory->state->fillGame;
             }
 
-            $objects = ObjectWork::find()->where(['object_type_id' => $key])->andWhere(['NOT IN', 'id', array_keys($this->territory->state->objectIds)])->all();
+            $objects = ObjectWork::find()
+                ->select(['*', 'unit_cost' => new Expression('`cost` / (`length` * `width`)')])
+                ->where(['object_type_id' => $key])
+                ->andWhere(['NOT IN', 'id', $economy == 0 ? array_keys($this->territory->state->objectIds) : []]);
+
+            if ($economy == 1) {
+                $objects = $objects->orderBy(['unit_cost' => SORT_ASC]);
+            }
+
+            $objects = $objects->all();
             arsort($this->territory->state->objectIds);
             $objectIdsCopy = $this->territory->state->objectIds;
-            //var_dump($objectIdsCopy);
+
             while (count($objects) == 0 && count($objectIdsCopy) > 0) {
-                $objects = ObjectWork::find()->where(['object_type_id' => $key])->andWhere(['NOT IN', 'id', array_keys($objectIdsCopy)])->all();
+                $objects = ObjectWork::find()
+                    ->select(['*', 'unit_cost' => new Expression('`cost` / (`length` * `width`)')])
+                    ->where(['object_type_id' => $key])
+                    ->andWhere(['NOT IN', 'id', array_keys($objectIdsCopy)]);
+
+                if ($economy == 1) {
+                    $objects = $objects->orderBy(['unit_cost' => SORT_ASC]);
+                }
+                $objects = $objects->all();
+
                 array_pop($objectIdsCopy);
             }
             if (!$this->territory->fullnessIntervals[$objectTypeText]->belongToLastInterval($fillType)) {
                 foreach ($objects as $object) {
                     $point = $this->findInstallPoint($object);
                     if ($point) {
-                        //$installFlag = !($this->installObject($object, $point[0], $point[1], $point[2]) == false);
                         $installFlag = true;
                         $this->installObject($object, $point[0], $point[1], $point[2]);
+
+                        if ($economy == 1 && $this->checkReferences($referenceUnitCost, $referenceEmptyCells)) {
+                            $this->removeObject($object, $point[0], $point[1], $point[2]);
+                            return false;
+                        }
+
                         break;
                     }
                 }
@@ -250,6 +301,11 @@ class TerritoryArrangementManager
 
         // если не получилось подобрать объект
         return $installFlag;
+    }
+
+    public function checkReferences($referenceUnitCost, $referenceEmptyCells)
+    {
+        return $this->territory->calculateEmptyCells() <= $referenceEmptyCells || $this->territory->calculateUnitCost() > $referenceUnitCost;
     }
 
     // передаем тип очередного объекта и проверяем, есть ли возможность разместить хоть 1 такой объект

@@ -25,6 +25,12 @@ $this->registerLinkTag(['rel' => 'icon', 'type' => 'image/x-icon', 'href' => Yii
 <html lang="<?= Yii::$app->language ?>" class="h-100">
 <head>
     <title><?= Html::encode($this->title) ?></title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,opsz,wght@0,6..12,200..1000;1,6..12,200..1000&display=swap" rel="stylesheet">
     <?php $this->head() ?>
 </head>
 <body class="d-flex flex-column h-100">
@@ -39,17 +45,20 @@ $username = $user ? $user->login : '---';
 <header id="header">
     <?php
     NavBar::begin([
-        'brandLabel' => Yii::$app->name,
+        'brandLabel' => Html::img('@web/img/logo.png', ['alt'=>'SA', 'class'=>'logo-class']),
         'brandUrl' => Yii::$app->homeUrl,
-        'options' => ['class' => 'navbar-expand-md navbar-dark bg-dark fixed-top']
+        'options' => ['class' => 'navbar-expand-md fixed-top']
     ]);
+
+    $headerActive = Yii::$app->session->get('header-active');
+
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav'],
         'items' => [
-            ['label' => 'Голосование', 'url' => ['/frontend/residents/start-questionnaire']],
-            ['label' => 'Администрация', 'url' => ['/frontend/administration/index']],
-            ['label' => 'Пользователи', 'url' => ['/user/index']],
-            ['label' => "$username", 'url' => ['/']],
+            ['label' => 'Голосование', 'url' => ['/frontend/residents/start-questionnaire'], 'linkOptions' => ['class' => $headerActive == 'residents' ? 'header-link-active' : 'header-link']],
+            ['label' => 'Администрация', 'url' => ['/frontend/administration/index'], 'linkOptions' => ['class' => $headerActive == 'administration' ? 'header-link-active' : 'header-link']],
+            ['label' => 'Пользователи', 'url' => ['/user/index'], 'linkOptions' => ['class' => $headerActive == 'user' ? 'header-link-active' : 'header-link']],
+            ['label' => "$username", 'url' => ['/'], 'linkOptions' => ['class' => 'header-link']],
         ]
     ]);
     NavBar::end();
@@ -66,10 +75,10 @@ $username = $user ? $user->login : '---';
     </div>
 </main>
 
-<footer id="footer" class="mt-auto py-3 bg-light">
+<footer id="footer" class="mt-auto py-3">
     <div class="container">
         <div class="row text-muted">
-            <div class="col-md-6 text-center text-md-start">&copy; My Company <?= date('Y') ?></div>
+            <div class="col-md-6 text-center text-md-start">&copy; Oompa_Loompas <?= date('Y') ?></div>
             <div class="col-md-6 text-center text-md-end"><?= Yii::powered() ?></div>
         </div>
     </div>

@@ -32,6 +32,8 @@ class ResidentsController extends Controller
 
     public function actionStartQuestionnaire()
     {
+        Yii::$app->session->set('header-active', 'residents');
+
         $model = new QuestionForm();
 
         if (Yii::$app->request->post() && $model->load(Yii::$app->request->post())) {

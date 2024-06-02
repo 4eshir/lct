@@ -33,13 +33,13 @@ class HelloController extends Controller
     public function actionIndex()
     {
         $facade = Yii::createObject(TerritoryFacade::class);
-        $matrixModel = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS);
+        $matrixModel = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, 1, 0);
         $matrixModel->showMatrix(fopen('php://stdout', 'w'));
 
-        $facade->removeObject(ObjectWork::findOne(['id' => 181]), 0, 0, TerritoryConcept::HORIZONTAL_POSITION);
-        //var_dump($facade->manager->territory->state->objectsList);
-        $matrixModel->showMatrix(fopen('php://stdout', 'w'));
-        var_dump(count($facade->getObjectsCount()));
+        var_dump($facade->model->calculateBudget());
+        //var_dump($facade->model->getObjectsCount());
+        var_dump($facade->manager->territory->calculateUnitCost());
+        var_dump($facade->manager->territory->calculateEmptyCells());
     }
 
     public function actionTest()

@@ -27,6 +27,8 @@ class AdministrationController extends Controller
 
     public function actionIndex()
     {
+        Yii::$app->session->set('header-active', 'administration');
+
         $model = new ChooseTerritoryForm();
 
         if (Yii::$app->request->post() && $model->load(Yii::$app->request->post())) {

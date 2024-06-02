@@ -5,6 +5,7 @@ namespace app\components\arrangement;
 
 
 use app\models\FuzzyIntervals;
+use app\models\ObjectExtended;
 use app\models\work\ObjectWork;
 use Yii;
 
@@ -104,5 +105,37 @@ class TerritoryConcept
         }
 
         fwrite($stream, "\n");
+    }
+
+    public function calculateUnitCost()
+    {
+        if (!is_array($this->matrix) || count($this->matrix) == 0) {
+            return 0;
+        }
+
+        //$emptyCells = $this->calculateEmptyCells();
+        $usefulCells = count($this->matrix) * count($this->matrix[0]);
+
+        $sum = 0;
+        foreach ($this->state->objectsList as $object) {
+            /** @var ObjectExtended $object */
+            $sum += $object->object->cost;
+        }
+
+        return $sum / $usefulCells;
+    }
+
+    public function calculateEmptyCells()
+    {
+        $counter = 0;
+        for ($i = 0; $i < count($this->matrix); $i++) {
+            for ($j = 0; $j < count($this->matrix[$i]); $j++) {
+                if ($this->matrix[$i][$j] == 0) {
+                    $counter++;
+                }
+            }
+        }
+
+        return $counter;
     }
 }

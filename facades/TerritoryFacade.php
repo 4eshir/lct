@@ -5,9 +5,13 @@ namespace app\facades;
 use app\components\arrangement\TerritoryArrangementManager;
 use app\components\arrangement\TerritoryConcept;
 use app\models\work\ObjectWork;
+use app\models\work\TerritoryWork;
 
 class TerritoryFacade
 {
+    const BUDGET_DEFAULT = 0;
+    const BUDGET_ECONOMY = 1;
+
     public ArrangementModelFacade $model;
     public TerritoryArrangementManager $manager;
 
@@ -20,28 +24,33 @@ class TerritoryFacade
      * Генерация расстановки объектов на территории
      * @param string $generateType тип генерации из списка констант @see TerritoryConcept
      * @param int $territoryId id территории @see TerritoryWork
+     * @param int $budgetType тип генерации расстановки по бюджету (self::BUDGET_DEFAULT - без учета бюджета, self::BUDGET_ECONOMY - максимально экономный вариант)
      * @param array $votes необязательный параметр, массив голосов пользователя (пример: [ObjectWork::TYPE_RECREATION => 5, ...])
      * @return ArrangementModelFacade
      * @throws \yii\db\Exception
      */
-    public function generateTerritoryArrangement(string $generateType, int $territoryId, array $votes = [])
+    public function generateTerritoryArrangement(string $generateType, int $territoryId, int $budgetType = self::BUDGET_DEFAULT, array $votes = [])
     {
-        $this->manager->territory = TerritoryConcept::make(150, 150, TerritoryConcept::STEP);
-        $cellsCount = $this->manager->territory->widthCellCount * $this->manager->territory->lengthCellCount;
+        $this->manager->setTerritory($generateType, $territoryId, $votes);
 
-        $this->manager->setTerritoryState($territoryId, $generateType, $cellsCount, $votes);
-        $this->manager->territory->setFullnessIntervals(
-            [
-                'sport' => [0, $this->manager->territory->state->sportPart / 2, $this->manager->territory->state->sportPart / 1.5, $this->manager->territory->state->sportPart / 1.2, $this->manager->territory->state->sportPart],
-                'game' => [0, $this->manager->territory->state->gamePart / 2, $this->manager->territory->state->gamePart / 1.5, $this->manager->territory->state->gamePart / 1.2, $this->manager->territory->state->gamePart],
-                'recreation' => [0, $this->manager->territory->state->recreationPart / 2, $this->manager->territory->state->recreationPart / 1.5, $this->manager->territory->state->recreationPart / 1.2, $this->manager->territory->state->recreationPart],
-                'education' => [0, $this->manager->territory->state->educationPart / 2, $this->manager->territory->state->educationPart / 1.5, $this->manager->territory->state->educationPart / 1.2, $this->manager->territory->state->educationPart],
-            ]
-        );
+        $referenceUnitCost = null;
+        $referenceEmptyCells = null;
+        if ($budgetType == 1) {
+            $endFlag = true;
+            while (!$this->manager->isFilled() && $endFlag) {
+                $endFlag = $this->manager->setSuitableObject();
+            }
+
+            $referenceUnitCost = $this->manager->territory->calculateUnitCost();
+            $referenceEmptyCells = $this->manager->territory->calculateEmptyCells();
+
+            $this->manager->setTerritory($generateType, $territoryId, $votes);
+        }
 
         $endFlag = true;
+
         while (!$this->manager->isFilled() && $endFlag) {
-            $endFlag = $this->manager->setSuitableObject();
+            $endFlag = $this->manager->setSuitableObject($budgetType, $referenceUnitCost, $referenceEmptyCells);
         }
 
         $this->model = new ArrangementModelFacade($this->manager->territory->matrix, $this->manager->territory->state->objectIds, $this->manager->territory->state->objectsList);

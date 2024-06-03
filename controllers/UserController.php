@@ -64,7 +64,7 @@ class UserController extends Controller
     {
         Yii::$app->session->set('header-active', 'user');
 
-        $model = User::find()->all();
+        $model = User::find()->where(['!=', 'role', 3])->all();
         return $this->render('index', [
             'model' => $model,
         ]);

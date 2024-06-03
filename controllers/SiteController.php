@@ -2,6 +2,7 @@
 
 namespace app\controllers;
 
+use app\models\forms\AdminLoginForm;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -114,6 +115,24 @@ class SiteController extends Controller
             return $this->refresh();
         }
         return $this->render('contact', [
+            'model' => $model,
+        ]);
+    }
+
+    public function actionAdminLogin()
+    {
+        Yii::$app->session->set('header-active', 'admin-login');
+
+        $model = new AdminLoginForm();
+
+        if ($model->load(Yii::$app->request->post())) {
+            if ($model->login()) {
+                return $this->redirect(['/backend/admin/index']);
+            }
+
+        }
+
+        return $this->render('admin-login', [
             'model' => $model,
         ]);
     }

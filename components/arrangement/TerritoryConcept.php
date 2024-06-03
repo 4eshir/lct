@@ -24,7 +24,7 @@ class TerritoryConcept
 
     const HORIZONTAL_POSITION = 0;
     const VERTICAL_POSITION = 1;
-    const STEP = 10; // размер "ячейки" в сантиметрах
+    const STEP = 50; // размер "ячейки" в сантиметрах
 
     public $lengthCellCount; // количество ячеек в длину
 

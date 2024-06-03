@@ -173,6 +173,11 @@ $this->params['breadcrumbs'][] = $this->title;
         }
     };
 
+    let dot = {
+        x: 'undefined',
+        y: 'undefined',
+    }
+
     function getIntersects(event)
     {
         var mouse = new THREE.Vector2();
@@ -187,7 +192,8 @@ $this->params['breadcrumbs'][] = $this->title;
     }
 
     // Функция для добавления границ на объект при наведении
-    function addOutlineOnHover(event) {
+    function addOutlineOnHover(event)
+    {
         if (!isDragging)
         {
             var intersects = getIntersects(event);
@@ -212,7 +218,8 @@ $this->params['breadcrumbs'][] = $this->title;
     }
 
     // Обновляем новое положение объекта
-    function updatePositionSelectedObject (newX, newY, reserveX, reserveY, newZ = null) {
+    function updatePositionSelectedObject (newX, newY, reserveX, reserveY, newZ = null)
+    {
         if (newZ === null)
         {
             newZ = axisZ;
@@ -257,15 +264,9 @@ $this->params['breadcrumbs'][] = $this->title;
         }
     });
 
-    // Функция для поиска объекта по точным координатам в группе
-    function findObjectByPosition(group, positionToFind) {
-        group.traverse(function(child) {
-            if (child.isMesh && child.position.equals(positionToFind)) {
-                return child;
-            }
-        });
-
-        return null;
+    function isPartForSet()
+    {
+        
     }
 
     function setColorGridMesh()
@@ -276,7 +277,6 @@ $this->params['breadcrumbs'][] = $this->title;
         var halfWidth = selectedObject.geometry.parameters.width / 2;
         var halfHeight = selectedObject.geometry.parameters.height / 2;
 
-
         if (!Number.isInteger(selectedObject.rotation.z / Math.PI))
         {
             var temp = rotateWidth;
@@ -284,33 +284,25 @@ $this->params['breadcrumbs'][] = $this->title;
             rotateHeight = temp;
         }
 
-        for (cellSelectedObject = 0; cellSelectedObject < selectedObject.geometry.parameters.width*selectedObject.geometry.parameters.height; cellSelectedObject++)
-        {
-            const objectPositionToFind = new THREE.Vector3(selectedObject.position.x - rotateWidth, selectedObject.position.y, 0);
-            var cellGrid = findObjectByPosition(gridMesh, objectPositionToFind);
-            cellGrid.material.color.set('#00FF00');
-            // тут нужно придумать смещение для прохода по всей площадью тени образуемой фигурой
-        }
-
         // и не забыть подтереть нарисованные тени
-        console.log('-------------------------------');
-        console.log(selectedObject.position.x - rotateWidth, selectedObject.position.y - rotateHeight);
+
         gridMesh.children.forEach((cell) => {
             if (cell.position.x === (selectedObject.position.x - rotateWidth) && cell.position.y === (selectedObject.position.y - rotateHeight))
             {
-                console.log(cell);
                 cell.material.color.set('#00FF00');
             }
             else
             {
-                //cell.material.color.set('#808080');
+                cell.material.color.set('#808080');
             }
         })
     }
 
     // Логика перемещения объекта
-    function dragAndDrop(event) {
-        if (isDragging) {
+    function dragAndDrop(event)
+    {
+        if (isDragging)
+        {
             var intersects = getIntersects(event);
 
             if (intersects.length > 0) {
@@ -332,7 +324,8 @@ $this->params['breadcrumbs'][] = $this->title;
         }
     }
 
-    function onMouseDown() {
+    function onMouseDown()
+    {
         if(selectedObject)
         {
             isDragging = true;
@@ -349,7 +342,8 @@ $this->params['breadcrumbs'][] = $this->title;
         }
     }
 
-    function onMouseUp() {
+    function onMouseUp()
+    {
         isDragging = false;
 
         if (outlineMeshSelectedObject) {
@@ -379,7 +373,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     //------------------------------------
 
-    function animate() {
+    function animate()
+    {
         requestAnimationFrame( animate );
         renderer.render( scene, camera );
     }

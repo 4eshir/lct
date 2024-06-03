@@ -78,16 +78,19 @@ if (sliderEl4)
         window.requestAnimationFrame = requestAnimationFrame;
     })();
 
-// Terrain stuff.
-var background = document.getElementById("bgCanvas"),
-    bgCtx = background.getContext("2d"),
-    width = window.innerWidth,
-    height = document.body.offsetHeight;
+if (document.getElementById("bgCanvas"))
+{
+    // Terrain stuff.
+    var //background = document.getElementById("bgCanvas"),
+        bgCtx = background.getContext("2d"),
+        width = window.innerWidth,
+        height = document.body.offsetHeight;
 
-(height < 400) ? height = 400 : height;
+    (height < 400) ? height = 400 : height;
 
-background.width = width;
-background.height = height;
+    background.width = width;
+    background.height = height;
+}
 
 function Terrain(options) {
     options = options || {};
@@ -147,10 +150,12 @@ Terrain.prototype.update = function () {
     this.terCtx.fill();
 }
 
-
-// Second canvas used for the stars
-bgCtx.fillStyle = '#05004c';
-bgCtx.fillRect(0, 0, width, height);
+if (bgCtx)
+{
+    // Second canvas used for the stars
+    bgCtx.fillStyle = '#05004c';
+    bgCtx.fillRect(0, 0, width, height);
+}
 
 // stars
 function Star(options) {
@@ -198,11 +203,14 @@ ShootingStar.prototype.update = function () {
         if (this.x < 0 || this.y >= height) {
             this.reset();
         } else {
-            bgCtx.lineWidth = this.size;
-            bgCtx.beginPath();
-            bgCtx.moveTo(this.x, this.y);
-            bgCtx.lineTo(this.x + this.len, this.y - this.len);
-            bgCtx.stroke();
+            if (bgCtx)
+            {
+                bgCtx.lineWidth = this.size;
+                bgCtx.beginPath();
+                bgCtx.moveTo(this.x, this.y);
+                bgCtx.lineTo(this.x + this.len, this.y - this.len);
+                bgCtx.stroke();
+            }
         }
     } else {
         if (this.waitTime < new Date().getTime()) {
@@ -229,17 +237,20 @@ entities.push(new Terrain({displacement : 120, scrollDelay : 50, fillStyle : "rg
 entities.push(new Terrain({displacement : 100, scrollDelay : 20, fillStyle : "rgb(10,10,5)", mHeight : height/2}));
 
 //animate background
-function animate() {
-    bgCtx.fillStyle = '#110E19';
-    bgCtx.fillRect(0, 0, width, height);
-    bgCtx.fillStyle = '#ffffff';
-    bgCtx.strokeStyle = '#ffffff';
+function animates() {
+    if (bgCtx)
+    {
+        bgCtx.fillStyle = '#110E19';
+        bgCtx.fillRect(0, 0, width, height);
+        bgCtx.fillStyle = '#ffffff';
+        bgCtx.strokeStyle = '#ffffff';
+    }
 
     var entLen = entities.length;
 
     while (entLen--) {
         entities[entLen].update();
     }
-    requestAnimationFrame(animate);
+    requestAnimationFrame(animates);
 }
-animate();
+animates();

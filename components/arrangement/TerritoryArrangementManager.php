@@ -239,8 +239,6 @@ class TerritoryArrangementManager
             }
         }
 
-        var_dump('STOPLIST: '.$cleanStopList[181]);
-
         $fills = [
             ObjectWork::TYPE_RECREATION => $this->territory->state->fillRecreation,
             ObjectWork::TYPE_SPORT => $this->territory->state->fillSport,

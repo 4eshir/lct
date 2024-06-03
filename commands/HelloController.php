@@ -33,7 +33,7 @@ class HelloController extends Controller
     public function actionIndex()
     {
         $facade = Yii::createObject(TerritoryFacade::class);
-        $matrixModel = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, 1, TerritoryFacade::OPTIONS_BUDGET_ECONOMY);
+        $matrixModel = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, 1, TerritoryFacade::OPTIONS_DEFAULT);
         $matrixModel->showMatrix(fopen('php://stdout', 'w'));
 
         $arModel = $facade->model;
@@ -45,21 +45,8 @@ class HelloController extends Controller
 
     public function actionTest()
     {
-        $fuzzy = new FuzzyIntervals();
-        $fuzzy->createIntervals([0, 2, 4, 6]);
-
-        for ($i = 0; $i < count($fuzzy->intervals); $i++) {
-            if ($i == 0) {
-                $intervalType = FuzzyIntervals::INTERVAL_TYPE_START;
-            } else if ($i == count($fuzzy->intervals) - 1) {
-                $intervalType = FuzzyIntervals::INTERVAL_TYPE_END;
-            } else {
-                $intervalType = FuzzyIntervals::INTERVAL_TYPE_MIDDLE;
-            }
-
-            var_dump(FuzzyLogicHelper::calculateSafeInterval($fuzzy->intervals[$i], $intervalType));
-        }
-
-        var_dump($fuzzy->belongToInterval(4.6));
+        var_dump('lct2024task3');
+        var_dump(md5('lct2024task3'));
+        var_dump(md5('lct2024task3'));
     }
 }

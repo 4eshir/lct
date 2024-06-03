@@ -10,7 +10,7 @@ class ArrangementModelFacade
 {
     private $matrix; // матрица расстановки объектов
     private $objects; // список объектов формата [id => кол-во, ...]
-    private $objectsPosition; /** список объектов @see ObjectExtended */
+    public $objectsPosition; /** список объектов @see ObjectExtended */
 
     public function __construct(array $matrix, array $objects, array $objectsList)
     {

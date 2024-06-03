@@ -3,7 +3,9 @@
 namespace app\components\arrangement;
 
 use app\facades\ArrangementModelFacade;
+use app\facades\TerritoryFacade;
 use app\helpers\MathHelper;
+use app\models\ObjectExtended;
 use app\models\work\AgesWeightChangeableWork;
 use app\models\work\AgesWeightWork;
 use app\models\work\ArrangementWork;
@@ -14,6 +16,7 @@ use app\models\work\UserWork;
 use Yii;
 use yii\db\Exception;
 use yii\db\Expression;
+use yii\helpers\ArrayHelper;
 
 class TerritoryArrangementManager
 {
@@ -218,12 +221,26 @@ class TerritoryArrangementManager
 
     /**
      * Подставляет в текущую расстановку подходящий объект
-     * @param int $economy 0 - обычная расстановка, 1 - расстановка с максимальной экономией бюджета
+     * @param int $addGenType тип генерации @see TerritoryFacade константы OPTIONS
+     * @param float|null $referenceUnitCost эталонная средняя удельная стоимость кв. единицы
+     * @param int|null $referenceEmptyCells эталонное количество пустых ячеек (кв. единиц)
+     * @param ObjectExtended[] $stopListObject список объектов, размещение которых допускается в последнюю очередь
      * @return bool
      * @throws Exception
      */
-    public function setSuitableObject($economy = 0, $referenceUnitCost = null, $referenceEmptyCells = null)
+    public function setSuitableObject(int $addGenType = TerritoryFacade::OPTIONS_DEFAULT, $referenceUnitCost = null, $referenceEmptyCells = null, $stopListObject = [])
     {
+        $cleanStopList = [];
+        if ($stopListObject != [])
+        {
+            /** @var ObjectExtended[] $stopListObject */
+            foreach ($stopListObject as $object) {
+                $cleanStopList[$object->object->id] = 1;
+            }
+        }
+
+        var_dump('STOPLIST: '.$cleanStopList[181]);
+
         $fills = [
             ObjectWork::TYPE_RECREATION => $this->territory->state->fillRecreation,
             ObjectWork::TYPE_SPORT => $this->territory->state->fillSport,
@@ -255,25 +272,32 @@ class TerritoryArrangementManager
             $objects = ObjectWork::find()
                 ->select(['*', 'unit_cost' => new Expression('`cost` / (`length` * `width`)')])
                 ->where(['object_type_id' => $key])
-                ->andWhere(['NOT IN', 'id', $economy == 0 ? array_keys($this->territory->state->objectIds) : []]);
+                ->andWhere(['NOT IN', 'id', $addGenType !== TerritoryFacade::OPTIONS_BUDGET_ECONOMY ? array_keys($this->territory->state->objectIds) : []]);
 
-            if ($economy == 1) {
+            if ($addGenType == TerritoryFacade::OPTIONS_SIMILAR) {
+                $objects = $objects->andWhere(['NOT IN', 'id', array_keys($cleanStopList)]);
+            }
+
+
+            if ($addGenType == TerritoryFacade::OPTIONS_BUDGET_ECONOMY) {
                 $objects = $objects->orderBy(['unit_cost' => SORT_ASC]);
             }
 
             $objects = $objects->all();
             arsort($this->territory->state->objectIds);
-            $objectIdsCopy = $this->territory->state->objectIds;
+            $objectIdsCopy = $cleanStopList + $this->territory->state->objectIds;
 
             while (count($objects) == 0 && count($objectIdsCopy) > 0) {
+
                 $objects = ObjectWork::find()
                     ->select(['*', 'unit_cost' => new Expression('`cost` / (`length` * `width`)')])
                     ->where(['object_type_id' => $key])
                     ->andWhere(['NOT IN', 'id', array_keys($objectIdsCopy)]);
 
-                if ($economy == 1) {
+                if ($addGenType == TerritoryFacade::OPTIONS_BUDGET_ECONOMY) {
                     $objects = $objects->orderBy(['unit_cost' => SORT_ASC]);
                 }
+
                 $objects = $objects->all();
 
                 array_pop($objectIdsCopy);
@@ -285,7 +309,7 @@ class TerritoryArrangementManager
                         $installFlag = true;
                         $this->installObject($object, $point[0], $point[1], $point[2]);
 
-                        if ($economy == 1 && $this->checkReferences($referenceUnitCost, $referenceEmptyCells)) {
+                        if ($addGenType == 1 && $this->checkReferences($referenceUnitCost, $referenceEmptyCells)) {
                             $this->removeObject($object, $point[0], $point[1], $point[2]);
                             return false;
                         }

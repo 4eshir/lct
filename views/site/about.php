@@ -135,6 +135,28 @@ $this->params['breadcrumbs'][] = $this->title;
         // !!! написать функцию инициализации объектов, не забыть про указание  interactiveObjects и axisZ
     }
 
+    let dot = {
+        x: 'undefined',
+        y: 'undefined',
+        addDot: function (x, y) {
+            this.x = x;
+            this.y = y;
+        },
+        isEquals: function (otherDot) {
+            return this.x === otherDot.x && this.y === otherDot.y;
+        },
+        isIntegerCoordinate: function () {
+            return Number.isInteger(this.x) && Number.isInteger(this.y);
+        },
+        clearDot: function () {
+            this.x = 'undefined';
+            this.y = 'undefined';
+        },
+        isEmpty: function () {
+            return this.x === 'undefined' || this.y === 'undefined';
+        }
+    }
+
     // Массив разрешенных к взаимодействию объектов
     var interactiveObjects = [rectangle, sphere];
 
@@ -150,33 +172,31 @@ $this->params['breadcrumbs'][] = $this->title;
     var selectedObjectRotateX = false;
     var selectedObjectRotateY = false;
     let selectedObjectRotatePoint = {
-        point0deg: {x: 'undefined', y: 'undefined'},
-        point90deg: {x: 'undefined', y: 'undefined'},
+        point0deg: Object.create(dot),
+        point90deg: Object.create(dot),
         isEmptyPoint: function () {
-            if (this.point0deg.x === 'undefined' && this.point0deg.y === 'undefined')
-                return true;
-            return false;
+            return this.point0deg.isEmpty() || this.point90deg.isEmpty();
         },
         clear: function () {
-            this.point0deg.x = 'undefined';
-            this.point0deg.y = 'undefined';
-            this.point90deg.x = 'undefined';
-            this.point90deg.y = 'undefined';
+            this.point0deg.clearDot();
+            this.point90deg.clearDot();
         },
         addPoint0deg: function (x, y) {
-            this.point0deg.x = x;
-            this.point0deg.y = y;
+            this.point0deg.addDot(x, y);
         },
         addPoint90deg: function (x, y) {
-            this.point90deg.x = x;
-            this.point90deg.y = y;
+            this.point90deg.addDot(x, y);
+        },
+        getPoint: function (rotationZ) {
+            if (!Number.isInteger(rotationZ))
+            {
+                return this.point0deg;
+            }
+
+            return this.point90deg;
         }
     };
 
-    let dot = {
-        x: 'undefined',
-        y: 'undefined',
-    }
 
     function getIntersects(event)
     {
@@ -218,21 +238,14 @@ $this->params['breadcrumbs'][] = $this->title;
     }
 
     // Обновляем новое положение объекта
-    function updatePositionSelectedObject (newX, newY, reserveX, reserveY, newZ = null)
+    function updatePositionSelectedObject (newDot, newZ = null)
     {
         if (newZ === null)
         {
             newZ = axisZ;
         }
 
-        if (!Number.isInteger(selectedObject.rotation.z / Math.PI))
-        {
-            selectedObject.position.set(newX, newY, newZ);
-        }
-        else
-        {
-            selectedObject.position.set(reserveX, reserveY, newZ);
-        }
+        selectedObject.position.set(newDot.x, newDot.y, newZ);
     }
 
     // Поворот объектов вокруг своей оси
@@ -258,7 +271,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     selectedObjectRotatePoint.addPoint90deg(selectedObject.position.x + rotateX - rotateY, selectedObject.position.y + rotateY - rotateX)
                 }
 
-                updatePositionSelectedObject(selectedObjectRotatePoint.point90deg.x, selectedObjectRotatePoint.point90deg.y, selectedObjectRotatePoint.point0deg.x, selectedObjectRotatePoint.point0deg.y);
+                updatePositionSelectedObject(selectedObjectRotatePoint.getPoint(selectedObject.rotation.z / Math.PI));
             }
 
         }
@@ -274,8 +287,8 @@ $this->params['breadcrumbs'][] = $this->title;
         var rotateWidth = selectedObjectRotateX ? 0.5 : 0;
         var rotateHeight = selectedObjectRotateY ? 0.5 : 0;
 
-        var halfWidth = selectedObject.geometry.parameters.width / 2;
-        var halfHeight = selectedObject.geometry.parameters.height / 2;
+        var widthObject = selectedObject.geometry.parameters.width;
+        var heightObject = selectedObject.geometry.parameters.height;
 
         if (!Number.isInteger(selectedObject.rotation.z / Math.PI))
         {
@@ -284,7 +297,14 @@ $this->params['breadcrumbs'][] = $this->title;
             rotateHeight = temp;
         }
 
+        var dotsObject = [];
         // и не забыть подтереть нарисованные тени
+        for (var i = 0; i < widthObject * heightObject; i++)
+        {//выглядит на отладке будто х и у местами поменяли
+            dotsObject.push(new dot.addDot(i % widthObject - widthObject , Math.floor(i / widthObject) - heightObject / 2 + rotateHeight));
+        }
+        console.log(dotsObject);
+        console.log(selectedObject.position.x - rotateWidth , selectedObject.position.y - rotateHeight);
 
         gridMesh.children.forEach((cell) => {
             if (cell.position.x === (selectedObject.position.x - rotateWidth) && cell.position.y === (selectedObject.position.y - rotateHeight))
@@ -317,7 +337,10 @@ $this->params['breadcrumbs'][] = $this->title;
                 var rotateWidth = selectedObjectRotateX ? 0.5 : 0;
                 var rotateHeight = selectedObjectRotateY ? 0.5 : 0;
 
-                updatePositionSelectedObject(Math.round(newX) + rotateHeight, Math.round(newY) + rotateWidth, Math.round(newX) + rotateWidth, Math.round(newY) + rotateHeight);
+                var coordinate = Object.create(selectedObjectRotatePoint);
+                coordinate.addPoint0deg(Math.round(newX) + rotateHeight, Math.round(newY) + rotateWidth);
+                coordinate.addPoint90deg(Math.round(newX) + rotateWidth, Math.round(newY) + rotateHeight);
+                updatePositionSelectedObject(coordinate.getPoint(selectedObject.rotation.z / Math.PI));
 
                 setColorGridMesh();
             }
@@ -353,9 +376,10 @@ $this->params['breadcrumbs'][] = $this->title;
 
         if (selectedObject)
         {
-            for(z = axisZ; z > 0.5; z -= 0.01)
+            var newDot = new dot.addDot(selectedObject.position.x, selectedObject.position.y);
+            for(var z = axisZ; z > 0.5; z -= 0.01)
             {
-                updatePositionSelectedObject(selectedObject.position.x, selectedObject.position.y, selectedObject.position.x, selectedObject.position.y, z);
+                updatePositionSelectedObject(newDot, z);
             }
 
             selectedObjectRotateX = false;

@@ -19,13 +19,13 @@ class m240502_101715_add_questionnaire extends Migration
             'role' => $this->smallInteger()->comment('1 - житель, 2 - член администрации, 3 - бог'),
         ]);
 
-        $this->addForeignKey('fk1-user',
+        /*$this->addForeignKey('fk1-user',
             'user',
             'municipality_id',
             'municipality',
             'id',
             'RESTRICT',
-            'RESTRICT');
+            'RESTRICT');*/
 
 
         $this->createTable('questionnaire', [
@@ -39,7 +39,7 @@ class m240502_101715_add_questionnaire extends Migration
             'arrangement_matrix' => $this->json()->null(),
         ]);
 
-        $this->addForeignKey('fk1-questionnaire',
+        /*$this->addForeignKey('fk1-questionnaire',
             'questionnaire',
             'user_id',
             'user',
@@ -53,7 +53,7 @@ class m240502_101715_add_questionnaire extends Migration
             'ages_interval',
             'id',
             'RESTRICT',
-            'RESTRICT');
+            'RESTRICT');*/
     }
 
     /**

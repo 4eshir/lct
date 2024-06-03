@@ -1,59 +1,72 @@
-const sliderEl1 = document.querySelector("#questionform-answerssportcoef")
-const sliderValue1 = document.querySelector(".value1")
+const sliderEl1 = document.querySelector("#questionform-answerssportcoef");
+const sliderValue1 = document.querySelector(".value1");
 
-const sliderEl2 = document.querySelector("#questionform-answersrecreationcoef")
-const sliderValue2 = document.querySelector(".value2")
+const sliderEl2 = document.querySelector("#questionform-answersrecreationcoef");
+const sliderValue2 = document.querySelector(".value2");
 
-const sliderEl3 = document.querySelector("#questionform-answersgamecoef")
-const sliderValue3 = document.querySelector(".value3")
+const sliderEl3 = document.querySelector("#questionform-answersgamecoef");
+const sliderValue3 = document.querySelector(".value3");
 
-const sliderEl4 = document.querySelector("#questionform-answerseducationalcoef")
-const sliderValue4 = document.querySelector(".value4")
+const sliderEl4 = document.querySelector("#questionform-answerseducationalcoef");
+const sliderValue4 = document.querySelector(".value4");
 
 
-sliderEl1.addEventListener("input", (event) => {
-    const tempSliderValue = event.target.value;
-    sliderValue1.textContent = tempSliderValue;
+if (sliderEl1)
+{
+    sliderEl1.addEventListener("input", (event) => {
+        const tempSliderValue = event.target.value;
+        sliderValue1.textContent = tempSliderValue;
 
-    const minValue = parseInt(sliderEl1.min);
-    const range = parseInt(sliderEl1.max) - minValue;
-    const progress = ((tempSliderValue - minValue) / range) * 100;
+        const minValue = parseInt(sliderEl1.min);
+        const range = parseInt(sliderEl1.max) - minValue;
+        const progress = ((tempSliderValue - minValue) / range) * 100;
 
-    sliderEl1.style.background = `linear-gradient(to right, #88B6F4 ${progress}%, #ccc ${progress}%)`;
-})
+        sliderEl1.style.background = `linear-gradient(to right, #88B6F4 ${progress}%, #ccc ${progress}%)`;
+    })
+}
 
-sliderEl2.addEventListener("input", (event) => {
-    const tempSliderValue = event.target.value;
-    sliderValue2.textContent = tempSliderValue;
+if (sliderEl2)
+{
+    sliderEl2.addEventListener("input", (event) => {
+        const tempSliderValue = event.target.value;
+        sliderValue2.textContent = tempSliderValue;
 
-    const minValue = parseInt(sliderEl2.min);
-    const range = parseInt(sliderEl2.max) - minValue;
-    const progress = ((tempSliderValue - minValue) / range) * 100;
+        const minValue = parseInt(sliderEl2.min);
+        const range = parseInt(sliderEl2.max) - minValue;
+        const progress = ((tempSliderValue - minValue) / range) * 100;
 
-    sliderEl2.style.background = `linear-gradient(to right, #88B6F4 ${progress}%, #ccc ${progress}%)`;
-})
+        sliderEl2.style.background = `linear-gradient(to right, #88B6F4 ${progress}%, #ccc ${progress}%)`;
+    })
+}
 
-sliderEl3.addEventListener("input", (event) => {
-    const tempSliderValue = event.target.value;
-    sliderValue3.textContent = tempSliderValue;
+if (sliderEl3)
+{
+    sliderEl3.addEventListener("input", (event) => {
+        const tempSliderValue = event.target.value;
+        sliderValue3.textContent = tempSliderValue;
 
-    const minValue = parseInt(sliderEl3.min);
-    const range = parseInt(sliderEl3.max) - minValue;
-    const progress = ((tempSliderValue - minValue) / range) * 100;
+        const minValue = parseInt(sliderEl3.min);
+        const range = parseInt(sliderEl3.max) - minValue;
+        const progress = ((tempSliderValue - minValue) / range) * 100;
 
-    sliderEl3.style.background = `linear-gradient(to right, #88B6F4 ${progress}%, #ccc ${progress}%)`;
-})
+        sliderEl3.style.background = `linear-gradient(to right, #88B6F4 ${progress}%, #ccc ${progress}%)`;
+    })
+}
 
-sliderEl4.addEventListener("input", (event) => {
-    const tempSliderValue = event.target.value;
-    sliderValue4.textContent = tempSliderValue;
+if (sliderEl4)
+{
+    sliderEl4.addEventListener("input", (event) => {
+        const tempSliderValue = event.target.value;
+        sliderValue4.textContent = tempSliderValue;
 
-    const minValue = parseInt(sliderEl4.min);
-    const range = parseInt(sliderEl4.max) - minValue;
-    const progress = ((tempSliderValue - minValue) / range) * 100;
+        const minValue = parseInt(sliderEl4.min);
+        const range = parseInt(sliderEl4.max) - minValue;
+        const progress = ((tempSliderValue - minValue) / range) * 100;
 
-    sliderEl4.style.background = `linear-gradient(to right, #88B6F4 ${progress}%, #ccc ${progress}%)`;
-})
+        sliderEl4.style.background = `linear-gradient(to right, #88B6F4 ${progress}%, #ccc ${progress}%)`;
+    })
+}
+
 
 
 // -- Анимация для главной --

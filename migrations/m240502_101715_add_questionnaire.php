@@ -31,15 +31,15 @@ class m240502_101715_add_questionnaire extends Migration
         $this->createTable('questionnaire', [
             'id' => $this->primaryKey(),
             'user_id' => $this->integer(),
-            'ages_interval_id' => $this->integer(),
+            /*'ages_interval_id' => $this->integer(),
             'sport_tendency' => $this->smallInteger(),
             'recreation_tendency' => $this->smallInteger(),
             'game_tendency' => $this->smallInteger(),
             'education_tendency' => $this->smallInteger(),
-            //'arrangement_matrix' => $this->json()->null(),
+            'arrangement_matrix' => $this->json()->null(),*/
         ]);
 
-        $this->addForeignKey('fk1-questionnaire',
+        /*$this->addForeignKey('fk1-questionnaire',
             'questionnaire',
             'user_id',
             'user',
@@ -53,7 +53,7 @@ class m240502_101715_add_questionnaire extends Migration
             'ages_interval',
             'id',
             'RESTRICT',
-            'RESTRICT');
+            'RESTRICT');*/
     }
 
     /**

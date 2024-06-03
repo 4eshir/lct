@@ -25,7 +25,7 @@ class m240502_101715_add_questionnaire extends Migration
             'municipality',
             'id',
             'RESTRICT',
-            'RESTRICT');*/
+            'RESTRICT');
 
 
         $this->createTable('questionnaire', [
@@ -39,7 +39,7 @@ class m240502_101715_add_questionnaire extends Migration
             'arrangement_matrix' => $this->json()->null(),
         ]);
 
-        /*$this->addForeignKey('fk1-questionnaire',
+        $this->addForeignKey('fk1-questionnaire',
             'questionnaire',
             'user_id',
             'user',

@@ -1,5 +1,6 @@
 <?php
 
+use app\models\work\AgesIntervalWork;
 use app\models\work\AgesWeightWork;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -29,14 +30,21 @@ $this->params['breadcrumbs'][] = $this->title;
         'columns' => [
 
             'id',
-            'self_weight',
+            [
+                'attribute' => 'ages_interval_id',
+                'value' => function($model) {
+                    $intervals = AgesIntervalWork::find()->where(['id' => $model->ages_interval_id])->one();
+                    return $intervals->left_age . ' - ' .$intervals->right_age . ' л.';
+                }
+            ],
             'sport_weight',
             'game_weight',
             'education_weight',
-            //'recreation_weight',
-            //'ages_interval_id',
+            'recreation_weight',
+
             [
                 'class' => ActionColumn::className(),
+                'template' => '{view} {update}',
                 'urlCreator' => function ($action, AgesWeightWork $model, $key, $index, $column) {
                     return Url::toRoute([$action, 'id' => $model->id]);
                  }

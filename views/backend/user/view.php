@@ -6,7 +6,7 @@ use yii\widgets\DetailView;
 /** @var yii\web\View $this */
 /** @var app\models\work\UserWork $model */
 
-$this->title = $model->id;
+$this->title = $model->login;
 $this->params['breadcrumbs'][] = [
     'label' => 'Админ-панель',
     'url' => ['/backend/admin/index'],
@@ -36,9 +36,12 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'login',
             'municipality_id',
-            'role',
-            'auth_flag',
-            'password_hash',
+            [
+                'attribute' => 'role',
+                'value' => function($model) {
+                    return $model->prettyRole;
+                },
+            ],
         ],
     ]) ?>
 

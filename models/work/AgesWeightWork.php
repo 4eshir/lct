@@ -17,6 +17,7 @@ class AgesWeightWork extends AgesWeight
             'game_weight' => 'Вес игровых объектов',
             'education_weight' => 'Вес образовательных объектов',
             'recreation_weight' => 'Вес рекреационных объектов',
+            'ages_interval_id' => 'Возрастной интервал',
         ];
     }
 }

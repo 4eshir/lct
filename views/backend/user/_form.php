@@ -1,5 +1,7 @@
 <?php
 
+use app\models\work\MunicipalityWork;
+use app\models\work\UserWork;
 use yii\helpers\Html;
 use yii\widgets\ActiveForm;
 
@@ -14,11 +16,9 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'login')->textInput(['maxlength' => true]) ?>
 
-    <?= $form->field($model, 'municipality_id')->textInput() ?>
+    <?= $form->field($model, 'municipality_id')->dropDownList(MunicipalityWork::GetAllMunicipalities(), ['prompt' => '---']) ?>
 
-    <?= $form->field($model, 'role')->textInput() ?>
-
-    <?= $form->field($model, 'auth_flag')->textInput() ?>
+    <?= $form->field($model, 'role')->dropDownList(UserWork::GetAllRoles()) ?>
 
     <div class="form-group">
         <?= Html::submitButton('Сохранить', ['class' => 'btn btn-success']) ?>

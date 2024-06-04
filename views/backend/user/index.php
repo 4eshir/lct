@@ -35,9 +35,12 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'login',
             'municipality_id',
-            'role',
-            'auth_flag',
-            //'password_hash',
+            [
+                'attribute' => 'role',
+                'value' => function($model) {
+                    return $model->prettyRole;
+                },
+            ],
             [
                 'class' => ActionColumn::className(),
                 'urlCreator' => function ($action, UserWork $model, $key, $index, $column) {

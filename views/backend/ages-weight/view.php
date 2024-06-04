@@ -1,5 +1,6 @@
 <?php
 
+use app\models\work\AgesIntervalWork;
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 
@@ -27,12 +28,19 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'id',
+            [
+                'attribute' => 'ages_interval_id',
+                'value' => function($model) {
+                    $intervals = AgesIntervalWork::find()->where(['id' => $model->ages_interval_id])->one();
+                    return $intervals->left_age . ' - ' .$intervals->right_age . ' л.';
+                }
+            ],
             'self_weight',
             'sport_weight',
             'game_weight',
             'education_weight',
             'recreation_weight',
-            'ages_interval_id',
+
         ],
     ]) ?>
 

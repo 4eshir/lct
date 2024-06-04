@@ -1,5 +1,8 @@
 <?php
 
+use app\models\work\AgesIntervalWork;
+use app\models\work\TerritoryWork;
+use app\models\work\UserWork;
 use yii\helpers\Html;
 use yii\widgets\DetailView;
 
@@ -23,14 +26,38 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'id',
-            'user_id',
-            'ages_interval_id',
-            'sport_tendency',
-            'recreation_tendency',
-            'game_tendency',
-            'education_tendency',
-            'arrangement_matrix:ntext',
-            'territory_id',
+            [
+                'attribute' => 'user_id',
+                'value' => function($model) {
+                    return UserWork::find()->where(['id' => $model->user_id])->one()->login;
+                }
+            ],
+            [
+                'attribute' => 'ages_interval_id',
+                'value' => function($model) {
+                    $intervals = AgesIntervalWork::find()->where(['id' => $model->ages_interval_id])->one();
+                    return $intervals->left_age . ' - ' .$intervals->right_age . ' л.';
+                }
+            ],
+
+            [
+                'label' => 'Приоритеты',
+                'attribute' => 'tendency',
+                'value' => function($model) {
+                    return 'Рекреация: ' . $model->recreation_tendency . " / 10<br>" .
+                        'Спорт: ' . $model->sport_tendency . " / 10<br>" .
+                        'Развивающий: ' . $model->education_tendency . " / 10<br>" .
+                        'Игровой: ' . $model->game_tendency . " / 10<br>";
+                },
+                'format' => 'raw',
+            ],
+
+            [
+                'attribute' => 'territory_id',
+                'value' => function($model) {
+                    return TerritoryWork::find()->where(['id' => $model->territory_id])->one()->name;
+                }
+            ],
         ],
     ]) ?>
 

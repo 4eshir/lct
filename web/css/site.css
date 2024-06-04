@@ -121,6 +121,13 @@ footer a {
     font-size: 20px;
 }
 
+.header-link-think {
+    color: white !important;
+    font-family: "Nunito", sans-serif;
+    font-weight: 400;
+    font-size: 20px;
+}
+
 .header-link-active {
     color: #ADD8E6 !important;
     font-family: "Nunito", sans-serif;
@@ -131,4 +138,17 @@ footer a {
 .logo-class {
     width: 90px;
     height: 40px;
+}
+
+.main-block-admin {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+}
+
+#w3 {
+    background-color: white !important;
+    padding: 10px !important;
+    margin-top: 10px !important;
+    border-radius: 5px !important;
 }

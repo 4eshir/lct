@@ -5,7 +5,6 @@ namespace app\controllers\backend;
 use app\models\forms\ChooseTerritoryForm;
 use app\models\forms\ConstructorTerritoryForm;
 use app\services\backend\AdminService;
-use app\services\frontend\AdministrationService;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -26,17 +25,9 @@ class AdminController extends Controller
 
     public function actionIndex()
     {
-        Yii::$app->session->set('header-active', 'admin-panel');
+        Yii::$app->session->set('header-active', 'admin-login');
 
-        $model = new ChooseTerritoryForm();
-
-        if (Yii::$app->request->post() && $model->load(Yii::$app->request->post())) {
-            return $this->redirect(['constructor', 'tId' => $model->territoryId]);
-        }
-
-        return $this->render('index', [
-            'model' => $model,
-        ]);
+        return $this->render('index');
     }
 
     public function actionConstructor($tId)

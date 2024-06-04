@@ -19,6 +19,8 @@ use Yii;
  * @property int|null $object_type_id
  * @property string|null $creator
  * @property int|null $dead_zone_size
+ * @property string|null $style
+ * @property string|null $model_path
  *
  * @property ObjectType $objectType
  */
@@ -41,6 +43,7 @@ class ObjectT extends \yii\db\ActiveRecord
             [['length', 'width', 'height', 'created_time', 'install_time', 'worker_count', 'object_type_id', 'dead_zone_size'], 'integer'],
             [['cost'], 'number'],
             [['name', 'creator'], 'string', 'max' => 256],
+            [['style', 'model_path'], 'string', 'max' => 255],
             [['object_type_id'], 'exist', 'skipOnError' => true, 'targetClass' => ObjectType::class, 'targetAttribute' => ['object_type_id' => 'id']],
         ];
     }
@@ -63,6 +66,8 @@ class ObjectT extends \yii\db\ActiveRecord
             'object_type_id' => 'Object Type ID',
             'creator' => 'Creator',
             'dead_zone_size' => 'Dead Zone Size',
+            'style' => 'Style',
+            'model_path' => 'Model Path',
         ];
     }
 

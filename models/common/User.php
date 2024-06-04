@@ -9,7 +9,7 @@ use Yii;
  *
  * @property int $id
  * @property string|null $login
- * @property int $municipality_id
+ * @property int|null $municipality_id
  * @property int|null $role 1 - житель, 2 - член администрации, 3 - бог
  * @property int|null $auth_flag
  *
@@ -32,7 +32,6 @@ class User extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['municipality_id'], 'required'],
             [['municipality_id', 'role', 'auth_flag'], 'integer'],
             [['login'], 'string', 'max' => 255],
             [['municipality_id'], 'exist', 'skipOnError' => true, 'targetClass' => Municipality::class, 'targetAttribute' => ['municipality_id' => 'id']],

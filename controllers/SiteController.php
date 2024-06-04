@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\models\forms\AdminLoginForm;
+use app\models\work\UserWork;
 use Yii;
 use yii\filters\AccessControl;
 use yii\web\Controller;
@@ -13,31 +14,6 @@ use app\models\ContactForm;
 
 class SiteController extends Controller
 {
-    /**
-     * {@inheritdoc}
-     */
-    public function behaviors()
-    {
-        return [
-            'access' => [
-                'class' => AccessControl::class,
-                'only' => ['logout'],
-                'rules' => [
-                    [
-                        'actions' => ['logout'],
-                        'allow' => true,
-                        'roles' => ['@'],
-                    ],
-                ],
-            ],
-            'verbs' => [
-                'class' => VerbFilter::class,
-                'actions' => [
-                    'logout' => ['post'],
-                ],
-            ],
-        ];
-    }
 
     /**
      * {@inheritdoc}
@@ -90,18 +66,6 @@ class SiteController extends Controller
     }
 
     /**
-     * Logout action.
-     *
-     * @return Response
-     */
-    public function actionLogout()
-    {
-        Yii::$app->user->logout();
-
-        return $this->goHome();
-    }
-
-    /**
      * Displays contact page.
      *
      * @return Response|string
@@ -125,6 +89,10 @@ class SiteController extends Controller
 
         $model = new AdminLoginForm();
 
+        if (UserWork::getAuthUser()->role == UserWork::ROLE_GOD) {
+            return $this->redirect(['/backend/admin/index']);
+        }
+
         if ($model->load(Yii::$app->request->post())) {
             if ($model->login()) {
                 return $this->redirect(['/backend/admin/index']);
@@ -135,6 +103,12 @@ class SiteController extends Controller
         return $this->render('admin-login', [
             'model' => $model,
         ]);
+    }
+
+    public function actionLogout()
+    {
+        var_dump('boobs');
+        UserWork::logout();
     }
 
     /**

@@ -7,6 +7,15 @@ use yii\helpers\ArrayHelper;
 
 class TerritoryWork extends Territory
 {
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'length' => 'Длина (в см)',
+            'width' => 'Ширина (в см)',
+            'name' => 'Название',
+        ];
+    }
 
     public static function GetAllTerritories()
     {

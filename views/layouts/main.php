@@ -59,7 +59,7 @@ $username = $user ? $user->login : '---';
             ['label' => 'Администрация', 'url' => ['/frontend/administration/index'], 'linkOptions' => ['class' => $headerActive == 'administration' ? 'header-link-active' : 'header-link']],
             ['label' => 'Пользователи', 'url' => ['/user/index'], 'linkOptions' => ['class' => $headerActive == 'user' ? 'header-link-active' : 'header-link']],
             ['label' => 'Админ-панель', 'url' => ['/site/admin-login'], 'linkOptions' => ['class' => $headerActive == 'admin-login' ? 'header-link-active' : 'header-link']],
-            ['label' => "$username", 'url' => ['/'], 'linkOptions' => ['class' => 'header-link']],
+            ['label' => $username == '---' ? '---' : "| Выйти ($username) |", 'url' => ['/site/logout'], 'linkOptions' => ['class' => 'header-link-think']],
         ]
     ]);
     NavBar::end();

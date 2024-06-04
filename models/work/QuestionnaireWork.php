@@ -8,6 +8,21 @@ class QuestionnaireWork extends Questionnaire
 {
     public $territories = [];
 
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'user_id' => 'Пользователь',
+            'ages_interval_id' => 'Возрастной интервал',
+            'sport_tendency' => 'Приоритет к спортивным объектам',
+            'recreation_tendency' => 'Приоритет к рекреационным объектам',
+            'game_tendency' => 'Приоритет к игровым объектам',
+            'education_tendency' => 'Приоритет к развивающим объектам',
+            'arrangement_matrix' => 'Выбранная расстановка',
+            'territory_id' => 'Территория',
+        ];
+    }
+
     public function fill(
         $userId,
         $agesIntervalId,

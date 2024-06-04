@@ -15,6 +15,25 @@ class ObjectWork extends ObjectT
     public $lengthCells = 0;
     public $widthCells = 0;
 
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'name' => 'Наименование',
+            'length' => 'Длина (в см)',
+            'width' => 'Ширина (в см)',
+            'height' => 'Высота (в см)',
+            'cost' => 'Стоимость',
+            'created_time' => 'Время изготовления',
+            'install_time' => 'Время установки',
+            'worker_count' => 'Кол-во рабочих для установки',
+            'object_type_id' => 'Тип объекта',
+            'creator' => 'Производитель',
+            'dead_zone_size' => 'Доп. зона безопасности (в см)',
+            'style' => 'Стиль',
+            'model_path' => 'Путь до 3D модели',
+        ];
+    }
     public static function types()
     {
         return [

@@ -12,6 +12,7 @@ class m240603_191751_add_admin_user extends Migration
      */
     public function safeUp()
     {
+        $this->alterColumn('user', 'municipality_id', $this->integer()->null());
         $this->addColumn('user', 'password_hash', $this->string());
 
         $this->insert('user', [

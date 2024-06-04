@@ -82,6 +82,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     //-----------------------------------------------
 
+    const drift = 0.5;
+
     // Создаем материал для ячеек сетки
     var gridSizeX = 9;
     var gridSizeY = 9;
@@ -99,7 +101,7 @@ $this->params['breadcrumbs'][] = $this->title;
         var cellMaterial = new THREE.MeshBasicMaterial({ color: gridColor, transparent: true, opacity: 0.5, side: THREE.DoubleSide }); // Один цвет и полупрозрачность
         var cell = new THREE.Mesh(cellGeometry, cellMaterial);
         var edges = new THREE.LineSegments(new THREE.EdgesGeometry(cellGeometry), edgesMaterial);
-        cell.position.set(i % gridSizeX - gridSizeX / 2 + 0.5, Math.floor(i / gridSizeX) - gridSizeY / 2 + 0.5, 0);
+        cell.position.set(i % gridSizeX - gridSizeX / 2 + drift, Math.floor(i / gridSizeX) - gridSizeY / 2 + drift, 0);
         gridMesh.add(cell);
         cell.add(edges); // Добавляем границы к ячейке
     }
@@ -135,15 +137,12 @@ $this->params['breadcrumbs'][] = $this->title;
         // !!! написать функцию инициализации объектов, не забыть про указание  interactiveObjects и axisZ
     }
 
-    let dot = {
+    var dot = {
         x: 'undefined',
         y: 'undefined',
         addDot: function (x, y) {
             this.x = x;
             this.y = y;
-        },
-        isEquals: function (otherDot) {
-            return this.x === otherDot.x && this.y === otherDot.y;
         },
         isIntegerCoordinate: function () {
             return Number.isInteger(this.x) && Number.isInteger(this.y);
@@ -155,6 +154,12 @@ $this->params['breadcrumbs'][] = $this->title;
         isEmpty: function () {
             return this.x === 'undefined' || this.y === 'undefined';
         }
+    }
+
+    function isEqualsDots(anotherDot, otherDot) {
+        if (!anotherDot || !otherDot)
+            return false;
+        return anotherDot.x == otherDot.x && anotherDot.y == otherDot.y;
     }
 
     // Массив разрешенных к взаимодействию объектов
@@ -187,13 +192,13 @@ $this->params['breadcrumbs'][] = $this->title;
         addPoint90deg: function (x, y) {
             this.point90deg.addDot(x, y);
         },
-        getPoint: function (rotationZ) {
-            if (!Number.isInteger(rotationZ))
+        getPoint: function () {
+            if (isRotation())
             {
-                return this.point0deg;
+                return this.point90deg;
             }
 
-            return this.point90deg;
+            return this.point0deg;
         }
     };
 
@@ -246,11 +251,13 @@ $this->params['breadcrumbs'][] = $this->title;
         }
 
         selectedObject.position.set(newDot.x, newDot.y, newZ);
+
+        setColorGridMesh(); // Обновляем тени
     }
 
     // Поворот объектов вокруг своей оси
     document.getElementById('scene-container').addEventListener('wheel', (event) => {
-        if (selectedObject != null)
+        if (selectedObject && isDragging)
         {
             const direction = event.deltaY > 0 ? 1 : -1;
             selectedObject.rotation.z += (Math.PI / 2) * direction;
@@ -265,55 +272,48 @@ $this->params['breadcrumbs'][] = $this->title;
                 {
                     selectedObjectRotatePoint.addPoint0deg(selectedObject.position.x, selectedObject.position.y);
 
-                    var rotateX = selectedObjectRotateX ? 0.5 : 0;
-                    var rotateY = selectedObjectRotateY ? 0.5 : 0;
+                    var rotateX = selectedObjectRotateX ? drift : 0;
+                    var rotateY = selectedObjectRotateY ? drift : 0;
 
                     selectedObjectRotatePoint.addPoint90deg(selectedObject.position.x + rotateX - rotateY, selectedObject.position.y + rotateY - rotateX)
                 }
 
-                updatePositionSelectedObject(selectedObjectRotatePoint.getPoint(selectedObject.rotation.z / Math.PI));
+                updatePositionSelectedObject(selectedObjectRotatePoint.getPoint());
             }
-
         }
     });
 
-    function isPartForSet()
+    function isRotation()
     {
-        
+        return Number.isInteger(selectedObject.rotation.z / Math.PI);
     }
 
+    // Отрисовка тени на сцене
     function setColorGridMesh()
     {
-        var rotateWidth = selectedObjectRotateX ? 0.5 : 0;
-        var rotateHeight = selectedObjectRotateY ? 0.5 : 0;
-
-        var widthObject = selectedObject.geometry.parameters.width;
-        var heightObject = selectedObject.geometry.parameters.height;
-
-        if (!Number.isInteger(selectedObject.rotation.z / Math.PI))
-        {
-            var temp = rotateWidth;
-            rotateWidth = rotateHeight;
-            rotateHeight = temp;
-        }
+        var widthObject = isRotation() ? selectedObject.geometry.parameters.width : selectedObject.geometry.parameters.height;
+        var heightObject = isRotation() ? selectedObject.geometry.parameters.height : selectedObject.geometry.parameters.width;
 
         var dotsObject = [];
-        // и не забыть подтереть нарисованные тени
         for (var i = 0; i < widthObject * heightObject; i++)
-        {//выглядит на отладке будто х и у местами поменяли
-            dotsObject.push(new dot.addDot(i % widthObject - widthObject , Math.floor(i / widthObject) - heightObject / 2 + rotateHeight));
+        {
+            var oneDot = Object.create(dot);
+            oneDot.addDot(i % widthObject - widthObject / 2 + drift + selectedObject.position.x, Math.floor(i / widthObject) - heightObject / 2 + drift + selectedObject.position.y)
+            dotsObject.push(oneDot);
         }
-        console.log(dotsObject);
-        console.log(selectedObject.position.x - rotateWidth , selectedObject.position.y - rotateHeight);
 
+        var cellDot = Object.create(dot);
         gridMesh.children.forEach((cell) => {
-            if (cell.position.x === (selectedObject.position.x - rotateWidth) && cell.position.y === (selectedObject.position.y - rotateHeight))
+            cellDot.addDot(cell.position.x, cell.position.y);
+            cell.material.color.set('#808080');
+            for (var i = 0; i < dotsObject.length; i++)
             {
-                cell.material.color.set('#00FF00');
-            }
-            else
-            {
-                cell.material.color.set('#808080');
+                if(isEqualsDots(cellDot, dotsObject[i]))
+                {
+                    cell.material.color.set('#00FF00');
+                    delete dotsObject[i];
+                    break;
+                }
             }
         })
     }
@@ -331,16 +331,16 @@ $this->params['breadcrumbs'][] = $this->title;
                 // Учитываем половину ширины и половину длины объекта при ограничении перемещения
                 var halfWidth = selectedObject.geometry.parameters.width / 2;
                 var halfHeight = selectedObject.geometry.parameters.height / 2;
-                var newX = Math.max(Math.min(intersectionPoint.x, gridSizeX / 2 - 0.5 - halfWidth), -gridSizeX / 2 + 0.5 + halfWidth);
-                var newY = Math.max(Math.min(intersectionPoint.y, gridSizeY / 2 - 0.5 - halfHeight), -gridSizeY / 2 + 0.5 + halfHeight);
+                var newX = Math.max(Math.min(intersectionPoint.x, gridSizeX / 2 - drift - halfWidth), -gridSizeX / 2 + drift + halfWidth);
+                var newY = Math.max(Math.min(intersectionPoint.y, gridSizeY / 2 - drift - halfHeight), -gridSizeY / 2 + drift + halfHeight);
 
-                var rotateWidth = selectedObjectRotateX ? 0.5 : 0;
-                var rotateHeight = selectedObjectRotateY ? 0.5 : 0;
+                var rotateWidth = selectedObjectRotateX ? drift : 0;
+                var rotateHeight = selectedObjectRotateY ? drift : 0;
 
                 var coordinate = Object.create(selectedObjectRotatePoint);
                 coordinate.addPoint0deg(Math.round(newX) + rotateHeight, Math.round(newY) + rotateWidth);
                 coordinate.addPoint90deg(Math.round(newX) + rotateWidth, Math.round(newY) + rotateHeight);
-                updatePositionSelectedObject(coordinate.getPoint(selectedObject.rotation.z / Math.PI));
+                updatePositionSelectedObject(coordinate.getPoint());
 
                 setColorGridMesh();
             }
@@ -357,6 +357,10 @@ $this->params['breadcrumbs'][] = $this->title;
             outlineMeshSelectedObject = new THREE.Mesh(selectedObject.geometry, outlineMaterial);
             outlineMeshSelectedObject.scale.set(1.05, 1.05, 1.05);
             selectedObject.add(outlineMeshSelectedObject);
+
+            /*var oneDot = Object.create(dot);
+            oneDot.addDot(selectedObject.position.x, selectedObject.position.y)
+            updatePositionSelectedObject(oneDot);*/
 
             selectedObjectRotateX = selectedObject.geometry.parameters.width % 2 === 0;
             selectedObjectRotateY = selectedObject.geometry.parameters.height % 2 === 0;

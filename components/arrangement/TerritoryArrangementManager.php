@@ -137,7 +137,7 @@ class TerritoryArrangementManager
                     throw new \Exception('Неизвестный тип позиционирования');
             }
 
-            $object->convertDimensionsToCells(TerritoryConcept::STEP);
+            $object->convertDimensionsToCells();
 
             switch ($object->object_type_id) {
                 case ObjectWork::TYPE_RECREATION:
@@ -167,7 +167,7 @@ class TerritoryArrangementManager
     public function removeObject($object, $left, $top, $position)
     {
         /** @var ObjectWork $object */
-        $object->convertDimensionsToCells(TerritoryConcept::STEP);
+        $object->convertDimensionsToCells();
         $length = $position == TerritoryConcept::HORIZONTAL_POSITION ? $object->lengthCells : $object->widthCells;
         $width = $position == TerritoryConcept::HORIZONTAL_POSITION ? $object->widthCells : $object->lengthCells;
 
@@ -336,7 +336,7 @@ class TerritoryArrangementManager
         $objects = ObjectWork::find()->all();
         $allowedFlag = true;
         foreach ($objects as $object) {
-            $object->convertDimensionsToCells(TerritoryConcept::STEP);
+            $object->convertDimensionsToCells();
             if ($this->findInstallPoint($object)) {
                 $allowedFlag = false;
             }
@@ -353,7 +353,7 @@ class TerritoryArrangementManager
      */
     private function findInstallPoint(ObjectWork $object)
     {
-        $object->convertDimensionsToCells(TerritoryConcept::STEP);
+        $object->convertDimensionsToCells();
         $square = $object->getSquareCells();
         switch ($object->object_type_id) {
             case ObjectWork::TYPE_RECREATION:

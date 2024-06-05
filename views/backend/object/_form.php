@@ -15,6 +15,8 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'name')->textInput(['maxlength' => true]) ?>
 
+    <?= $form->field($model, 'article')->textInput() ?>
+
     <?= $form->field($model, 'length')->textInput() ?>
 
     <?= $form->field($model, 'width')->textInput() ?>
@@ -28,6 +30,9 @@ use yii\widgets\ActiveForm;
     <?= $form->field($model, 'install_time')->textInput() ?>
 
     <?= $form->field($model, 'worker_count')->textInput() ?>
+
+    <?= $form->field($model, 'left_age')->textInput() ?>
+    <?= $form->field($model, 'right_age')->textInput() ?>
 
     <?= $form->field($model, 'object_type_id')->dropDownList(ObjectTypeWork::GetAllTypes()) ?>
 

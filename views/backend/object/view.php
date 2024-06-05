@@ -36,6 +36,7 @@ $this->params['breadcrumbs'][] = $this->title;
         'attributes' => [
             'id',
             'name',
+            'article',
             'length',
             'width',
             'height',
@@ -43,6 +44,7 @@ $this->params['breadcrumbs'][] = $this->title;
             'created_time:datetime',
             'install_time:datetime',
             'worker_count',
+            'age',
             [
                 'attribute' => 'object_type_id',
                 'value' => function($model) {

@@ -32,6 +32,10 @@ class ObjectWork extends ObjectT
             'dead_zone_size' => 'Доп. зона безопасности (в см)',
             'style' => 'Стиль',
             'model_path' => 'Путь до 3D модели',
+            'article' => 'Артикул',
+            'age' => 'Возрастная категория',
+            'left_age' => 'Минимальный возраст',
+            'right_age' => 'Максимальный возраст',
         ];
     }
     public static function types()
@@ -44,7 +48,7 @@ class ObjectWork extends ObjectT
         ];
     }
 
-    public function convertDimensionsToCells($step)
+    public function convertDimensionsToCells()
     {
         $this->lengthCells = self::convertDistanceToCells($this->length, TerritoryConcept::STEP);
         $this->widthCells = self::convertDistanceToCells($this->width, TerritoryConcept::STEP);
@@ -60,5 +64,10 @@ class ObjectWork extends ObjectT
     {
         $cells = intdiv($distance, $step);
         return $distance % $step != 0 ? $cells + 1 : $cells;
+    }
+
+    public function getAge()
+    {
+        return $this->left_age . ' - ' . $this->right_age . ' л.';
     }
 }

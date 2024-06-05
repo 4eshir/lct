@@ -13,8 +13,11 @@ use Yii;
  * @property int|null $game_tendency
  * @property int|null $education_tendency
  * @property int|null $recreation_tendency
+ * @property int|null $territory_id
  *
  * @property Ages[] $ages
+ * @property Territory $territory
+ * @property User[] $users
  */
 class Municipality extends \yii\db\ActiveRecord
 {
@@ -32,8 +35,9 @@ class Municipality extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['sport_tendency', 'game_tendency', 'education_tendency', 'recreation_tendency'], 'integer'],
+            [['sport_tendency', 'game_tendency', 'education_tendency', 'recreation_tendency', 'territory_id'], 'integer'],
             [['name'], 'string', 'max' => 128],
+            [['territory_id'], 'exist', 'skipOnError' => true, 'targetClass' => Territory::class, 'targetAttribute' => ['territory_id' => 'id']],
         ];
     }
 
@@ -49,6 +53,7 @@ class Municipality extends \yii\db\ActiveRecord
             'game_tendency' => 'Game Tendency',
             'education_tendency' => 'Education Tendency',
             'recreation_tendency' => 'Recreation Tendency',
+            'territory_id' => 'Territory ID',
         ];
     }
 
@@ -60,5 +65,25 @@ class Municipality extends \yii\db\ActiveRecord
     public function getAges()
     {
         return $this->hasMany(Ages::class, ['municipality_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Territory]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getTerritory()
+    {
+        return $this->hasOne(Territory::class, ['id' => 'territory_id']);
+    }
+
+    /**
+     * Gets query for [[Users]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUsers()
+    {
+        return $this->hasMany(User::class, ['municipality_id' => 'id']);
     }
 }

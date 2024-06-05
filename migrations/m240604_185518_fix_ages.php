@@ -21,8 +21,8 @@ class m240604_185518_fix_ages extends Migration
 
         $this->delete('ages_weight', ['id' => 7]);
         $this->delete('ages_weight_changeable', ['id' => 7]);
-        $this->delete('people_territory', ['ages_interval' => 7]);
-        $this->delete('ages', ['ages_interval' => 7]);
+        $this->delete('people_territory', ['ages_interval_id' => 7]);
+        $this->delete('ages', ['ages_interval_id' => 7]);
         $this->delete('ages_interval', ['id' => 7]);
     }
 

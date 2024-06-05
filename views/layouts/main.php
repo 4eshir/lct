@@ -57,8 +57,9 @@ $username = $user ? $user->login : '---';
         'items' => [
             ['label' => 'Голосование', 'url' => ['/frontend/residents/start-questionnaire'], 'linkOptions' => ['class' => $headerActive == 'residents' ? 'header-link-active' : 'header-link']],
             ['label' => 'Администрация', 'url' => ['/frontend/administration/index'], 'linkOptions' => ['class' => $headerActive == 'administration' ? 'header-link-active' : 'header-link']],
-            ['label' => 'Пользователи', 'url' => ['/user/index'], 'linkOptions' => ['class' => $headerActive == 'user' ? 'header-link-active' : 'header-link']],
             ['label' => 'Админ-панель', 'url' => ['/site/admin-login'], 'linkOptions' => ['class' => $headerActive == 'admin-login' ? 'header-link-active' : 'header-link']],
+            ['label' => 'Разработчикам', 'url' => ['/api/doc'], 'linkOptions' => ['class' => $headerActive == 'api' ? 'header-link-active' : 'header-link']],
+            ['label' => 'Пользователи', 'url' => ['/user/index'], 'linkOptions' => ['class' => $headerActive == 'user' ? 'header-link-active' : 'header-link']],
             ['label' => $username == '---' ? '---' : "| Выйти ($username) |", 'url' => ['/site/logout'], 'linkOptions' => ['class' => 'header-link-think']],
         ]
     ]);

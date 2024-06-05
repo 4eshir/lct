@@ -62,14 +62,15 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/cameras/CinematicCamera.js"></script>
 <script>
     // Создание сцены
     const scene = new THREE.Scene();
     scene.background = new THREE.Color('#F0F8FF');
     const sceneContainer = document.getElementById('scene-container');
 
-    const camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-    camera.position.z = 5;
+    const camera = new THREE.PerspectiveCamera( 75, sceneContainer.clientWidth / sceneContainer.clientHeight, 1, 1000 );
+    camera.position.z = 20;
     camera.position.y = -10;
 
     const renderer = new THREE.WebGLRenderer();
@@ -86,7 +87,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     // Создаем материал для ячеек сетки
     var gridSizeX = 9;
-    var gridSizeY = 9;
+    var gridSizeY = 10;
 
     // Создаем сетку
     var gridGeometry = new THREE.PlaneBufferGeometry(1, 1);
@@ -95,13 +96,15 @@ $this->params['breadcrumbs'][] = $this->title;
     var gridColor = new THREE.Color('#808080'); // Серый цвет
 
     var edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000 }); // Черный цвет для границ
+    var driftCellX = gridSizeX % 2 == 0 ? 0 : drift;
+    var driftCellY = gridSizeY % 2 == 0 ? 0 : drift;
 
     for (var i = 0; i < gridSizeX * gridSizeY; i++) {
         var cellGeometry = new THREE.BoxBufferGeometry(1, 1, 0.01);
         var cellMaterial = new THREE.MeshBasicMaterial({ color: gridColor, transparent: true, opacity: 0.5, side: THREE.DoubleSide }); // Один цвет и полупрозрачность
         var cell = new THREE.Mesh(cellGeometry, cellMaterial);
         var edges = new THREE.LineSegments(new THREE.EdgesGeometry(cellGeometry), edgesMaterial);
-        cell.position.set(i % gridSizeX - gridSizeX / 2 + drift, Math.floor(i / gridSizeX) - gridSizeY / 2 + drift, 0);
+        cell.position.set(i % gridSizeX - gridSizeX / 2 + driftCellX, Math.floor(i / gridSizeX) - gridSizeY / 2 + driftCellY, 0);
         gridMesh.add(cell);
         cell.add(edges); // Добавляем границы к ячейке
     }
@@ -115,7 +118,7 @@ $this->params['breadcrumbs'][] = $this->title;
     const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
     const cube = new THREE.Mesh( geometry, material );
     cube.position.set(0, 0, 0.5);
-    scene.add( cube );
+    scene.add(cube);
 
     var rectangleGeometry = new THREE.BoxGeometry(2, 2, 1);
     var rectangleMaterial = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.8, color: 0x0000ff });
@@ -202,6 +205,50 @@ $this->params['breadcrumbs'][] = $this->title;
         }
     };
 
+    //const target = new THREE.Vector3(0, 0, 0); // Целевая точка, на которую будет смотреть камера
+    const radius = 0.1;
+    let theta = 0;
+    function updateCamera(event)
+    {
+        //camera.rotateZ(Math.PI);
+
+        //camera.position.y = camera.position.y - camera.position.y * drift;
+        //const direction = Math.PI/2 > 0 ? 1 : -1;
+        //camera.position.x += gridSizeX / 2;
+        camera.position.y = 10;
+        theta += 0.1;
+        camera.rotateZ(-Math.PI);
+        //camera.rotateX(Math.cos( THREE.MathUtils.degToRad( theta ) ) );
+        //camera.lookAt(cube.position);
+
+console.log(camera.position.x, camera.position.y , camera.position.z)
+console.log(camera.rotation.x, camera.rotation.y , camera.rotation.z)
+        //camera.position.x = 10;
+        //
+        //camera.rotateY();
+
+        /*const radius = 5; // Радиус вращения камеры вокруг объекта
+        camera.position.x = target.x + radius * Math.cos(cube.rotation.y);
+        camera.position.z = target.z + radius * Math.sin(cube.rotation.y);
+
+        camera.lookAt(target);*/
+        /*theta += 0.1;
+
+        camera.position.x = radius * Math.sin( THREE.MathUtils.degToRad( theta ) );
+        camera.position.y = radius * Math.sin( THREE.MathUtils.degToRad( theta ) );
+        camera.position.z = radius * Math.cos( THREE.MathUtils.degToRad( theta ) );
+
+
+        camera.updateMatrixWorld();*/
+        //theta += 0.001;
+        //console.log(camera.rotation.x, camera.rotation.y , camera.rotation.z)
+        //console.log(Math.cos( THREE.MathUtils.degToRad( theta ) ));
+        //camera.rotateX(Math.cos( THREE.MathUtils.degToRad( theta ) ) );
+        //camera.rotation.y = radius * Math.sin( THREE.MathUtils.degToRad( theta ) );
+        //camera.position.z = radius * Math.cos( THREE.MathUtils.degToRad( theta ) );
+
+        camera.updateMatrixWorld();
+    }
 
     function getIntersects(event)
     {
@@ -367,6 +414,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
             controls.enableZoom = false;
         }
+
+        updateCamera(event);
     }
 
     function onMouseUp()

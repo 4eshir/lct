@@ -6,6 +6,7 @@ use app\facades\TerritoryFacade;
 use app\helpers\ApiHelper;
 use app\models\common\ObjectT;
 use app\models\common\User;
+use app\models\forms\sandbox\GetObjectsForm;
 use app\models\work\AgesWeightChangeableWork;
 use app\models\work\ObjectWork;
 use app\models\work\TerritoryWork;
@@ -19,61 +20,47 @@ use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
 
-class ApiController extends Controller
+class SandboxController extends Controller
 {
-    private ApiService $service;
-
-    public function __construct($id, $module, ApiService $service, $config = [])
+    public function __construct($id, $module, $config = [])
     {
         parent::__construct($id, $module, $config);
-        $this->service = $service;
     }
 
-    public function actionDoc()
+    public function actionGetObjects()
     {
-        Yii::$app->session->set('header-active', 'api');
+        $model = new GetObjectsForm();
 
-        return $this->render('doc');
-    }
+        if (Yii::$app->request->post() && $model->load(Yii::$app->request->post())) {
+            $query = ObjectWork::find();
 
-    /**
-     * Возвращает список всех МАФ, удовлетворяющих условиям в формате JSON
-     * @param int $type ограничение по типу объектов
-     * @param int $minCost ограничение по минимальной стоимости МАФ
-     * @param int $maxCost ограничения по максимальной стоимости МАФ
-     * @param string $style ограничения по стилю МАФ
-     * @return false|string
-     */
-    public function actionGetObjects($type = null, $minCost = null, $maxCost = null, $style = null)
-    {
-        if (!$this->service->checkKey(ApiHelper::TEST_API_KEY)) {
-            return json_encode(['result' => ApiHelper::STATUS_ERROR, 'error_message' => 'Incorrect API key']);
+            if ($model->type !== "") {
+                $query->andWhere(['object_type_id' => $model->type]);
+            }
+
+            if ($model->minCost !== "") {
+                $query->andWhere(['>=', 'cost', $model->minCost]);
+            }
+
+            if ($model->maxCost !== "") {
+                $query->andWhere(['<=', 'cost', $model->maxCost]);
+            }
+
+            if ($model->style !== "") {
+                $query->andWhere(['style' => $model->style]);
+            }
+
+            $data['result'] = ApiHelper::STATUS_SUCCESS;
+            foreach ($query->all() as $item) {
+                $data['data'][] = $item->attributes;
+            }
+
+            return json_encode($data['data']);
         }
 
-        $query = ObjectWork::find();
-
-        if ($type !== null) {
-            $query->andWhere(['object_type_id' => $type]);
-        }
-
-        if ($minCost !== null) {
-            $query->andWhere(['>=', 'cost', $minCost]);
-        }
-
-        if ($maxCost !== null) {
-            $query->andWhere(['<=', 'cost', $maxCost]);
-        }
-
-        if ($style !== null) {
-            $query->andWhere(['style' => $style]);
-        }
-
-        $data['result'] = ApiHelper::STATUS_SUCCESS;
-        foreach ($query->all() as $item) {
-            $data['data'][] = $item->attributes;
-        }
-
-        return json_encode($data);
+        return $this->render('get-objects', [
+            'model' => $model,
+        ]);
     }
 
     /**
@@ -82,10 +69,6 @@ class ApiController extends Controller
      */
     public function actionGetTerritories()
     {
-        if (!$this->service->checkKey(ApiHelper::TEST_API_KEY)) {
-            return json_encode(['result' => ApiHelper::STATUS_ERROR, 'error_message' => 'Incorrect API key']);
-        }
-
         $query = TerritoryWork::find();
 
         $data['result'] = ApiHelper::STATUS_SUCCESS;
@@ -105,10 +88,6 @@ class ApiController extends Controller
      */
     public function actionGetRealWeights($tId, $weightType = null, $agesInterval = null)
     {
-        if (!$this->service->checkKey(ApiHelper::TEST_API_KEY)) {
-            return json_encode(['result' => ApiHelper::STATUS_ERROR, 'error_message' => 'Incorrect API key']);
-        }
-
         $query = AgesWeightChangeableWork::find()->where(['territory_id' => $tId]);
 
         if ($agesInterval !== null) {
@@ -125,10 +104,6 @@ class ApiController extends Controller
 
     public function actionGenerateArrangement($tId, $genType, $addGenType = TerritoryFacade::OPTIONS_DEFAULT, $params = [])
     {
-        if (!$this->service->checkKey(ApiHelper::TEST_API_KEY)) {
-            return json_encode(['result' => ApiHelper::STATUS_ERROR, 'error_message' => 'Incorrect API key']);
-        }
-
         $facade = Yii::createObject(TerritoryFacade::class);
         $facade->generateTerritoryArrangement($genType, $tId, $addGenType, $params);
 
@@ -137,10 +112,6 @@ class ApiController extends Controller
 
     public function actionLoadTerritory()
     {
-        if (!$this->service->checkKey(ApiHelper::TEST_API_KEY)) {
-            return json_encode(['result' => ApiHelper::STATUS_ERROR, 'error_message' => 'Incorrect API key']);
-        }
-
         if ($request = Yii::$app->request->post()) {
             $territory = new TerritoryWork();
             $territory->width = $request['width'];
@@ -163,10 +134,6 @@ class ApiController extends Controller
 
     public function actionLoadObject()
     {
-        if (!$this->service->checkKey(ApiHelper::TEST_API_KEY)) {
-            return json_encode(['result' => ApiHelper::STATUS_ERROR, 'error_message' => 'Incorrect API key']);
-        }
-
         if ($request = Yii::$app->request->post()) {
             $object = new ObjectWork();
             $object->name = $request['name'];

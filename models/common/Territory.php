@@ -11,9 +11,15 @@ use Yii;
  * @property int|null $length
  * @property int|null $width
  * @property string|null $name
+ * @property string|null $address
+ * @property float|null $latitude Широта
+ * @property float|null $longitude Долгота
  *
  * @property AgesWeightChangeable[] $agesWeightChangeables
  * @property Arrangement[] $arrangements
+ * @property Municipality[] $municipalities
+ * @property NeighboringTerritory[] $neighboringTerritories
+ * @property NeighboringTerritory[] $neighboringTerritories0
  * @property PeopleTerritory[] $peopleTerritories
  * @property Questionnaire[] $questionnaires
  * @property RestrictObjectTerritory[] $restrictObjectTerritories
@@ -35,7 +41,9 @@ class Territory extends \yii\db\ActiveRecord
     {
         return [
             [['length', 'width'], 'integer'],
+            [['latitude', 'longitude'], 'number'],
             [['name'], 'string', 'max' => 128],
+            [['address'], 'string', 'max' => 255],
         ];
     }
 
@@ -49,6 +57,9 @@ class Territory extends \yii\db\ActiveRecord
             'length' => 'Length',
             'width' => 'Width',
             'name' => 'Name',
+            'address' => 'Address',
+            'latitude' => 'Latitude',
+            'longitude' => 'Longitude',
         ];
     }
 
@@ -70,6 +81,36 @@ class Territory extends \yii\db\ActiveRecord
     public function getArrangements()
     {
         return $this->hasMany(Arrangement::class, ['territory_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Municipalities]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getMunicipalities()
+    {
+        return $this->hasMany(Municipality::class, ['territory_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[NeighboringTerritories]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNeighboringTerritories()
+    {
+        return $this->hasMany(NeighboringTerritory::class, ['territory_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[NeighboringTerritories0]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getNeighboringTerritories0()
+    {
+        return $this->hasMany(NeighboringTerritory::class, ['neighboring_territory_id' => 'id']);
     }
 
     /**

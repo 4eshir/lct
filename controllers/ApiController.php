@@ -186,7 +186,7 @@ class ApiController extends Controller
             $object->right_age = array_key_exists('right_age', $request) ? $request['right_age'] : null;
 
             if ($object->save()) {
-                return json_encode(['result' => ApiHelper::STATUS_SUCCESS]);
+                return json_encode(['result' => ApiHelper::STATUS_SUCCESS, 'id' => $object->id]);
             }
             else {
                 return json_encode(['result' => ApiHelper::STATUS_ERROR, 'error_message' => 'Saving error, try again']);

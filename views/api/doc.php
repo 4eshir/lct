@@ -80,7 +80,7 @@ use yii\helpers\Html; ?>
                 <span class="param-name">width*</span>: ширина объекта (в см)<br>
                 <span class="param-name">length*</span>: длина объекта (в см)<br>
                 <span class="param-name">height*</span>: высота объекта (в см)<br>
-                <span class="param-name">cost*</span>: стоимость (в руб.)<br>
+                <span class="param-name">cost*</span>: стоимость (в руб)<br>
                 <span class="param-name">object_type_id*</span>: ID типа объекта<br>
                 <span class="param-name">creator*</span>: производитель<br>
                 <span class="param-name">article*</span>: артикул<br>

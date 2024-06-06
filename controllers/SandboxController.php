@@ -9,6 +9,7 @@ use app\models\common\User;
 use app\models\forms\sandbox\GenerateArrangementForm;
 use app\models\forms\sandbox\GetObjectsForm;
 use app\models\forms\sandbox\GetRealWeightsForm;
+use app\models\forms\sandbox\LoadObjectForm;
 use app\models\forms\sandbox\LoadTerritoryForm;
 use app\models\work\AgesWeightChangeableWork;
 use app\models\work\ObjectWork;
@@ -190,7 +191,6 @@ class SandboxController extends Controller
             }
         }
 
-
         return $this->render('load-territory', [
             'model' => $model,
         ]);
@@ -198,33 +198,36 @@ class SandboxController extends Controller
 
     public function actionLoadObject()
     {
-        if ($request = Yii::$app->request->post()) {
+        $model = new LoadObjectForm();
+
+        if (Yii::$app->request->post() && $model->load(Yii::$app->request->post()) && $model->validate()) {
             $object = new ObjectWork();
-            $object->name = $request['name'];
-            $object->length = $request['length'];
-            $object->width = $request['width'];
-            $object->height = $request['height'];
-            $object->cost = $request['cost'];
-            $object->created_time = array_key_exists('created_time', $request) ? $request['created_time'] : 0;
-            $object->install_time = array_key_exists('install_time', $request) ? $request['install_time'] : 0;
-            $object->worker_count = array_key_exists('worker_count', $request) ? $request['worker_count'] : 0;
-            $object->object_type_id = $request['object_type_id'];
-            $object->creator = $request['creator'];
-            $object->dead_zone_size = array_key_exists('dead_zone_size', $request) ? $request['dead_zone_size'] : 0;
-            $object->style = array_key_exists('style', $request) ? $request['style'] : 'default';
-            $object->article = $request['article'];
-            $object->left_age = array_key_exists('left_age', $request) ? $request['left_age'] : null;
-            $object->right_age = array_key_exists('right_age', $request) ? $request['right_age'] : null;
+            $object->name = $model->name;
+            $object->length = $model->length;
+            $object->width = $model->width;
+            $object->height = $model->height;
+            $object->cost = $model->cost;
+            $object->created_time = $model->created_time !== '' ? $model->created_time : null;
+            $object->install_time = $model->install_time !== '' ? $model->install_time : null;
+            $object->worker_count = $model->worker_count !== '' ? $model->worker_count : null;
+            $object->object_type_id = $model->object_type_id;
+            $object->creator = $model->creator;
+            $object->dead_zone_size = $model->dead_zone_size !== '' ? $model->dead_zone_size : null;
+            $object->style = $model->style !== '' ? $model->style : null;
+            $object->article = $model->article;
+            $object->left_age = $model->left_age !== '' ? $model->left_age : null;
+            $object->right_age = $model->right_age !== '' ? $model->right_age : null;
 
             if ($object->save()) {
-                return json_encode(['result' => ApiHelper::STATUS_SUCCESS]);
+                return json_encode(['result' => ApiHelper::STATUS_SUCCESS, 'id' => $object->id]);
             }
             else {
                 return json_encode(['result' => ApiHelper::STATUS_ERROR, 'error_message' => 'Saving error, try again']);
             }
         }
-        else {
-            return json_encode(['result' => ApiHelper::STATUS_ERROR, 'error_message' => 'Incorrect query type. Use POST type']);
-        }
+
+        return $this->render('load-object', [
+            'model' => $model,
+        ]);
     }
 }

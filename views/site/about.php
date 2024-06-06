@@ -49,6 +49,7 @@ $this->params['breadcrumbs'][] = $this->title;
     <code><?= __FILE__ ?></code> -->
 
     <div id="scene-container"></div>
+    <div id="gui-container"></div>
     <div id="controls">
         <button id="zoomIn">Zoom In</button>
         <button id="zoomOut">Zoom Out</button>
@@ -62,7 +63,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/cameras/CinematicCamera.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dat.gui"></script>
 <script>
     // Создание сцены
     const scene = new THREE.Scene();
@@ -70,16 +72,18 @@ $this->params['breadcrumbs'][] = $this->title;
     const sceneContainer = document.getElementById('scene-container');
 
     const camera = new THREE.PerspectiveCamera( 75, sceneContainer.clientWidth / sceneContainer.clientHeight, 1, 1000 );
-    camera.position.z = 20;
-    camera.position.y = -10;
+    camera.position.z = 10;
+    camera.position.y = -5;
+    camera.rotation.x = 0.5;
+
 
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(sceneContainer.clientWidth, sceneContainer.clientHeight);
     sceneContainer.appendChild(renderer.domElement);
 
     // Добавляем масштабирование камерой
-    var controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableRotate = false;
+    /*var controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableRotate = false;*/
 
     //-----------------------------------------------
 
@@ -205,50 +209,70 @@ $this->params['breadcrumbs'][] = $this->title;
         }
     };
 
-    //const target = new THREE.Vector3(0, 0, 0); // Целевая точка, на которую будет смотреть камера
-    const radius = 0.1;
-    let theta = 0;
+    var i = 0;
     function updateCamera(event)
     {
-        //camera.rotateZ(Math.PI);
+        if (i === 0)
+        {
+            // Координата C (-90 градусов)
+            camera.rotation.x = 0;
+            camera.rotation.y = -0.5;
+            camera.rotation.z = -Math.PI/2;
+            camera.position.set(-5, 0, 10);
+        }
 
-        //camera.position.y = camera.position.y - camera.position.y * drift;
-        //const direction = Math.PI/2 > 0 ? 1 : -1;
-        //camera.position.x += gridSizeX / 2;
-        camera.position.y = 10;
-        theta += 0.1;
-        camera.rotateZ(-Math.PI);
-        //camera.rotateX(Math.cos( THREE.MathUtils.degToRad( theta ) ) );
-        //camera.lookAt(cube.position);
+        if (i === 1) {
+            // Координата Б (180 градусов)
+            camera.position.set(0, 4.3, 10);
+            camera.rotation.x = -0.5;
+            camera.rotation.z = Math.PI;
+            camera.rotation.y = 0;
+        }
 
-console.log(camera.position.x, camera.position.y , camera.position.z)
-console.log(camera.rotation.x, camera.rotation.y , camera.rotation.z)
-        //camera.position.x = 10;
-        //
-        //camera.rotateY();
+        if (i === 2)
+        {
+            // Координата D (90 градусов)
+            camera.rotation.x = 0;
+            camera.rotation.y = 0.5;
+            camera.rotation.z = Math.PI/2;
+            camera.position.set(4.3, 0, 10);
+        }
 
-        /*const radius = 5; // Радиус вращения камеры вокруг объекта
-        camera.position.x = target.x + radius * Math.cos(cube.rotation.y);
-        camera.position.z = target.z + radius * Math.sin(cube.rotation.y);
+        if (i === 3)
+        {
+            camera.position.z = 10;
+            camera.position.y = -5;
+            camera.position.x = 0;
+            camera.rotation.x = 0.5;
+            camera.rotation.y = 0;
+            camera.rotation.z = 0;
 
-        camera.lookAt(target);*/
-        /*theta += 0.1;
-
-        camera.position.x = radius * Math.sin( THREE.MathUtils.degToRad( theta ) );
-        camera.position.y = radius * Math.sin( THREE.MathUtils.degToRad( theta ) );
-        camera.position.z = radius * Math.cos( THREE.MathUtils.degToRad( theta ) );
-
-
-        camera.updateMatrixWorld();*/
-        //theta += 0.001;
-        //console.log(camera.rotation.x, camera.rotation.y , camera.rotation.z)
-        //console.log(Math.cos( THREE.MathUtils.degToRad( theta ) ));
-        //camera.rotateX(Math.cos( THREE.MathUtils.degToRad( theta ) ) );
-        //camera.rotation.y = radius * Math.sin( THREE.MathUtils.degToRad( theta ) );
-        //camera.position.z = radius * Math.cos( THREE.MathUtils.degToRad( theta ) );
-
+        }
+        i++;
         camera.updateMatrixWorld();
     }
+
+    const gui = new dat.GUI();
+    const cameraControls = {
+        positionX: camera.position.x,
+        positionY: camera.position.y,
+        positionZ: camera.position.z,
+        rotationX: camera.rotation.x,
+        rotationY: camera.rotation.y,
+        rotationZ: camera.rotation.z
+    };
+
+    const cameraFolder = gui.addFolder('Camera');
+    cameraFolder.add(cameraControls, 'positionX', -10, 10).onChange(value => camera.position.x = value);
+    cameraFolder.add(cameraControls, 'rotationX', -Math.PI*2, Math.PI*2).onChange(value => camera.rotation.x = value);
+
+    cameraFolder.add(cameraControls, 'positionY', -20, 20).onChange(value => camera.position.y = value);
+    cameraFolder.add(cameraControls, 'rotationY', -Math.PI*2, Math.PI*2).onChange(value => camera.rotation.y = value);
+
+    cameraFolder.add(cameraControls, 'positionZ', -30, 30).onChange(value => camera.position.z = value);
+    cameraFolder.add(cameraControls, 'rotationZ', -Math.PI*2, Math.PI*2).onChange(value => camera.rotation.z = value);
+    sceneContainer.appendChild(gui.domElement);
+    //document.body.appendChild(gui.domElement);
 
     function getIntersects(event)
     {

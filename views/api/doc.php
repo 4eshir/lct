@@ -52,6 +52,7 @@ use yii\helpers\Html; ?>
             <td class="third-col">/api/get-real-weights</td>
             <td class="fourth-col">
                 <span class="param-name">tId*</span>: ID дворовой территории<br>
+                <span class="param-name">weightsType</span>: тип веса<br>
                 <span class="param-name">agesInterval</span>: возрастной интервал<br>
             </td>
             <td class="fifth-col"><?= Html::a('Протестировать', ['/sandbox/get-real-weights']) ?></td>
@@ -72,23 +73,8 @@ use yii\helpers\Html; ?>
 
         <tr>
             <td class="first-col"><span class="post-type">POST</span></td>
-            <td class="second-col">Добавляет новую дворовую территорию в систему</td>
-            <td class="third-col">/api/load-territory</td>
-            <td class="fourth-col">
-                <span class="param-name">name*</span>: наименование дворовой территории<br>
-                <span class="param-name">width*</span>: ширина территории (в см)<br>
-                <span class="param-name">length*</span>: длина территории (в см)<br>
-                <span class="param-name">address*</span>: адрес территории<br>
-                <span class="param-name">latitude*</span>: широта (wgs84)<br>
-                <span class="param-name">longitude*</span>: долгота (wgs84)<br>
-            </td>
-            <td class="fifth-col"><?= Html::a('Протестировать', ['/sandbox/generate-arrangement']) ?></td>
-        </tr>
-
-        <tr>
-            <td class="first-col"><span class="post-type">POST</span></td>
-            <td class="second-col">Добавляет новую дворовую территорию в систему</td>
-            <td class="third-col">/api/load-territory</td>
+            <td class="second-col">Добавляет новый объект в систему</td>
+            <td class="third-col">/api/load-object</td>
             <td class="fourth-col">
                 <span class="param-name">name*</span>: наименование объекта<br>
                 <span class="param-name">width*</span>: ширина объекта (в см)<br>
@@ -106,7 +92,23 @@ use yii\helpers\Html; ?>
                 <span class="param-name">dead_zone_size</span>: доп. безопасная зона (в см)<br>
                 <span class="param-name">style</span>: стиль объекта<br>
             </td>
-            <td class="fifth-col"><?= Html::a('Протестировать', ['/sandbox/generate-arrangement']) ?></td>
+            <td class="fifth-col"><?= Html::a('Протестировать', ['/sandbox/load-object']) ?></td>
+        </tr>
+
+        <tr>
+            <td class="first-col"><span class="post-type">POST</span></td>
+            <td class="second-col">Добавляет новую дворовую территорию в систему</td>
+            <td class="third-col">/api/load-territory</td>
+            <td class="fourth-col">
+                <span class="param-name">name*</span>: наименование дворовой территории<br>
+                <span class="param-name">width*</span>: ширина территории (в см)<br>
+                <span class="param-name">length*</span>: длина территории (в см)<br>
+                <span class="param-name">address*</span>: адрес территории<br>
+                <span class="param-name">latitude*</span>: широта (wgs84)<br>
+                <span class="param-name">longitude*</span>: долгота (wgs84)<br>
+
+            </td>
+            <td class="fifth-col"><?= Html::a('Протестировать', ['/sandbox/load-territory']) ?></td>
         </tr>
     </table>
 </div>

@@ -1,7 +1,7 @@
 <?php
 
 /** @var yii\web\View $this */
-/** @var app\models\work\AgesWeightWork $model */
+/** @var app\models\forms\sandbox\GetObjectsForm $model */
 /** @var yii\widgets\ActiveForm $form */
 
 use yii\helpers\Html;
@@ -9,7 +9,7 @@ use yii\widgets\ActiveForm;
 
 ?>
 
-<div class="main-block-api">
+<div class="main-block-sand">
     <?= Html::a('Вернуться к документации', ['/api/doc']) ?><br>
     <div class="description-block-query">
         <p>URL: <b>/api/get-objects</b></p>
@@ -65,35 +65,6 @@ use yii\widgets\ActiveForm;
 
 </div>
 
-<style>
-    .main-block-api {
-        background-color: white;
-        border-radius: 5px;
-        margin-top: 10px;
-        padding: 20px;
-    }
-
-    .description-block-query {
-        margin-top: 20px;
-        margin-bottom: 20px;
-        padding: 10px;
-        background-color: #e0e0e0;
-        border-radius: 5px;
-    }
-
-    .param-name {
-        font-weight: 500;
-    }
-
-    .result-data {
-        background-color: #dcffc8;
-        border-radius: 5px;
-        margin-top: 10px;
-        padding: 20px;
-        display: none;
-    }
-</style>
-
 <?php
 $this->registerJs(
     "$(function(){
@@ -107,7 +78,7 @@ $this->registerJs(
                     let jsonData = JSON.parse(response);
                     jsonData = JSON.stringify(jsonData, null, 2);
                     $('.result-data').show();
-                    $('.result-data').html('<p><b>Результат выполнения запроса</b></p><pre>' + jsonData + '</pre>');
+                    $('.result-data').html('<p><b>Результат выполнения запроса</b></p><div class=\"data-block\"><pre>' + jsonData + '</div></pre>');
                 }
             });
         });

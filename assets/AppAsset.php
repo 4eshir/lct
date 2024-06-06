@@ -23,6 +23,7 @@ class AppAsset extends AssetBundle
         'css/site.css',
         'css/questionnaire.css',
         'css/start-page.css',
+        'css/sandbox.css',
     ];
     public $js = [
         'js/support-functions.js',

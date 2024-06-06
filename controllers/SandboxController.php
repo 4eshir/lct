@@ -6,13 +6,17 @@ use app\facades\TerritoryFacade;
 use app\helpers\ApiHelper;
 use app\models\common\ObjectT;
 use app\models\common\User;
+use app\models\forms\sandbox\GenerateArrangementForm;
 use app\models\forms\sandbox\GetObjectsForm;
+use app\models\forms\sandbox\GetRealWeightsForm;
+use app\models\forms\sandbox\LoadTerritoryForm;
 use app\models\work\AgesWeightChangeableWork;
 use app\models\work\ObjectWork;
 use app\models\work\TerritoryWork;
 use app\services\ApiService;
 use Yii;
 use yii\base\BaseObject;
+use yii\db\Exception;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\Response;
@@ -31,7 +35,7 @@ class SandboxController extends Controller
     {
         $model = new GetObjectsForm();
 
-        if (Yii::$app->request->post() && $model->load(Yii::$app->request->post())) {
+        if (Yii::$app->request->post() && $model->load(Yii::$app->request->post()) && $model->validate()) {
             $query = ObjectWork::find();
 
             if ($model->type !== "") {
@@ -51,11 +55,12 @@ class SandboxController extends Controller
             }
 
             $data['result'] = ApiHelper::STATUS_SUCCESS;
+            $data['data'] = [];
             foreach ($query->all() as $item) {
                 $data['data'][] = $item->attributes;
             }
 
-            return json_encode($data['data']);
+            return json_encode($data);
         }
 
         return $this->render('get-objects', [
@@ -69,67 +74,126 @@ class SandboxController extends Controller
      */
     public function actionGetTerritories()
     {
-        $query = TerritoryWork::find();
+        if (Yii::$app->request->post()) {
+            $query = TerritoryWork::find();
 
-        $data['result'] = ApiHelper::STATUS_SUCCESS;
-        foreach ($query->all() as $item) {
-            $data['data'][] = $item->attributes;
+            $data['result'] = ApiHelper::STATUS_SUCCESS;
+            $data['data'] = [];
+            foreach ($query->all() as $item) {
+                $data['data'][] = $item->attributes;
+            }
+
+            return json_encode($data);
         }
 
-        return $data;
+        return $this->render('get-territories');
     }
 
-    /**
-     * Возвращает список измененных весов по возрастам, с учетом заданных параметров
-     * @param $tId
-     * @param $weightType
-     * @param $agesInterval
-     * @return array
-     */
-    public function actionGetRealWeights($tId, $weightType = null, $agesInterval = null)
+    public function actionGetRealWeights()
     {
-        $query = AgesWeightChangeableWork::find()->where(['territory_id' => $tId]);
+        $model = new GetRealWeightsForm();
+        $selectedAttr = ['id', 'self_weight', 'recreation_weight', 'sport_weight', 'education_weight', 'game_weight', 'ages_interval_id', 'territory_id'];
 
-        if ($agesInterval !== null) {
-            $query = $query->andWhere(['ages_interval_id' => $agesInterval]);
+        if (Yii::$app->request->post() && $model->load(Yii::$app->request->post()) && $model->validate()) {
+            $query = AgesWeightChangeableWork::find();
+
+            if ($model->weightsType !== "") {
+                switch ($model->weightsType) {
+                    case AgesWeightChangeableWork::RECREATION_COEF:
+                        $query = $query->select('id, self_weight, recreation_weight, ages_interval_id, territory_id');
+                        $selectedAttr = ['id', 'self_weight', 'recreation_weight', 'ages_interval_id', 'territory_id'];
+                        break;
+                    case AgesWeightChangeableWork::SPORT_COEF:
+                        $query = $query->select('id, self_weight, sport_weight, ages_interval_id, territory_id');
+                        $selectedAttr = ['id', 'self_weight', 'sport_weight', 'ages_interval_id', 'territory_id'];
+                        break;
+                    case AgesWeightChangeableWork::EDUCATIONAL_COEF:
+                        $query = $query->select('id, self_weight, education_weight, ages_interval_id, territory_id');
+                        $selectedAttr = ['id', 'self_weight', 'education_weight', 'ages_interval_id', 'territory_id'];
+                        break;
+                    case AgesWeightChangeableWork::GAME_COEF:
+                        $query = $query->select('id, self_weight, game_weight, ages_interval_id, territory_id');
+                        $selectedAttr = ['id', 'self_weight', 'game_weight', 'ages_interval_id', 'territory_id'];
+                        break;
+                    default:
+                        throw new Exception('Неизвестный тип веса');
+                }
+            }
+
+            $query = $query->where(['territory_id' => $model->tId]);
+
+            if ($model->agesInterval !== "") {
+                $query = $query->andWhere(['ages_interval_id' => $model->agesInterval]);
+            }
+
+            $data['result'] = ApiHelper::STATUS_SUCCESS;
+            $data['data'] = [];
+            foreach ($query->select($selectedAttr)->all() as $item) {
+                $attributes = [];
+
+                // Получаем только указанные в SELECT запросе атрибуты
+                foreach ($selectedAttr as $attribute) {
+                    $attributes[$attribute] = $item->$attribute;
+                }
+
+                $data['data'][] = $attributes;
+            }
+
+            return json_encode($data);
         }
 
-        $data['result'] = ApiHelper::STATUS_SUCCESS;
-        foreach ($query->all() as $item) {
-            $data['data'][] = $item->attributes;
-        }
-
-        return $data;
+        return $this->render('get-real-weights', [
+            'model' => $model,
+        ]);
     }
 
-    public function actionGenerateArrangement($tId, $genType, $addGenType = TerritoryFacade::OPTIONS_DEFAULT, $params = [])
+    public function actionGenerateArrangement()
     {
-        $facade = Yii::createObject(TerritoryFacade::class);
-        $facade->generateTerritoryArrangement($genType, $tId, $addGenType, $params);
+        $model = new GenerateArrangementForm();
 
-        return json_encode($facade->getRawMatrix());
+        if (Yii::$app->request->post() && $model->load(Yii::$app->request->post()) && $model->validate()) {
+            $facade = Yii::createObject(TerritoryFacade::class);
+            $facade->generateTerritoryArrangement(
+                $model->genType,
+                $model->tId,
+                $model->addGenType == '' ? TerritoryFacade::OPTIONS_DEFAULT : $model->addGenType,
+                $model->params == '' ? [] : $model->params);
+
+            $data['result'] = ApiHelper::STATUS_SUCCESS;
+            $data['data'] = $facade->getRawMatrix();
+
+            return json_encode($data);
+        }
+
+        return $this->render('generate-arrangement', [
+            'model' => $model,
+        ]);
     }
 
     public function actionLoadTerritory()
     {
-        if ($request = Yii::$app->request->post()) {
+        $model = new LoadTerritoryForm();
+
+        if (Yii::$app->request->post() && $model->load(Yii::$app->request->post()) && $model->validate()) {
             $territory = new TerritoryWork();
-            $territory->width = $request['width'];
-            $territory->length = $request['length'];
-            $territory->name = $request['name'];
-            $territory->address = $request['address'];
-            $territory->latitude = $request['latitude'];
-            $territory->longitude = $request['longitude'];
+            $territory->width = $model->width;
+            $territory->length = $model->length;
+            $territory->name = $model->name;
+            $territory->address = $model->address;
+            $territory->latitude = $model->latitude;
+            $territory->longitude = $model->longitude;
             if ($territory->save()) {
-                return json_encode(['result' => ApiHelper::STATUS_SUCCESS]);
+                return json_encode(['result' => ApiHelper::STATUS_SUCCESS, 'id' => $territory->id]);
             }
             else {
                 return json_encode(['result' => ApiHelper::STATUS_ERROR, 'error_message' => 'Saving error, try again']);
             }
         }
-        else {
-            return json_encode(['result' => ApiHelper::STATUS_ERROR, 'error_message' => 'Incorrect query type. Use POST type']);
-        }
+
+
+        return $this->render('load-territory', [
+            'model' => $model,
+        ]);
     }
 
     public function actionLoadObject()

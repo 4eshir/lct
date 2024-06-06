@@ -150,7 +150,7 @@ class ApiController extends Controller
             $territory->latitude = $request['latitude'];
             $territory->longitude = $request['longitude'];
             if ($territory->save()) {
-                return json_encode(['result' => ApiHelper::STATUS_SUCCESS]);
+                return json_encode(['result' => ApiHelper::STATUS_SUCCESS, 'id' => $territory->id]);
             }
             else {
                 return json_encode(['result' => ApiHelper::STATUS_ERROR, 'error_message' => 'Saving error, try again']);

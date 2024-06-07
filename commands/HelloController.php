@@ -7,6 +7,7 @@
 
 namespace app\commands;
 
+use app\components\analytic\ObjectAnalytic;
 use app\components\arrangement\TerritoryArrangementManager;
 use app\components\arrangement\TerritoryConcept;
 use app\facades\TerritoryFacade;
@@ -19,6 +20,7 @@ use Yii;
 use yii\base\BaseObject;
 use yii\console\Controller;
 use yii\console\ExitCode;
+use yii\helpers\ArrayHelper;
 
 /**
  * This command echoes the first argument that you have entered.
@@ -48,5 +50,13 @@ class HelloController extends Controller
         var_dump('lct2024task3');
         var_dump(md5('lct2024task3'));
         var_dump(md5('lct2024task3'));
+    }
+
+    public function actionAnalytic()
+    {
+        $targetObject = ObjectWork::find()->where(['id' => 15])->one();
+
+        $analModel = new ObjectAnalytic();
+        var_dump(ArrayHelper::getColumn($analModel->findSimilarObjects($targetObject, ObjectAnalytic::SIMILAR_TYPE_SLIGHTLY), 'id'));
     }
 }

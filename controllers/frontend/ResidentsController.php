@@ -6,6 +6,7 @@ use app\components\arrangement\TerritoryConcept;
 use app\models\common\Questionnaire;
 use app\models\forms\QuestionDecisionForm;
 use app\models\forms\QuestionForm;
+use app\models\search\SearchObjectWork;
 use app\models\work\QuestionnaireWork;
 use app\models\work\UserWork;
 use app\services\frontend\ResidentsService;
@@ -110,6 +111,17 @@ class ResidentsController extends Controller
 
         return $this->render('quest-end', [
             'text' => $text,
+        ]);
+    }
+
+    public function actionObjectsList()
+    {
+        $searchModel = new SearchObjectWork();
+        $dataProvider = $searchModel->search($this->request->queryParams);
+
+        return $this->render('objects-list', [
+            'searchModel' => $searchModel,
+            'dataProvider' => $dataProvider,
         ]);
     }
 }

@@ -55,6 +55,7 @@ $username = $user ? $user->login : '---';
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav'],
         'items' => [
+            ['label' => 'Каталог МАФ', 'url' => ['/frontend/residents/objects-list'], 'linkOptions' => ['class' => $headerActive == 'objects' ? 'header-link-active' : 'header-link']],
             ['label' => 'Голосование', 'url' => ['/frontend/residents/start-questionnaire'], 'linkOptions' => ['class' => $headerActive == 'residents' ? 'header-link-active' : 'header-link']],
             ['label' => 'Администрация', 'url' => ['/frontend/administration/index'], 'linkOptions' => ['class' => $headerActive == 'administration' ? 'header-link-active' : 'header-link']],
             ['label' => 'Админ-панель', 'url' => ['/site/admin-login'], 'linkOptions' => ['class' => $headerActive == 'admin-login' ? 'header-link-active' : 'header-link']],

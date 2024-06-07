@@ -59,6 +59,11 @@ class ObjectWork extends ObjectT
         return $this->lengthCells * $this->widthCells;
     }
 
+    public function getSquare()
+    {
+        return $this->length * $this->width;
+    }
+
     // функция конвертации обычного расстояния в "ячейки"
     public static function convertDistanceToCells($distance, $step)
     {

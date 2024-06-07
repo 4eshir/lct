@@ -11,13 +11,15 @@ use app\models\work\ObjectWork;
  */
 class SearchObjectWork extends ObjectWork
 {
+    public $flType;
+
     /**
      * {@inheritdoc}
      */
     public function rules()
     {
         return [
-            [['id', 'length', 'width', 'height', 'created_time', 'install_time', 'worker_count', 'object_type_id', 'dead_zone_size'], 'integer'],
+            [['id', 'length', 'width', 'height', 'created_time', 'install_time', 'worker_count', 'object_type_id', 'dead_zone_size', 'flType'], 'integer'],
             [['name', 'creator', 'style', 'model_path'], 'safe'],
             [['cost'], 'number'],
         ];

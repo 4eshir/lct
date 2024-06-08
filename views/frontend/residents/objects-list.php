@@ -10,20 +10,12 @@ use yii\grid\GridView;
 /** @var app\models\search\SearchObjectWork $searchModel */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
-$this->title = 'Объекты';
-$this->params['breadcrumbs'][] = [
-    'label' => 'Админ-панель',
-    'url' => ['/backend/admin/index'],
-];
+$this->title = 'Каталог МАФ';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="object-work-index main-block-admin">
 
     <h1><?= Html::encode($this->title) ?></h1>
-
-    <p>
-        <?= Html::a('Добавить новый объект', ['create'], ['class' => 'btn btn-success']) ?>
-    </p>
 
     <?php echo $this->render('_search-objects', ['model' => $searchModel]); ?>
 
@@ -32,24 +24,41 @@ $this->params['breadcrumbs'][] = $this->title;
         'filterModel' => $searchModel,
         'columns' => [
 
-            'id',
             'name',
             'length',
             'width',
             'height',
-            //'cost',
-            //'created_time:datetime',
-            //'install_time:datetime',
+            'cost',
+            [
+                'label' => 'Время изг.',
+                'attribute' => 'created_time',
+                'value' => function($model) {
+                    return $model->created_time . ' д.';
+                }
+            ],
+            [
+                'label' => 'Время уст.',
+                'attribute' => 'install_time',
+                'value' => function($model) {
+                    return $model->install_time . ' д.';
+                }
+            ],
             //'worker_count',
-            //'object_type_id',
-            //'creator',
+            [
+                'attribute' => 'object_type_id',
+                'value' => function($model) {
+                    return $model->prettyType;
+                }
+            ],
+            'creator',
             //'dead_zone_size',
-            //'style',
+            'style',
             //'model_path',
             [
                 'class' => ActionColumn::className(),
+                'template' => '{view}',
                 'urlCreator' => function ($action, ObjectWork $model, $key, $index, $column) {
-                    return Url::toRoute([$action, 'id' => $model->id]);
+                    return Url::toRoute(['/backend/object/' . $action, 'id' => $model->id]);
                  }
             ],
         ],

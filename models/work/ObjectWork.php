@@ -4,6 +4,8 @@ namespace app\models\work;
 
 use app\components\arrangement\TerritoryConcept;
 use app\models\common\ObjectT;
+use yii\base\Exception;
+use yii\helpers\ArrayHelper;
 
 class ObjectWork extends ObjectT
 {
@@ -14,6 +16,17 @@ class ObjectWork extends ObjectT
 
     public $lengthCells = 0;
     public $widthCells = 0;
+
+    public static function getAllCreators()
+    {
+        $creators = ArrayHelper::getColumn(ObjectWork::find()->all(), 'creator');
+        $result = [];
+        foreach ($creators as $creator) {
+            $result[$creator] = $creator;
+        }
+
+        return $result;
+    }
 
     public function attributeLabels()
     {
@@ -74,5 +87,21 @@ class ObjectWork extends ObjectT
     public function getAge()
     {
         return $this->left_age . ' - ' . $this->right_age . ' л.';
+    }
+
+    public function getPrettyType()
+    {
+        switch ($this->object_type_id) {
+            case 1:
+                return 'Рекреационный';
+            case 2:
+                return 'Спортивный';
+            case 3:
+                return 'Развивающий';
+            case 4:
+                return 'Игровой';
+            default:
+                throw new Exception('Неизвестный тип объекта');
+        }
     }
 }

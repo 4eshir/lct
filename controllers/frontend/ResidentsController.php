@@ -7,6 +7,7 @@ use app\models\common\Questionnaire;
 use app\models\forms\QuestionDecisionForm;
 use app\models\forms\QuestionForm;
 use app\models\search\SearchObjectWork;
+use app\models\work\ObjectWork;
 use app\models\work\QuestionnaireWork;
 use app\models\work\UserWork;
 use app\services\frontend\ResidentsService;
@@ -116,6 +117,8 @@ class ResidentsController extends Controller
 
     public function actionObjectsList()
     {
+        Yii::$app->session->set('header-active', 'objects');
+
         $searchModel = new SearchObjectWork();
         $dataProvider = $searchModel->search($this->request->queryParams);
 
@@ -123,5 +126,26 @@ class ResidentsController extends Controller
             'searchModel' => $searchModel,
             'dataProvider' => $dataProvider,
         ]);
+    }
+
+    public function actionUpdateTargetObject($targetId)
+    {
+        $result = '<table class="table table-hover" style="margin-bottom: 40px; margin-top: -10px">';
+        $object = ObjectWork::findOne(['id' => $targetId]);
+        if (!$object) {
+            return '';
+        }
+
+        $result .= '<tr><td>Длина (в см)</td><td>'.$object->length.'</td></tr>';
+        $result .= '<tr><td>Ширина (в см)</td><td>'.$object->width.'</td></tr>';
+        $result .= '<tr><td>Высота (в см)</td><td>'.$object->height.'</td></tr>';
+        $result .= '<tr><td>Стоимость</td><td>'.$object->cost.'</td></tr>';
+        $result .= '<tr><td>Время изготовления</td><td>'.$object->created_time.' д.</td></tr>';
+        $result .= '<tr><td>Время установки</td><td>'.$object->install_time.' д.</td></tr>';
+        $result .= '<tr><td>Тип объекта</td><td>'.$object->prettyType.'</td></tr>';
+        $result .= '<tr><td>Стиль</td><td>'.$object->style.'</td></tr>';
+        $result .= '</table>';
+
+        return $result;
     }
 }

@@ -2,6 +2,8 @@
 
 namespace app\models\search;
 
+use app\components\analytic\ObjectAnalytic;
+use yii\base\BaseObject;
 use yii\base\Model;
 use yii\data\ActiveDataProvider;
 use app\models\work\ObjectWork;
@@ -12,6 +14,9 @@ use app\models\work\ObjectWork;
 class SearchObjectWork extends ObjectWork
 {
     public $flType;
+    public $targetId;
+    public $excludeCreators;
+    public $includeCreators;
 
     /**
      * {@inheritdoc}
@@ -19,8 +24,8 @@ class SearchObjectWork extends ObjectWork
     public function rules()
     {
         return [
-            [['id', 'length', 'width', 'height', 'created_time', 'install_time', 'worker_count', 'object_type_id', 'dead_zone_size', 'flType'], 'integer'],
-            [['name', 'creator', 'style', 'model_path'], 'safe'],
+            [['id', 'length', 'width', 'height', 'created_time', 'install_time', 'worker_count', 'object_type_id', 'dead_zone_size', 'flType', 'targetId'], 'integer'],
+            [['name', 'creator', 'style', 'model_path', 'excludeCreators', 'includeCreators'], 'safe'],
             [['cost'], 'number'],
         ];
     }
@@ -47,11 +52,30 @@ class SearchObjectWork extends ObjectWork
 
         // add conditions that should always apply here
 
+        $this->load($params);
+
+        if ($this->flType !== '' && $this->targetId !== '') {
+            $analyticModel = new ObjectAnalytic();
+
+            try {
+                $query = $analyticModel->findSimilarObjects(ObjectWork::findOne(['id' => $this->targetId]), $this->flType);
+            }
+            catch (\Exception $e) {
+                $query = ObjectWork::find();
+            }
+        }
+
+        if ($this->excludeCreators !== '' && gettype($this->excludeCreators) == 'array') {
+            $query = $query->andWhere(['NOT IN', 'creator', $this->excludeCreators]);
+        }
+
+        if ($this->includeCreators !== '' && gettype($this->includeCreators) == 'array') {
+            $query = $query->andWhere(['IN', 'creator', $this->includeCreators]);
+        }
+
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
         ]);
-
-        $this->load($params);
 
         if (!$this->validate()) {
             // uncomment the following line if you do not want to return any records when validation fails
@@ -77,6 +101,7 @@ class SearchObjectWork extends ObjectWork
             ->andFilterWhere(['like', 'creator', $this->creator])
             ->andFilterWhere(['like', 'style', $this->style])
             ->andFilterWhere(['like', 'model_path', $this->model_path]);
+
 
         return $dataProvider;
     }

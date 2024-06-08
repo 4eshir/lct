@@ -12,25 +12,26 @@ class ObjectAnalytic
     const SIMILAR_TYPE_SLIGHTLY = 3; // поиск немного похожих объектов
 
 
-    public function findSimilarObjects(ObjectWork $targetObject, $type)
+    public function findSimilarObjects($targetObject, $type)
     {
         $baseObjects = ObjectWork::find()->where(['object_type_id' => $targetObject->object_type_id])->andWhere(['!=', 'id', $targetObject->id])->each();
+        $objectIds = [];
 
         switch ($type) {
             case self::SIMILAR_TYPE_FULL:
-                $baseObjects = $this->findSimilarFull($targetObject, $baseObjects);
+                $objectIds = $this->findSimilarFull($targetObject, $baseObjects);
                 break;
             case self::SIMILAR_TYPE_QUITE:
-                $baseObjects = $this->findSimilarQuite($targetObject, $baseObjects);
+                $objectIds = $this->findSimilarQuite($targetObject, $baseObjects);
                 break;
             case self::SIMILAR_TYPE_SLIGHTLY:
-                $baseObjects = $this->findSimilarSlightly($targetObject, $baseObjects);
+                $objectIds = $this->findSimilarSlightly($targetObject, $baseObjects);
                 break;
             default:
                 throw new \yii\base\Exception('Неизвестный тип поиска схожих объектов');
         }
 
-        return $baseObjects;
+        return ObjectWork::find()->where(['IN', 'id', $objectIds]);
     }
 
     /**
@@ -40,10 +41,10 @@ class ObjectAnalytic
      * * Разброс по стоимости +-30%
      * * Разброс по времени установки и времени создания +-50%
      * * Стили объектов совпадают
-     * @param ObjectWork $targetObject исходный объект
+     * @param $targetObject
      * @param BatchQueryResult $objects итератор по исходному массиву объектов
      */
-    private function findSimilarFull(ObjectWork $targetObject, $objects)
+    private function findSimilarFull($targetObject, $objects)
     {
         $result = [];
 
@@ -58,7 +59,7 @@ class ObjectAnalytic
                 $this->checkNumbersDiff($targetObject->created_time, $object->created_time, 50) &&
                 $this->checkStringsDiff($targetObject->style, $object->style, 100)
             ) {
-                $result[] = $object;
+                $result[] = $object->id;
             }
         }
 
@@ -69,13 +70,13 @@ class ObjectAnalytic
      * Функция поиска достаточно схожих объектов
      * * Название совпадает на 50%
      * * Разброс по площади +-80%
-     * * Разброс по стоимости +-50%
+     * * Разброс по стоимости +-100%
      * * Разброс по времени установки и времени создания значения не имеют
      * * Стили объектов значения не имеют
-     * @param ObjectWork $targetObject исходный объект
+     * @param $targetObject
      * @param BatchQueryResult $objects итератор по исходному массиву объектов
      */
-    private function findSimilarQuite(ObjectWork $targetObject, $objects)
+    private function findSimilarQuite($targetObject, $objects)
     {
         $result = [];
 
@@ -84,13 +85,11 @@ class ObjectAnalytic
             if (
                 $this->checkStringsDiff($targetObject->name, $object->name, 50) &&
                 $this->checkNumbersDiff($targetObject->getSquare(), $object->getSquare(), 80) &&
-                $this->checkNumbersDiff($targetObject->cost, $object->cost, 50)
+                $this->checkNumbersDiff($targetObject->cost, $object->cost, 100)
             ) {
-                $result[] = $object;
+                $result[] = $object->id;
             }
         }
-
-
 
         return $result;
     }
@@ -99,13 +98,13 @@ class ObjectAnalytic
      * Функция поиска немного схожих объектов
      * * Название совпадает на 30%
      * * Разброс по площади +-100%
-     * * Разброс по стоимости +-100%
+     * * Разброс по стоимости +-200%
      * * Разброс по времени установки и времени создания значения не имеет
      * * Стили объектов значения не имеют
-     * @param ObjectWork $targetObject исходный объект
+     * @param $targetObject
      * @param BatchQueryResult $objects итератор по исходному массиву объектов
      */
-    private function findSimilarSlightly(ObjectWork $targetObject, $objects)
+    private function findSimilarSlightly($targetObject, $objects)
     {
         $result = [];
 
@@ -114,9 +113,9 @@ class ObjectAnalytic
             if (
                 $this->checkStringsDiff($targetObject->name, $object->name, 30) &&
                 $this->checkNumbersDiff($targetObject->getSquare(), $object->getSquare(), 100) &&
-                $this->checkNumbersDiff($targetObject->cost, $object->cost, 100)
+                $this->checkNumbersDiff($targetObject->cost, $object->cost, 200)
             ) {
-                $result[] = $object;
+                $result[] = $object->id;
             }
         }
 
@@ -165,7 +164,7 @@ class ObjectAnalytic
     private function checkNumbersDiff(int $numb1, int $numb2, int $percent)
     {
         $diff = abs($numb1 - $numb2);
-        $percentDiff = $numb2 !== 0 ? $diff / $numb2 * 100 : 0;
+        $percentDiff = $numb2 !== 0 ? $diff / min($numb2, $numb1) * 100 : 0;
 
         return $percentDiff <= $percent;
     }

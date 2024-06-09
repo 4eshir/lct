@@ -111,14 +111,14 @@ footer a {
     color: white;
     font-family: "Nunito", sans-serif;
     font-weight: 300;
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .header-link {
     color: white !important;
     font-family: "Comfortaa", sans-serif;
     font-weight: 300;
-    font-size: 16px;
+    font-size: 18px;
     padding: 7px;
 }
 
@@ -126,14 +126,14 @@ footer a {
     color: white !important;
     font-family: "Comfortaa", sans-serif;
     font-weight: 300;
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .header-link-active {
     color: #ADD8E6 !important;
     font-family: "Comfortaa", sans-serif;
     font-weight: 700 !important;
-    font-size: 18px;
+    font-size: 20px;
 }
 
 .header-link-button {

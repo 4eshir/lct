@@ -8,6 +8,7 @@
 namespace app\commands;
 
 use app\components\analytic\ObjectAnalytic;
+use app\components\arrangement\TemplatesManager;
 use app\components\arrangement\TerritoryArrangementManager;
 use app\components\arrangement\TerritoryConcept;
 use app\facades\TerritoryFacade;
@@ -58,5 +59,12 @@ class HelloController extends Controller
 
         $analModel = new ObjectAnalytic();
         var_dump(ArrayHelper::getColumn($analModel->findSimilarObjects($targetObject, ObjectAnalytic::SIMILAR_TYPE_SLIGHTLY), 'id'));
+    }
+
+    public function actionTemplate()
+    {
+        $template = new TemplatesManager();
+        $template->generateTemplateMatrix(1, 20, 20);
+        $template->showDebugTemplateMatrix(fopen('php://stdout', 'w'));
     }
 }

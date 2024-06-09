@@ -2,11 +2,15 @@
 
 namespace app\controllers\backend;
 
+use app\models\forms\DownloadXMLForm;
 use app\models\work\ObjectWork;
 use app\models\search\SearchObjectWork;
+use bupy7\xml\constructor\XmlConstructor;
+use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\UploadedFile;
 
 /**
  * ObjectController implements the CRUD actions for ObjectWork model.
@@ -114,6 +118,73 @@ class ObjectController extends Controller
         $this->findModel($id)->delete();
 
         return $this->redirect(['index']);
+    }
+
+    public function actionUploadXml()
+    {
+        $objects = ObjectWork::find()->all();
+        $xmlArray = [];
+
+        foreach ($objects as $object) {
+            /** @var ObjectWork $object */
+            $xmlArray[] = [
+                'tag' => 'object',
+                'attributes' => [
+                    'id' => $object->id,
+                    'name' => $object->name,
+                    'length' => $object->length,
+                    'width' => $object->width,
+                    'height' => $object->height,
+                    'cost' => $object->cost,
+                    'created_time' => $object->created_time,
+                    'install_time' => $object->install_time,
+                    'worker_count' => $object->worker_count,
+                    'object_type' => $object->objectType->name,
+                    'creator' => $object->creator,
+                    'dead_zone_size' => $object->dead_zone_size,
+                    'style' => $object->style,
+                    'article' => $object->article,
+                    'left_age' => $object->left_age,
+                    'right_age' => $object->right_age,
+                ]
+            ];
+        }
+
+        $xml = new XmlConstructor();
+        $in = [
+            [
+                'tag' => 'root',
+                'elements' => [
+                    [
+                        'tag' => 'objects_list',
+                        'elements' => $xmlArray,
+                    ],
+                ],
+            ],
+        ];
+        $xmlString = $xml->fromArray($in)->toOutput();
+
+        header('Content-Type: text/xml');
+        header('Content-Disposition: attachment; filename="filename.xml"');
+
+        echo $xmlString;
+        exit();
+    }
+
+    public function actionDownloadXml()
+    {
+        $model = new DownloadXMLForm();
+
+        if (Yii::$app->request->isPost) {
+            $model->xmlFile = UploadedFile::getInstance($model, 'xmlFile');
+
+            if ($model->importXml()) {
+                Yii::$app->session->setFlash('success', 'Данные из XML-файла успешно загружены');
+                return $this->redirect(['index']);
+            }
+        }
+
+        return $this->render('download-xml', ['model' => $model]);
     }
 
     /**

@@ -17,6 +17,7 @@ return array(
     'kartik\\select2\\' => array($vendorDir . '/kartik-v/yii2-widget-select2/src'),
     'kartik\\base\\' => array($vendorDir . '/kartik-v/yii2-krajee-base/src'),
     'cebe\\markdown\\' => array($vendorDir . '/cebe/markdown'),
+    'bupy7\\xml\\constructor\\' => array($vendorDir . '/bupy7/xml-constructor/src'),
     'Symfony\\Polyfill\\Php80\\' => array($vendorDir . '/symfony/polyfill-php80'),
     'Symfony\\Polyfill\\Php73\\' => array($vendorDir . '/symfony/polyfill-php73'),
     'Symfony\\Polyfill\\Php72\\' => array($vendorDir . '/symfony/polyfill-php72'),

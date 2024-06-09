@@ -73,6 +73,15 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
+        'bupy7/xml-constructor' => array(
+            'pretty_version' => 'v2.0.3',
+            'version' => '2.0.3.0',
+            'reference' => '005702c0d500cc53dee62f6d0e3edcb8bccfa919',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../bupy7/xml-constructor',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
         'cebe/markdown' => array(
             'pretty_version' => '1.2.1',
             'version' => '1.2.1.0',

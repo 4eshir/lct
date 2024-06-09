@@ -196,6 +196,61 @@
             "install-path": "../bower-asset/yii2-pjax"
         },
         {
+            "name": "bupy7/xml-constructor",
+            "version": "v2.0.3",
+            "version_normalized": "2.0.3.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bupy7/xml-constructor.git",
+                "reference": "005702c0d500cc53dee62f6d0e3edcb8bccfa919"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bupy7/xml-constructor/zipball/005702c0d500cc53dee62f6d0e3edcb8bccfa919",
+                "reference": "005702c0d500cc53dee62f6d0e3edcb8bccfa919",
+                "shasum": ""
+            },
+            "require": {
+                "ext-xmlwriter": "*",
+                "php": ">=5.6"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=5.7.27"
+            },
+            "time": "2023-12-29T19:11:34+00:00",
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "bupy7\\xml\\constructor\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Vasily Belosloodcev",
+                    "email": "vasily.belosloodcev@gmail.com"
+                }
+            ],
+            "description": "The array-like constructor of XML document structure.",
+            "keywords": [
+                "library",
+                "php",
+                "xml",
+                "xml constructor",
+                "xml maker",
+                "xml writter"
+            ],
+            "support": {
+                "issues": "https://github.com/bupy7/xml-constructor/issues",
+                "source": "https://github.com/bupy7/xml-constructor/tree/v2.0.3"
+            },
+            "install-path": "../bupy7/xml-constructor"
+        },
+        {
             "name": "cebe/markdown",
             "version": "1.2.1",
             "version_normalized": "1.2.1.0",

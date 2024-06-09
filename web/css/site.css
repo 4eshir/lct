@@ -116,23 +116,40 @@ footer a {
 
 .header-link {
     color: white !important;
-    font-family: "Nunito", sans-serif;
-    font-weight: 700;
-    font-size: 20px;
+    font-family: "Comfortaa", sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    padding: 7px;
 }
 
 .header-link-think {
     color: white !important;
-    font-family: "Nunito", sans-serif;
-    font-weight: 400;
-    font-size: 20px;
+    font-family: "Comfortaa", sans-serif;
+    font-weight: 300;
+    font-size: 16px;
 }
 
 .header-link-active {
     color: #ADD8E6 !important;
-    font-family: "Nunito", sans-serif;
-    font-weight: 700;
-    font-size: 20px;
+    font-family: "Comfortaa", sans-serif;
+    font-weight: 700 !important;
+    font-size: 18px;
+}
+
+.header-link-button {
+    color: white !important;
+    font-family: "Comfortaa", sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    border: 1px solid whitesmoke;
+    margin-left: 20px;
+    border-radius: 5px;
+}
+
+.header-link-button:hover {
+    background-color: whitesmoke;
+    color: black !important;
+    transition: background-color 0.2s, color 0.2s;
 }
 
 .logo-class {
@@ -151,4 +168,18 @@ div > nav > ol {
     padding: 10px !important;
     margin-top: 10px !important;
     border-radius: 5px !important;
+}
+
+.custom-li-class {
+    border-bottom: 2px solid #ADD8E6;
+}
+
+.default-li-class:hover {
+    border-bottom: 2px solid #ADD8E6;
+    transition: border-bottom 0.1s;
+}
+
+.default-li-class > a:hover {
+    color: #ADD8E6 !important;
+    transition: color 0.2s;
 }

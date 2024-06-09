@@ -23,6 +23,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <p>
         <?= Html::a('Добавить новый объект', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Загрузить объекты через XML', ['download-xml'], ['class' => 'btn btn-primary']) ?>
+        <?= Html::a('Выгрузить объекты в XML', ['upload-xml'], ['class' => 'btn btn-warning']) ?>
     </p>
 
     <?php // echo $this->render('_search', ['model' => $searchModel]); ?>

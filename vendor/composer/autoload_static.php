@@ -46,6 +46,10 @@ class ComposerStaticInit6e2449c64200d438994f282326c89ad2
         array (
             'cebe\\markdown\\' => 14,
         ),
+        'b' => 
+        array (
+            'bupy7\\xml\\constructor\\' => 22,
+        ),
         'S' => 
         array (
             'Symfony\\Polyfill\\Php80\\' => 23,
@@ -148,6 +152,10 @@ class ComposerStaticInit6e2449c64200d438994f282326c89ad2
         'cebe\\markdown\\' => 
         array (
             0 => __DIR__ . '/..' . '/cebe/markdown',
+        ),
+        'bupy7\\xml\\constructor\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/bupy7/xml-constructor/src',
         ),
         'Symfony\\Polyfill\\Php80\\' => 
         array (

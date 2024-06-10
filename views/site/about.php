@@ -209,10 +209,49 @@ $this->params['breadcrumbs'][] = $this->title;
         }
     };
 
-    var i = 0;
-    function updateCamera(event)
+    // переменная для отслеживания поворота камеры
+    var isRotateCamera = false;
+    var degreeCamera = 0;
+    var previousMouseX = 0;
+
+    function whereGoMouse(event)
     {
-        if (i === 0)
+        var currentMouseX = event.clientX;
+
+        if (currentMouseX > previousMouseX) {
+            degreeCamera += 90;
+        } else if (currentMouseX < previousMouseX) {
+            degreeCamera -= 90;
+        }
+
+        previousMouseX = currentMouseX;
+    }
+
+    function updateCamera()
+    {
+        if (Math.abs(degreeCamera) === 360 || degreeCamera === 0)
+        {
+            degreeCamera = 0;
+            camera.position.set(0, -5, 10);
+            camera.rotation.set(0.5, 0, 0);
+        }
+        else if (degreeCamera === 90 || degreeCamera === -270)
+        {
+            camera.position.set(-5, 0, 10);
+            camera.rotation.set(0, -0.5, -Math.PI/2);
+        }
+        else if (Math.abs(degreeCamera) === 180)
+        {
+            camera.position.set(0, 4.3, 10);
+            camera.rotation.set(-0.5, 0, Math.PI);
+        }
+        else if (degreeCamera === -90 || degreeCamera === 270)
+        {
+            camera.position.set(4.3, 0, 10);
+            camera.rotation.set(0, 0.5, Math.PI/2);
+        }
+
+        /*if (degreeCamera === 0)
         {
             // Координата C (-90 градусов)
             camera.rotation.x = 0;
@@ -248,7 +287,7 @@ $this->params['breadcrumbs'][] = $this->title;
             camera.rotation.z = 0;
 
         }
-        i++;
+        i++;*/
         camera.updateMatrixWorld();
     }
 
@@ -272,7 +311,7 @@ $this->params['breadcrumbs'][] = $this->title;
     cameraFolder.add(cameraControls, 'positionZ', -30, 30).onChange(value => camera.position.z = value);
     cameraFolder.add(cameraControls, 'rotationZ', -Math.PI*2, Math.PI*2).onChange(value => camera.rotation.z = value);
     sceneContainer.appendChild(gui.domElement);
-    //document.body.appendChild(gui.domElement);
+
 
     function getIntersects(event)
     {
@@ -333,7 +372,7 @@ $this->params['breadcrumbs'][] = $this->title;
             const direction = event.deltaY > 0 ? 1 : -1;
             selectedObject.rotation.z += (Math.PI / 2) * direction;
 
-            if (selectedObject.rotation.z / Math.PI === 2 || selectedObject.rotation.z / Math.PI === -2)
+            if (Math.abs(selectedObject.rotation.z / Math.PI) === 2)
                 selectedObject.rotation.z = 0;
 
             // Проверка на необходимость "доворота" фигуры, чтобы попасть в сетку
@@ -416,6 +455,11 @@ $this->params['breadcrumbs'][] = $this->title;
                 setColorGridMesh();
             }
         }
+
+        if(isRotateCamera)
+        {
+            whereGoMouse(event);
+        }
     }
 
     function onMouseDown()
@@ -438,8 +482,10 @@ $this->params['breadcrumbs'][] = $this->title;
 
             controls.enableZoom = false;
         }
-
-        updateCamera(event);
+        else
+        {
+            isRotateCamera = true;
+        }
     }
 
     function onMouseUp()
@@ -462,6 +508,12 @@ $this->params['breadcrumbs'][] = $this->title;
             selectedObjectRotateX = false;
             selectedObjectRotateY = false;
             selectedObjectRotatePoint.clear();
+        }
+
+        if (isRotateCamera)
+        {
+            isRotateCamera = false;
+            updateCamera();
         }
 
         controls.enableZoom = true;

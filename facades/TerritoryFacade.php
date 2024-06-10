@@ -33,15 +33,20 @@ class TerritoryFacade
      * @param string $generateType тип генерации из списка констант @see TerritoryConcept
      * @param int $territoryId id территории @see TerritoryWork
      * @param int $addGenType тип генерации расстановки по доп параметрам @see TerritoryFacade константы OPTIONS
+     * @param int|null $templateId ID шаблона расстановки, по которому произвести генерацию
      * @param array $params необязательный параметр, массив доп параметров
      *          ('votes' => пример: [ObjectWork::TYPE_RECREATION => 5, ...])
      *          ('arrangement' =>  @see ArrangementModelFacade)
      * @return ArrangementModelFacade
      * @throws \yii\db\Exception
      */
-    public function generateTerritoryArrangement(string $generateType, int $territoryId, int $addGenType = self::OPTIONS_DEFAULT, array $params = [])
+    public function generateTerritoryArrangement(string $generateType, int $territoryId, int $addGenType = self::OPTIONS_DEFAULT, int $templateId = null, array $params = [])
     {
         $this->manager->setTerritory($generateType, $territoryId, array_key_exists('votes', $params) ? $params['votes'] : []);
+
+        if ($templateId) {
+            $this->manager->template->generateTemplateMatrix($templateId,  count($this->manager->territory->matrix[0]), count($this->manager->territory->matrix));
+        }
 
         $referenceUnitCost = null;
         $referenceEmptyCells = null;
@@ -61,7 +66,7 @@ class TerritoryFacade
 
         while (!$this->manager->isFilled() && $endFlag) {
             $endFlag = $this->manager->setSuitableObject($addGenType, $referenceUnitCost, $referenceEmptyCells,
-                array_key_exists('arrangement', $params) ? $params['arrangement'] : []);
+                array_key_exists('arrangement', $params) ? $params['arrangement'] : [], $templateId);
         }
 
         $this->model = new ArrangementModelFacade($this->manager->territory->matrix, $this->manager->territory->state->objectIds, $this->manager->territory->state->objectsList);

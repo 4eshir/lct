@@ -21,10 +21,12 @@ use yii\helpers\ArrayHelper;
 class TerritoryArrangementManager
 {
     public TerritoryConcept $territory;
+    public TemplatesManager $template;
 
-    public function __construct(TerritoryConcept $territory)
+    public function __construct(TerritoryConcept $territory, TemplatesManager $template)
     {
         $this->territory = $territory;
+        $this->template = $template;
     }
 
     public function setTerritory(string $generateType, int $territoryId, array $votes = [])
@@ -184,8 +186,9 @@ class TerritoryArrangementManager
         $this->territory->state->deleteObjectById($object->id, $left, $top);
     }
 
-    public function allowedInstall($object, $left, $top, $position)
+    public function allowedInstall($object, $left, $top, $position, int $templateId = null)
     {
+        /** @var ObjectWork $object */
         $control = true;
         $side1 = $position == TerritoryConcept::HORIZONTAL_POSITION ? $object->length : $object->width;
         $side2 = $position == TerritoryConcept::HORIZONTAL_POSITION ? $object->width : $object->length;
@@ -209,7 +212,14 @@ class TerritoryArrangementManager
         else {
             for ($i = $newTop; $i < $maxTop; $i++) {
                 for ($j = $newLeft; $j < $maxLeft; $j++) {
-                    if ($this->territory->matrix[$i][$j] != '0') {
+                    $additionalCondition = false;
+                    if ($templateId) {
+                        $templateMatrix = $this->template->getTemplateMatrix();
+                        $additionalCondition = $templateMatrix[$i][$j] !== 0 && $templateMatrix[$i][$j] !== $object->object_type_id;
+                    }
+
+                    //var_dump('Final: '. $this->territory->matrix[$i][$j] != '0' && !$additionalCondition ? 'true' : 'false');
+                    if ($this->territory->matrix[$i][$j] != '0' || $additionalCondition) {
                         $control = false;
                     }
                 }
@@ -225,10 +235,11 @@ class TerritoryArrangementManager
      * @param float|null $referenceUnitCost эталонная средняя удельная стоимость кв. единицы
      * @param int|null $referenceEmptyCells эталонное количество пустых ячеек (кв. единиц)
      * @param ObjectExtended[] $stopListObject список объектов, размещение которых допускается в последнюю очередь
+     * @param int|null $templateId ID шаблона расстановки, по которому произвести генерацию
      * @return bool
      * @throws Exception
      */
-    public function setSuitableObject(int $addGenType = TerritoryFacade::OPTIONS_DEFAULT, $referenceUnitCost = null, $referenceEmptyCells = null, $stopListObject = [])
+    public function setSuitableObject(int $addGenType = TerritoryFacade::OPTIONS_DEFAULT, $referenceUnitCost = null, $referenceEmptyCells = null, $stopListObject = [], $templateId = null)
     {
         $cleanStopList = [];
         if ($stopListObject != [])
@@ -249,7 +260,6 @@ class TerritoryArrangementManager
         $this->territory->state->getSortedFillsDesc($fills);
 
         $installFlag = false;
-        $economyDropFlag = false; // флаг для выхода из цикла по причине переполнения по бюджету
 
         foreach ($fills as $key => $fill) {
             $objectTypeText = 'recreation';
@@ -302,7 +312,7 @@ class TerritoryArrangementManager
             }
             if (!$this->territory->fullnessIntervals[$objectTypeText]->belongToLastInterval($fillType)) {
                 foreach ($objects as $object) {
-                    $point = $this->findInstallPoint($object);
+                    $point = $this->findInstallPoint($object, $templateId);
                     if ($point) {
                         $installFlag = true;
                         $this->installObject($object, $point[0], $point[1], $point[2]);
@@ -349,9 +359,10 @@ class TerritoryArrangementManager
 
     /**
      * @param ObjectWork $object
+     * @param int|null $templateId ID шаблона расстановки, по которому произвести генерацию
      * @return array|false|int[]|mixed формат [left, top, position]
      */
-    private function findInstallPoint(ObjectWork $object)
+    private function findInstallPoint(ObjectWork $object, int $templateId = null)
     {
         $object->convertDimensionsToCells();
         $square = $object->getSquareCells();
@@ -384,11 +395,11 @@ class TerritoryArrangementManager
         $point = [];
         for ($i = 0; $i < $this->territory->lengthCellCount; $i++) {
             for ($j = 0; $j < $this->territory->widthCellCount; $j++) {
-                if ($this->allowedInstall($object, $i, $j, TerritoryConcept::HORIZONTAL_POSITION)) {
+                if ($this->allowedInstall($object, $i, $j, TerritoryConcept::HORIZONTAL_POSITION, $templateId)) {
                     $point = count($point) == 0 ? [$i, $j, TerritoryConcept::HORIZONTAL_POSITION] : $point;
                     $allowedFlag = true;
                 }
-                if ($this->allowedInstall($object, $i, $j, TerritoryConcept::VERTICAL_POSITION)) {
+                if ($this->allowedInstall($object, $i, $j, TerritoryConcept::VERTICAL_POSITION, $templateId)) {
                     $point = count($point) == 0 ? [$i, $j, TerritoryConcept::VERTICAL_POSITION] : $point;
                     $allowedFlag = true;
                 }

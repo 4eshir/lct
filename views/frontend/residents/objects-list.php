@@ -19,6 +19,11 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <?php echo $this->render('_search-objects', ['model' => $searchModel]); ?>
 
+    <div style="margin-bottom: 10px">
+        <?= Html::a('Загрузить объекты через XML', ['/backend/object/download-xml'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Выгрузить объекты в XML', ['/backend/object/upload-xml'], ['class' => 'btn btn-warning']) ?>
+    </div>
+
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,

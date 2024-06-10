@@ -39,10 +39,11 @@ class HelloController extends Controller
         $matrixModel = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, 1, TerritoryFacade::OPTIONS_DEFAULT);
         $matrixModel->showMatrix(fopen('php://stdout', 'w'));
 
+
         $arModel = $facade->model;
 
         $facade1 = Yii::createObject(TerritoryFacade::class);
-        $matrixModel1 = $facade1->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, 1, TerritoryFacade::OPTIONS_SIMILAR, ['arrangement' => $arModel->objectsPosition]);
+        $matrixModel1 = $facade1->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, 1, TerritoryFacade::OPTIONS_SIMILAR, null, ['arrangement' => $arModel->objectsPosition]);
         $matrixModel1->showMatrix(fopen('php://stdout', 'w'));
     }
 
@@ -63,8 +64,10 @@ class HelloController extends Controller
 
     public function actionTemplate()
     {
-        $template = new TemplatesManager();
-        $template->generateTemplateMatrix(1, 20, 20);
-        $template->showDebugTemplateMatrix(fopen('php://stdout', 'w'));
+
+        $facade = Yii::createObject(TerritoryFacade::class);
+        $matrixModel = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, 1, TerritoryFacade::OPTIONS_DEFAULT, 1);
+        $facade->manager->template->showDebugTemplateMatrix(fopen('php://stdout', 'w'));
+        $matrixModel->showMatrix(fopen('php://stdout', 'w'));
     }
 }

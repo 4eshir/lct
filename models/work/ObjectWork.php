@@ -81,6 +81,9 @@ class ObjectWork extends ObjectT
     public static function convertDistanceToCells($distance, $step)
     {
         $cells = intdiv($distance, $step);
+        if ($cells == 0) {
+            $cells++;
+        }
         return $distance % $step != 0 ? $cells + 1 : $cells;
     }
 

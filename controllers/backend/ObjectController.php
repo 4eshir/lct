@@ -2,6 +2,9 @@
 
 namespace app\controllers\backend;
 
+use app\components\arrangement\TerritoryConcept;
+use app\facades\TerritoryFacade;
+use app\helpers\XmlHelper;
 use app\models\forms\DownloadXMLForm;
 use app\models\work\ObjectWork;
 use app\models\search\SearchObjectWork;
@@ -122,52 +125,15 @@ class ObjectController extends Controller
 
     public function actionUploadXml()
     {
-        $objects = ObjectWork::find()->all();
-        $xmlArray = [];
-
-        foreach ($objects as $object) {
-            /** @var ObjectWork $object */
-            $xmlArray[] = [
-                'tag' => 'object',
-                'attributes' => [
-                    'id' => $object->id,
-                    'name' => $object->name,
-                    'length' => $object->length,
-                    'width' => $object->width,
-                    'height' => $object->height,
-                    'cost' => $object->cost,
-                    'created_time' => $object->created_time,
-                    'install_time' => $object->install_time,
-                    'worker_count' => $object->worker_count,
-                    'object_type' => $object->objectType->name,
-                    'creator' => $object->creator,
-                    'dead_zone_size' => $object->dead_zone_size,
-                    'style' => $object->style,
-                    'article' => $object->article,
-                    'left_age' => $object->left_age,
-                    'right_age' => $object->right_age,
-                ]
-            ];
-        }
-
-        $xml = new XmlConstructor();
-        $in = [
-            [
-                'tag' => 'root',
-                'elements' => [
-                    [
-                        'tag' => 'objects_list',
-                        'elements' => $xmlArray,
-                    ],
-                ],
-            ],
-        ];
-        $xmlString = $xml->fromArray($in)->toOutput();
-
         header('Content-Type: text/xml');
         header('Content-Disposition: attachment; filename="filename.xml"');
 
-        echo $xmlString;
+        $facade = Yii::createObject(TerritoryFacade::class);
+        $matrixModel = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, 1, TerritoryFacade::OPTIONS_DEFAULT);
+
+        //echo XmlHelper::generateObjectsListFile(ObjectWork::find()->all());
+        echo XmlHelper::generateArrangementFile($facade->model);
+
         exit();
     }
 

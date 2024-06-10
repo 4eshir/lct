@@ -90,7 +90,7 @@ $this->params['breadcrumbs'][] = $this->title;
     const drift = 0.5;
 
     // Создаем материал для ячеек сетки
-    var gridSizeX = 9;
+    var gridSizeX = 10;
     var gridSizeY = 10;
 
     // Создаем сетку
@@ -213,18 +213,37 @@ $this->params['breadcrumbs'][] = $this->title;
     var isRotateCamera = false;
     var degreeCamera = 0;
     var previousMouseX = 0;
+    var previousMouseY = 0;
 
-    function whereGoMouse(event)
+    function directionX(event)
     {
         var currentMouseX = event.clientX;
+        var direction = 1;
 
-        if (currentMouseX > previousMouseX) {
-            degreeCamera += 90;
-        } else if (currentMouseX < previousMouseX) {
-            degreeCamera -= 90;
+        if (currentMouseX < previousMouseX) {
+            direction *=  -1;
         }
 
         previousMouseX = currentMouseX;
+        return direction;
+    }
+
+    function directionY(event)
+    {
+        var currentMouseY = event.clientY;
+        var direction = 1;
+
+        if (currentMouseY > previousMouseY) {
+            direction *= -1;
+        }
+
+        previousMouseY = currentMouseY;
+        return direction;
+    }
+
+    function whereGoCamera(event)
+    {
+        degreeCamera += 90 * directionX(event);
     }
 
     function updateCamera()
@@ -232,62 +251,25 @@ $this->params['breadcrumbs'][] = $this->title;
         if (Math.abs(degreeCamera) === 360 || degreeCamera === 0)
         {
             degreeCamera = 0;
-            camera.position.set(0, -5, 10);
+            camera.position.set(0, -(gridSizeY / 2), 10);
             camera.rotation.set(0.5, 0, 0);
         }
         else if (degreeCamera === 90 || degreeCamera === -270)
         {
-            camera.position.set(-5, 0, 10);
+            camera.position.set(-(gridSizeY / 2), 0, 10);
             camera.rotation.set(0, -0.5, -Math.PI/2);
         }
         else if (Math.abs(degreeCamera) === 180)
         {
-            camera.position.set(0, 4.3, 10);
+            camera.position.set(0, gridSizeX / 2, 10);
             camera.rotation.set(-0.5, 0, Math.PI);
         }
         else if (degreeCamera === -90 || degreeCamera === 270)
         {
-            camera.position.set(4.3, 0, 10);
+            camera.position.set(gridSizeX / 2, 0, 10);
             camera.rotation.set(0, 0.5, Math.PI/2);
         }
 
-        /*if (degreeCamera === 0)
-        {
-            // Координата C (-90 градусов)
-            camera.rotation.x = 0;
-            camera.rotation.y = -0.5;
-            camera.rotation.z = -Math.PI/2;
-            camera.position.set(-5, 0, 10);
-        }
-
-        if (i === 1) {
-            // Координата Б (180 градусов)
-            camera.position.set(0, 4.3, 10);
-            camera.rotation.x = -0.5;
-            camera.rotation.z = Math.PI;
-            camera.rotation.y = 0;
-        }
-
-        if (i === 2)
-        {
-            // Координата D (90 градусов)
-            camera.rotation.x = 0;
-            camera.rotation.y = 0.5;
-            camera.rotation.z = Math.PI/2;
-            camera.position.set(4.3, 0, 10);
-        }
-
-        if (i === 3)
-        {
-            camera.position.z = 10;
-            camera.position.y = -5;
-            camera.position.x = 0;
-            camera.rotation.x = 0.5;
-            camera.rotation.y = 0;
-            camera.rotation.z = 0;
-
-        }
-        i++;*/
         camera.updateMatrixWorld();
     }
 
@@ -428,21 +410,38 @@ $this->params['breadcrumbs'][] = $this->title;
         })
     }
 
+    previousMouseY = 0;
+    intersectionPoint = {x: 0, y: 0};
+
     // Логика перемещения объекта
     function dragAndDrop(event)
     {
         if (isDragging)
         {
             var intersects = getIntersects(event);
+            //var intersectionPoint;
 
+            //console.log(intersects.length);
             if (intersects.length > 0) {
-                var intersectionPoint = intersects[0].point;
+                intersectionPoint = intersects[0].point;
+            }
+            else {
+                intersectionPoint.x -= 1;
+            }
+                console.log(intersectionPoint.x, intersectionPoint.y);
+                console.log(selectedObject.position.x, selectedObject.position.y);
+                console.log('---------------------');
 
                 // Учитываем половину ширины и половину длины объекта при ограничении перемещения
                 var halfWidth = selectedObject.geometry.parameters.width / 2;
                 var halfHeight = selectedObject.geometry.parameters.height / 2;
                 var newX = Math.max(Math.min(intersectionPoint.x, gridSizeX / 2 - drift - halfWidth), -gridSizeX / 2 + drift + halfWidth);
+                //newX = newX.toFixed(1);
                 var newY = Math.max(Math.min(intersectionPoint.y, gridSizeY / 2 - drift - halfHeight), -gridSizeY / 2 + drift + halfHeight);
+                //newY = newY.toFixed(1);
+
+            /*var newX = intersectionPoint.x;
+            var newY = intersectionPoint.y;*/
 
                 var rotateWidth = selectedObjectRotateX ? drift : 0;
                 var rotateHeight = selectedObjectRotateY ? drift : 0;
@@ -453,12 +452,7 @@ $this->params['breadcrumbs'][] = $this->title;
                 updatePositionSelectedObject(coordinate.getPoint());
 
                 setColorGridMesh();
-            }
-        }
-
-        if(isRotateCamera)
-        {
-            whereGoMouse(event);
+            //}
         }
     }
 
@@ -485,6 +479,7 @@ $this->params['breadcrumbs'][] = $this->title;
         else
         {
             isRotateCamera = true;
+            previousMouseX = event.clientX;
         }
     }
 
@@ -509,10 +504,10 @@ $this->params['breadcrumbs'][] = $this->title;
             selectedObjectRotateY = false;
             selectedObjectRotatePoint.clear();
         }
-
-        if (isRotateCamera)
+        else if (isRotateCamera )
         {
             isRotateCamera = false;
+            whereGoCamera(event);
             updateCamera();
         }
 

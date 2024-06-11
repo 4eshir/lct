@@ -5,6 +5,14 @@
 /** @var $descs string[] */
 
 use app\models\work\TemplateBlockWork;
+use yii\helpers\Url;
+
+$this->title = 'Шаблоны';
+$this->params['breadcrumbs'][] = [
+    'label' => 'Администрация',
+    'url' => ['/frontend/administration/index'],
+];
+$this->params['breadcrumbs'][] = $this->title;
 
 ?>
 
@@ -24,6 +32,10 @@ use app\models\work\TemplateBlockWork;
                 $activeFlag = true;
                 echo '<div class="carousel-caption d-none d-md-block">';
                 echo '<div class="template-wrapper">';
+                echo '<div class="overlay"></div>';
+                echo '<div class="button-container">';
+                echo '<button class="btn block-btn">Попробовать шаблон</button>';
+                echo '</div>';
                 for ($i = 0; $i < 20; $i++) {
                     echo '<div class="row">';
                     for ($j = 0; $j < 20; $j++) {
@@ -66,16 +78,22 @@ use app\models\work\TemplateBlockWork;
 </div>
 
 
+<div class="result" id="resultId">
+
+</div>
 
 
 
 <style>
     .carousel-item {
-        margin-top: 30px;
         width: 100%;
         height: 850px;
-        background-color: #8860cf;
+        /*background-color: #8860cf;*/
         border-radius: 20px;
+
+        border: 0.1px solid white;
+        background: rgba(255, 255, 255, 0.2);
+        box-shadow: 0 0 15px #644bb1;
     }
 
     .template-wrapper {
@@ -90,7 +108,7 @@ use app\models\work\TemplateBlockWork;
         padding: 30px;
         background-color: white;
         border-radius: 15px;
-        margin: 10px;
+        margin: 10px 0 10px 0;
     }
 
     .cell {
@@ -138,7 +156,7 @@ use app\models\work\TemplateBlockWork;
 
     .cell-game {
         border: 1px solid #74762f;
-        background-color: #d4de9a;
+        background-color: #faf0ae;
     }
 
     .cell-cancel {
@@ -155,4 +173,124 @@ use app\models\work\TemplateBlockWork;
         width: 26px !important;
         height: 26px !important;
     }
+
+    .overlay {
+        display: none;
+        position: absolute;
+        top: 0;
+        left: 10px;
+        width: 100%;
+        height: 700px;
+        margin-top: 30px;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1;
+        border-radius: 14px;
+    }
+
+    .button-container {
+        display: none;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 2;
+    }
+
+    .block-btn {
+        background-color: white;
+        border: 1.5px solid #361967;
+        font-size: 22px;
+        padding: 15px 25px 15px 25px;
+        border-radius: 10px;
+        font-family: "Nunito", sans-serif;
+        font-weight: 700;
+        color: #361967;
+    }
+
+    .block-btn:hover {
+        background-color: #4c2c81;
+        border: 1px solid #361967;
+        color: white;
+    }
+
+    .result {
+        margin-top: 50px;
+        height: 700px;
+    }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const templateWrappers = document.querySelectorAll('.template-wrapper');
+
+        templateWrappers.forEach((templateWrapper, index) => {
+            const overlay = document.createElement('div');
+            const buttonContainer = document.createElement('div');
+            const button = document.createElement('button');
+            const loadingIcon = document.createElement('div');
+
+            overlay.classList.add('overlay');
+            templateWrapper.appendChild(overlay);
+
+            buttonContainer.classList.add('button-container');
+            button.textContent = 'Попробовать шаблон ' + (index + 1);
+            button.classList.add('btn', 'block-btn');
+            buttonContainer.appendChild(button);
+            loadingIcon.classList.add('loading-icon');
+            loadingIcon.innerHTML = '<img src="/img/loading.gif" alt="Подождите...">';
+            loadingIcon.style.display = 'none';
+            buttonContainer.appendChild(loadingIcon);
+
+            templateWrapper.appendChild(buttonContainer);
+
+            templateWrapper.addEventListener('mouseenter', function () {
+                overlay.style.display = 'block';
+                buttonContainer.style.display = 'block';
+            });
+
+            templateWrapper.addEventListener('mouseleave', function () {
+                overlay.style.display = 'none';
+                buttonContainer.style.display = 'none';
+            });
+
+            button.addEventListener('click', function () {
+                const params = {
+                    templateId: index + 1,
+                };
+
+                sendAjaxRequest(params, loadingIcon);
+            });
+        });
+
+        function sendAjaxRequest(params, loadingIcon) {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "index.php?r=/backend/demo/generate-template-ajax&tId=" + params['templateId'], true);
+
+            xhr.onload = function() {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                    var resultDiv = document.querySelector(".result");
+                    resultDiv.textContent = xhr.responseText;
+                    scrollToAnchor('resultId');
+                } else {
+                    console.error("Ошибка при загрузке данных: " + xhr.status);
+                }
+                loadingIcon.style.display = 'none';
+            };
+
+            xhr.onerror = function() {
+                console.error("Произошла ошибка при выполнении запроса.");
+                loadingIcon.style.display = 'none';
+            };
+
+            xhr.send();
+            loadingIcon.style.display = 'block';
+        }
+
+        function scrollToAnchor(anchorId) {
+            const anchor = document.getElementById(anchorId);
+            if (anchor) {
+                anchor.scrollIntoView({ behavior: 'smooth' }); // плавная прокрутка к якорю
+            }
+        }
+    });
+</script>

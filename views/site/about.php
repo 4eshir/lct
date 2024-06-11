@@ -76,7 +76,6 @@ $this->params['breadcrumbs'][] = $this->title;
     camera.position.y = -5;
     camera.rotation.x = 0.5;
 
-
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(sceneContainer.clientWidth, sceneContainer.clientHeight);
     sceneContainer.appendChild(renderer.domElement);
@@ -208,6 +207,8 @@ $this->params['breadcrumbs'][] = $this->title;
             return this.point0deg;
         }
     };
+    var blockObjectSelection = null;
+    var intersectionPoint = {x: 0, y: 0};
 
     // переменная для отслеживания поворота камеры
     var isRotateCamera = false;
@@ -323,7 +324,13 @@ $this->params['breadcrumbs'][] = $this->title;
 
             if (intersects.length > 0) {
                 selectedObject = intersects[0].object;
-                var intersectionPoint = intersects[0].point;
+
+                if (blockObjectSelection)
+                {
+                    // тут если selectedObject должен быть равен blockObjectSelection
+                }
+
+                intersectionPoint = intersects[0].point;
                 offset.copy(intersectionPoint).sub(selectedObject.position);
 
                 const outlineMaterial = new THREE.MeshBasicMaterial({color: 0x0fff00, side: THREE.BackSide});
@@ -410,8 +417,38 @@ $this->params['breadcrumbs'][] = $this->title;
         })
     }
 
-    previousMouseY = 0;
-    intersectionPoint = {x: 0, y: 0};
+    // Проверка пересечения
+    function doSegmentsIntersect(firstSegmentMin, firstSegmentMax, secondSegmentMin, secondSegmentMax) {
+        if (firstSegmentMax > secondSegmentMin && firstSegmentMin < secondSegmentMin
+            || firstSegmentMax > secondSegmentMax && firstSegmentMin < secondSegmentMax)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    // Определяет свободно ли поле для размещения
+    function isFreedomPosition()
+    {
+        // Рассчитываем ограничивающий параллелипипед для объекта
+        const boundingBox = new THREE.Box3().setFromObject(selectedObject);
+
+        for (let i = 0; i < interactiveObjects.length; i++) {
+            if (selectedObject != interactiveObjects[i])
+            {
+                const boundingBoxOtherObject = new THREE.Box3().setFromObject(interactiveObjects[i]);
+
+                // Сравниваем пресечение границ объектов
+                if (doSegmentsIntersect(boundingBox.min.x, boundingBox.max.x, boundingBoxOtherObject.min.x, boundingBoxOtherObject.max.x)
+                    && doSegmentsIntersect(boundingBox.min.x, boundingBox.max.x, boundingBoxOtherObject.min.x, boundingBoxOtherObject.max.x)) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
 
     // Логика перемещения объекта
     function dragAndDrop(event)
@@ -419,40 +456,48 @@ $this->params['breadcrumbs'][] = $this->title;
         if (isDragging)
         {
             var intersects = getIntersects(event);
-            //var intersectionPoint;
 
-            //console.log(intersects.length);
+            // Учитываем половину ширины и половину длины объекта при ограничении перемещения
+            var halfWidth = isRotation() ? selectedObject.geometry.parameters.width / 2 : selectedObject.geometry.parameters.height / 2;
+            var halfHeight = isRotation() ? selectedObject.geometry.parameters.height / 2 : selectedObject.geometry.parameters.width / 2;
+            var maxX = gridSizeX / 2 - drift - halfWidth;
+            var minX = -gridSizeX / 2 + drift + halfWidth;
+            var maxY = gridSizeY / 2 - drift - halfHeight;
+            var minY = -gridSizeY / 2 + drift + halfHeight;
+
             if (intersects.length > 0) {
                 intersectionPoint = intersects[0].point;
             }
             else {
-                intersectionPoint.x -= 1;
+                intersectionPoint.x > maxX ? intersectionPoint.x = maxX : (intersectionPoint.x < minX ? intersectionPoint.x = minX : intersectionPoint.x += directionX(event));
+                intersectionPoint.y > maxY ? intersectionPoint.y = maxY : (intersectionPoint.y < minY ? intersectionPoint.y = minY : intersectionPoint.y += directionY(event));
             }
-                console.log(intersectionPoint.x, intersectionPoint.y);
-                console.log(selectedObject.position.x, selectedObject.position.y);
-                console.log('---------------------');
 
-                // Учитываем половину ширины и половину длины объекта при ограничении перемещения
-                var halfWidth = selectedObject.geometry.parameters.width / 2;
-                var halfHeight = selectedObject.geometry.parameters.height / 2;
-                var newX = Math.max(Math.min(intersectionPoint.x, gridSizeX / 2 - drift - halfWidth), -gridSizeX / 2 + drift + halfWidth);
-                //newX = newX.toFixed(1);
-                var newY = Math.max(Math.min(intersectionPoint.y, gridSizeY / 2 - drift - halfHeight), -gridSizeY / 2 + drift + halfHeight);
-                //newY = newY.toFixed(1);
+            var newX = intersectionPoint.x > maxX ? maxX : intersectionPoint.x;
+            var newY = intersectionPoint.y > maxY ? maxY : intersectionPoint.y;
 
-            /*var newX = intersectionPoint.x;
-            var newY = intersectionPoint.y;*/
+            if (newX < minX)
+            {
+                newX = -gridSizeX / 2;
+            }
 
-                var rotateWidth = selectedObjectRotateX ? drift : 0;
-                var rotateHeight = selectedObjectRotateY ? drift : 0;
+            if (newY < minY)
+            {
+                newY = -gridSizeY / 2 + drift;
+            }
 
-                var coordinate = Object.create(selectedObjectRotatePoint);
-                coordinate.addPoint0deg(Math.round(newX) + rotateHeight, Math.round(newY) + rotateWidth);
-                coordinate.addPoint90deg(Math.round(newX) + rotateWidth, Math.round(newY) + rotateHeight);
-                updatePositionSelectedObject(coordinate.getPoint());
+            //var newX = Math.max(Math.min(intersectionPoint.x, gridSizeX / 2 - drift - halfWidth), -gridSizeX / 2 + drift + halfWidth);
+            //var newY = Math.max(Math.min(intersectionPoint.y, gridSizeY / 2 - drift - halfHeight), -gridSizeY / 2 + drift + halfHeight);
 
-                setColorGridMesh();
-            //}
+            var rotateWidth = selectedObjectRotateX ? drift : 0;
+            var rotateHeight = selectedObjectRotateY ? drift : 0;
+
+            var coordinate = Object.create(selectedObjectRotatePoint);
+            coordinate.addPoint0deg(Math.round(newX) + rotateHeight, Math.round(newY) + rotateWidth);
+            coordinate.addPoint90deg(Math.round(newX) + rotateWidth, Math.round(newY) + rotateHeight);
+            updatePositionSelectedObject(coordinate.getPoint());
+
+            setColorGridMesh();
         }
     }
 
@@ -494,10 +539,17 @@ $this->params['breadcrumbs'][] = $this->title;
 
         if (selectedObject)
         {
-            var newDot = new dot.addDot(selectedObject.position.x, selectedObject.position.y);
-            for(var z = axisZ; z > 0.5; z -= 0.01)
+            if (isFreedomPosition())
             {
-                updatePositionSelectedObject(newDot, z);
+                var newDot = new dot.addDot(selectedObject.position.x, selectedObject.position.y);
+                for(var z = axisZ; z > 0.5; z -= 0.01)
+                {
+                    updatePositionSelectedObject(newDot, z);
+                }
+            }
+            else
+            {
+                blockObjectSelection = selectedObject;
             }
 
             selectedObjectRotateX = false;

@@ -216,6 +216,7 @@ $this->params['breadcrumbs'][] = $this->title;
     var previousMouseX = 0;
     var previousMouseY = 0;
 
+    // Направление по оси OX
     function directionX(event)
     {
         var currentMouseX = event.clientX;
@@ -229,6 +230,7 @@ $this->params['breadcrumbs'][] = $this->title;
         return direction;
     }
 
+    // Направление по оси OY
     function directionY(event)
     {
         var currentMouseY = event.clientY;
@@ -242,11 +244,13 @@ $this->params['breadcrumbs'][] = $this->title;
         return direction;
     }
 
+    // Обновляем угол поворота камеры
     function whereGoCamera(event)
     {
         degreeCamera += 90 * directionX(event);
     }
 
+    // Обновляем данные каеры для поворота
     function updateCamera()
     {
         if (Math.abs(degreeCamera) === 360 || degreeCamera === 0)
@@ -274,6 +278,8 @@ $this->params['breadcrumbs'][] = $this->title;
         camera.updateMatrixWorld();
     }
 
+    // Элементы управления
+    // ------------------------------------------
     const gui = new dat.GUI();
     const cameraControls = {
         positionX: camera.position.x,
@@ -294,7 +300,7 @@ $this->params['breadcrumbs'][] = $this->title;
     cameraFolder.add(cameraControls, 'positionZ', -30, 30).onChange(value => camera.position.z = value);
     cameraFolder.add(cameraControls, 'rotationZ', -Math.PI*2, Math.PI*2).onChange(value => camera.rotation.z = value);
     sceneContainer.appendChild(gui.domElement);
-
+    //---------------------------------------------
 
     function getIntersects(event)
     {
@@ -325,18 +331,23 @@ $this->params['breadcrumbs'][] = $this->title;
             if (intersects.length > 0) {
                 selectedObject = intersects[0].object;
 
-                if (blockObjectSelection)
-                {
-                    // тут если selectedObject должен быть равен blockObjectSelection
+                if (blockObjectSelection) {
+                    if (blockObjectSelection !== selectedObject) {
+                        intersects = null;
+                        selectedObject = null;
+                    }
                 }
 
-                intersectionPoint = intersects[0].point;
-                offset.copy(intersectionPoint).sub(selectedObject.position);
+                if (selectedObject)
+                {
+                    intersectionPoint = intersects[0].point;
+                    offset.copy(intersectionPoint).sub(selectedObject.position);
 
-                const outlineMaterial = new THREE.MeshBasicMaterial({color: 0x0fff00, side: THREE.BackSide});
-                outlineMeshSelectedObjectHover = new THREE.Mesh(selectedObject.geometry, outlineMaterial);
-                outlineMeshSelectedObjectHover.scale.set(1.05, 1.05, 1.05);
-                selectedObject.add(outlineMeshSelectedObjectHover);
+                    const outlineMaterial = new THREE.MeshBasicMaterial({color: 0x0fff00, side: THREE.BackSide});
+                    outlineMeshSelectedObjectHover = new THREE.Mesh(selectedObject.geometry, outlineMaterial);
+                    outlineMeshSelectedObjectHover.scale.set(1.05, 1.05, 1.05);
+                    selectedObject.add(outlineMeshSelectedObjectHover);
+                }
             }
         }
     }
@@ -401,6 +412,18 @@ $this->params['breadcrumbs'][] = $this->title;
             dotsObject.push(oneDot);
         }
 
+        var color = '#00FF00';
+
+        if (isFreedomPosition())
+        {
+            blockObjectSelection = null;
+        }
+        else
+        {
+            blockObjectSelection = selectedObject;
+            color = '#FF0000';
+        }
+
         var cellDot = Object.create(dot);
         gridMesh.children.forEach((cell) => {
             cellDot.addDot(cell.position.x, cell.position.y);
@@ -409,7 +432,7 @@ $this->params['breadcrumbs'][] = $this->title;
             {
                 if(isEqualsDots(cellDot, dotsObject[i]))
                 {
-                    cell.material.color.set('#00FF00');
+                    cell.material.color.set(color);
                     delete dotsObject[i];
                     break;
                 }
@@ -539,17 +562,13 @@ $this->params['breadcrumbs'][] = $this->title;
 
         if (selectedObject)
         {
-            if (isFreedomPosition())
+            if (!blockObjectSelection)
             {
                 var newDot = new dot.addDot(selectedObject.position.x, selectedObject.position.y);
                 for(var z = axisZ; z > 0.5; z -= 0.01)
                 {
                     updatePositionSelectedObject(newDot, z);
                 }
-            }
-            else
-            {
-                blockObjectSelection = selectedObject;
             }
 
             selectedObjectRotateX = false;

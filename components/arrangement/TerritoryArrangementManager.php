@@ -104,7 +104,6 @@ class TerritoryArrangementManager
             $gamePart = round($votes[ObjectWork::TYPE_GAME] / 10, 2);
         }
 
-
         $values = MathHelper::rationing([$recreationPart, $sportPart, $educationPart, $gamePart], 1);
         $this->territory->state->fill(
             floor($values[0] * $cellsCount),

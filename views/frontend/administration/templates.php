@@ -80,11 +80,17 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <div class="result" id="resultId">
 
-</div>
 
+</div>
+<div id="scene-container"></div>
 
 
 <style>
+    #scene-container {
+        width: 800px;
+        height: 600px;
+        margin: 0 auto;
+    }
     .carousel-item {
         width: 100%;
         height: 850px;
@@ -271,6 +277,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     var resultDiv = document.querySelector(".result");
                     resultDiv.textContent = xhr.responseText;
                     scrollToAnchor('resultId');
+                    init(xhr.responseText);
                 } else {
                     console.error("Ошибка при загрузке данных: " + xhr.status);
                 }
@@ -293,4 +300,187 @@ $this->params['breadcrumbs'][] = $this->title;
             }
         }
     });
+</script>
+
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.130.1/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dat.gui"></script>
+<script>
+    // Создание сцены
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('#F0F8FF');
+    const sceneContainer = document.getElementById('scene-container');
+
+    const camera = new THREE.PerspectiveCamera( 75, sceneContainer.clientWidth / sceneContainer.clientHeight, 1, 1000 );
+    camera.position.z = 10;
+    camera.position.y = -5;
+    camera.rotation.x = 0.5;
+
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(sceneContainer.clientWidth, sceneContainer.clientHeight);
+    sceneContainer.appendChild(renderer.domElement);
+
+    //-----------------------------------------------
+
+    // Объявляем переменные для сетки
+    const drift = 0.5;
+    var gridSizeX = 10;
+    var gridSizeY = 10;
+    var gridSizeZ = 10;
+    var gridGeometry = new THREE.PlaneBufferGeometry(1, 1);
+    var gridMesh = new THREE.Group();
+
+    // Объявляем переменные для отслеживания поворота камеры
+    var isRotateCamera = false;
+    var degreeCamera = 0;
+    var previousMouseX = 0;
+
+    // Основные механики
+    //--------------------------------
+
+    function convertMatrixToCoordinates(matrix) {
+        const coordinates = [];
+
+        const centerX = Math.floor(matrix[0].length / 2);
+        const centerY = Math.floor(matrix.length / 2);
+
+        for (let y = 0; y < matrix.length; y++) {
+            for (let x = 0; x < matrix[y].length; x++) {
+                const coordX = x - centerX;
+                const coordY = y - centerY;
+                if (!coordinates[coordY]) {
+                    coordinates[coordY] = [];
+                }
+                coordinates[coordY][coordX] = matrix[y][x];
+            }
+        }
+
+        return coordinates;
+    }
+
+    function init(date) {
+        var dateObj = JSON.parse(date);
+        console.log(dateObj.result.matrix);
+
+        // Создаем сцену
+        gridSizeX = dateObj.result.matrixCount.width;
+        gridSizeY = dateObj.result.matrixCount.height;
+        gridSizeZ += dateObj.result.matrixCount.maxHeight;
+
+        var gridColor = new THREE.Color('#808080'); // Серый цвет
+
+        var edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000 }); // Черный цвет для границ
+        var driftCellX = gridSizeX % 2 == 0 ? 0 : drift;
+        var driftCellY = gridSizeY % 2 == 0 ? 0 : drift;
+
+        for (var i = 0; i < gridSizeX * gridSizeY; i++) {
+            var cellGeometry = new THREE.BoxBufferGeometry(1, 1, 0.01);
+            var cellMaterial = new THREE.MeshBasicMaterial({ color: gridColor, transparent: true, opacity: 0.5, side: THREE.DoubleSide }); // Один цвет и полупрозрачность
+            var cell = new THREE.Mesh(cellGeometry, cellMaterial);
+            var edges = new THREE.LineSegments(new THREE.EdgesGeometry(cellGeometry), edgesMaterial);
+            cell.position.set(i % gridSizeX - gridSizeX / 2 + driftCellX, Math.floor(i / gridSizeX) - gridSizeY / 2 + driftCellY, 0);
+            gridMesh.add(cell);
+            cell.add(edges); // Добавляем границы к ячейке
+        }
+
+        scene.add(gridMesh);
+
+        camera.position.set(-(gridSizeX / 2), 0, gridSizeZ);
+
+        for (var i = 0; i < dateObj.result.objects.length; i++)
+        {
+            const geometry = new THREE.BoxGeometry(dateObj.result.objects[i].length, dateObj.result.objects[i].width, dateObj.result.objects[i].height);
+            const randomColor = Math.floor(Math.random()*16777215).toString(16);
+            const material = new THREE.MeshBasicMaterial( { color: parseInt(randomColor, 16) } );
+            const oneObject = new THREE.Mesh( geometry, material );
+
+            var rotation = dateObj.result.objects[i].rotate === 0 ? 0 : Math.PI / 2;
+            var rotateX = (dateObj.result.objects[i].length % 2 === 0) ? drift : 0;
+            var rotateY = (dateObj.result.objects[i].width % 2 === 0) ? drift : 0;
+
+            oneObject.position.set(dateObj.result.objects[i].dotCenter.x + rotateX - 1, dateObj.result.objects[i].dotCenter.y + rotateY, 0.5);
+            oneObject.rotation.z = rotation;
+            scene.add(oneObject);
+        }
+    }
+
+    // Направление по оси OX
+    function directionX(event)
+    {
+        var currentMouseX = event.clientX;
+        var direction = 1;
+
+        if (currentMouseX < previousMouseX) {
+            direction *=  -1;
+        }
+
+        previousMouseX = currentMouseX;
+        return direction;
+    }
+
+    // Обновляем угол поворота камеры
+    function whereGoCamera(event)
+    {
+        degreeCamera += 90 * directionX(event);
+    }
+
+    // Обновляем данные каеры для поворота
+    function updateCamera()
+    {
+        if (Math.abs(degreeCamera) === 360 || degreeCamera === 0)
+        {
+            degreeCamera = 0;
+            camera.position.set(0, -(gridSizeY / 2), gridSizeZ);
+            camera.rotation.set(0.5, 0, 0);
+        }
+        else if (degreeCamera === 90 || degreeCamera === -270)
+        {
+            camera.position.set(-(gridSizeX / 2), 0, gridSizeZ);
+            camera.rotation.set(0, -0.5, -Math.PI/2);
+        }
+        else if (Math.abs(degreeCamera) === 180)
+        {
+            camera.position.set(0, gridSizeY / 2, gridSizeZ);
+            camera.rotation.set(-0.5, 0, Math.PI);
+        }
+        else if (degreeCamera === -90 || degreeCamera === 270)
+        {
+            camera.position.set(gridSizeX / 2, 0, gridSizeZ);
+            camera.rotation.set(0, 0.5, Math.PI/2);
+        }
+
+        camera.updateMatrixWorld();
+    }
+
+    function onMouseDown()
+    {
+        isRotateCamera = true;
+        previousMouseX = event.clientX;
+    }
+
+    function onMouseUp()
+    {
+        if (isRotateCamera )
+        {
+            isRotateCamera = false;
+            whereGoCamera(event);
+            updateCamera();
+        }
+    }
+
+    document.addEventListener('mousedown', onMouseDown, false);
+    document.addEventListener('mouseup', onMouseUp, false);
+
+
+    //------------------------------------
+
+    function animate()
+    {
+        requestAnimationFrame( animate );
+        renderer.render( scene, camera );
+    }
+    animate();
+
 </script>

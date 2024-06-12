@@ -480,8 +480,8 @@ $this->params['breadcrumbs'][] = $this->title;
         }
     }
 
-    document.addEventListener('mousedown', onMouseDown, false);
-    document.addEventListener('mouseup', onMouseUp, false);
+    sceneContainer.addEventListener('mousedown', onMouseDown, false);
+    sceneContainer.addEventListener('mouseup', onMouseUp, false);
 
 
     //------------------------------------

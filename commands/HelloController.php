@@ -16,8 +16,10 @@ use app\facades\TerritoryFacade;
 use app\helpers\FuzzyLogicHelper;
 use app\helpers\MathHelper;
 use app\models\FuzzyIntervals;
+use app\models\ObjectExtended;
 use app\models\work\AgesWeightWork;
 use app\models\work\ObjectWork;
+use app\models\work\TerritoryWork;
 use Yii;
 use yii\base\BaseObject;
 use yii\console\Controller;
@@ -74,7 +76,51 @@ class HelloController extends Controller
 
     public function actionStr()
     {
-        $anal = new ObjectAnalytic();
-        var_dump($anal->checkStringsDiff('Горка детская "Полянка Мини"', 'Игровой комплекс "Баркасик"', 20));
+        $territory = TerritoryWork::find()->where(['id' => 20])->one();
+
+        $obj1 = new ObjectWork();
+        $obj1->length = 250;
+        $obj1->width = 150;
+        $objExt1 = new ObjectExtended(
+            $obj1,
+            1,
+            1,
+            TerritoryConcept::HORIZONTAL_POSITION
+        );
+
+        $obj2 = new ObjectWork();
+        $obj2->length = 150;
+        $obj2->width = 150;
+        $objExt2 = new ObjectExtended(
+            $obj2,
+            11,
+            3,
+            TerritoryConcept::HORIZONTAL_POSITION
+        );
+
+        $obj3 = new ObjectWork();
+        $obj3->length = 150;
+        $obj3->width = 50;
+        $objExt3 = new ObjectExtended(
+            $obj3,
+            1,
+            9,
+            TerritoryConcept::HORIZONTAL_POSITION
+        );
+
+        $obj4 = new ObjectWork();
+        $obj4->length = 150;
+        $obj4->width = 50;
+        $objExt4 = new ObjectExtended(
+            $obj4,
+            9,
+            9,
+            TerritoryConcept::VERTICAL_POSITION
+        );
+
+        var_dump(LocalCoordinatesManager::calculateLocalCoordinates($territory, $objExt1));
+        var_dump(LocalCoordinatesManager::calculateLocalCoordinates($territory, $objExt2));
+        var_dump(LocalCoordinatesManager::calculateLocalCoordinates($territory, $objExt3));
+        var_dump(LocalCoordinatesManager::calculateLocalCoordinates($territory, $objExt4));
     }
 }

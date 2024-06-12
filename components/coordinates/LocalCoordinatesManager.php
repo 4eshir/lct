@@ -15,25 +15,22 @@ class LocalCoordinatesManager
         /** @var ObjectExtended $objectExt */
         /** @var TerritoryWork $territory */
 
-        $centerObject = [
-            'x' =>
-                $objectExt->positionType == TerritoryConcept::HORIZONTAL_POSITION ?
-                    $objectExt->left + ObjectWork::convertDistanceToCells($objectExt->object->length / 2, TerritoryConcept::STEP) :
-                    $objectExt->top + ObjectWork::convertDistanceToCells($objectExt->object->width / 2, TerritoryConcept::STEP),
-            'y' =>
-                $objectExt->positionType == TerritoryConcept::HORIZONTAL_POSITION ?
-                    $objectExt->top + ObjectWork::convertDistanceToCells($objectExt->object->width / 2, TerritoryConcept::STEP) :
-                    $objectExt->left + ObjectWork::convertDistanceToCells($objectExt->object->length / 2, TerritoryConcept::STEP),
-        ];
+        $length = $objectExt->positionType == TerritoryConcept::HORIZONTAL_POSITION ? $objectExt->object->length : $objectExt->object->width;
+        $width = $objectExt->positionType == TerritoryConcept::HORIZONTAL_POSITION ? $objectExt->object->width : $objectExt->object->length;
 
         $centerTerritory = [
-            'x' => ObjectWork::convertDistanceToCells($territory->length, TerritoryConcept::STEP) / 2,
-            'y' => ObjectWork::convertDistanceToCells($territory->width, TerritoryConcept::STEP) / 2,
+            'top' => intval(ObjectWork::convertDistanceToCells($territory->width, $step) / 2),
+            'left' => intval(ObjectWork::convertDistanceToCells($territory->length, $step) / 2),
+        ];
+
+        $newObjCoord = [
+            'y' => $centerTerritory['top'] - $objectExt->top,
+            'x' => $objectExt->left - $centerTerritory['left'],
         ];
 
         return [
-            'x' => $centerObject['x'] - $centerTerritory['x'],
-            'y' => $centerObject['y'] - $centerTerritory['y'],
+            'x' => $newObjCoord['x'] + intval(ObjectWork::convertDistanceToCells($length, $step) / 2),
+            'y' => $newObjCoord['y'] - intval(ObjectWork::convertDistanceToCells($width, $step) / 2),
         ];
     }
 

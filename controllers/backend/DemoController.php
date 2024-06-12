@@ -49,8 +49,14 @@ class DemoController extends Controller
                 'rotate' => $objectExt->positionType == TerritoryConcept::HORIZONTAL_POSITION ? TerritoryConcept::HORIZONTAL_POSITION : 90,
                 'link' => $objectExt->object->model_path,
                 'dotCenter' => [
-                    'x' => $objectExt->left + $objectExt->object->length / 2,
-                    'y' => $objectExt->top + $objectExt->object->width / 2,
+                    'x' =>
+                        $objectExt->positionType == TerritoryConcept::HORIZONTAL_POSITION ?
+                            $objectExt->left + $objectExt->object->length / 2 :
+                            $objectExt->top + $objectExt->object->width / 2,
+                    'y' =>
+                        $objectExt->positionType == TerritoryConcept::HORIZONTAL_POSITION ?
+                            $objectExt->top + $objectExt->object->width / 2 :
+                            $objectExt->left + $objectExt->object->length / 2,
                 ],
             ];
         }

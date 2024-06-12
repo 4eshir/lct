@@ -11,6 +11,7 @@ use app\components\analytic\ObjectAnalytic;
 use app\components\arrangement\TemplatesManager;
 use app\components\arrangement\TerritoryArrangementManager;
 use app\components\arrangement\TerritoryConcept;
+use app\components\coordinates\LocalCoordinatesManager;
 use app\facades\TerritoryFacade;
 use app\helpers\FuzzyLogicHelper;
 use app\helpers\MathHelper;
@@ -69,5 +70,13 @@ class HelloController extends Controller
         $matrixModel = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, 1, TerritoryFacade::OPTIONS_DEFAULT, 1);
         $facade->manager->template->showDebugTemplateMatrix(fopen('php://stdout', 'w'));
         $matrixModel->showMatrix(fopen('php://stdout', 'w'));
+    }
+
+    public function actionCoord()
+    {
+        var_dump(LocalCoordinatesManager::convertLocalToWGS84(
+            ['x' => -8, 'y' => 10],
+            ['latitude' => 37.606204, 'longitude' => 55.73008]
+        ));
     }
 }

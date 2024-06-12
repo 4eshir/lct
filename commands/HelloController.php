@@ -72,11 +72,9 @@ class HelloController extends Controller
         $matrixModel->showMatrix(fopen('php://stdout', 'w'));
     }
 
-    public function actionCoord()
+    public function actionStr()
     {
-        var_dump(LocalCoordinatesManager::convertLocalToWGS84(
-            ['x' => -8, 'y' => 10],
-            ['latitude' => 37.606204, 'longitude' => 55.73008]
-        ));
+        $anal = new ObjectAnalytic();
+        var_dump($anal->checkStringsDiff('Горка детская "Полянка Мини"', 'Игровой комплекс "Баркасик"', 20));
     }
 }

@@ -36,7 +36,7 @@ class ObjectAnalytic
 
     /**
      * Функция поиска максимально схожих объектов
-     * * Название совпадает на 50%
+     * * Название совпадает на 70%
      * * Разброс по площади +-60%
      * * Разброс по стоимости +-30%
      * * Разброс по времени установки и времени создания +-50%
@@ -53,7 +53,7 @@ class ObjectAnalytic
 
             if (
                 $this->checkStringsDiff($targetObject->name, $object->name, 50) &&
-                $this->checkNumbersDiff($targetObject->getSquare(), $object->getSquare(), 60) &&
+                $this->checkNumbersDiff($targetObject->getSquare(), $object->getSquare(), 30) &&
                 $this->checkNumbersDiff($targetObject->cost, $object->cost, 30) &&
                 $this->checkNumbersDiff($targetObject->install_time, $object->install_time, 50) &&
                 $this->checkNumbersDiff($targetObject->created_time, $object->created_time, 50) &&
@@ -111,7 +111,7 @@ class ObjectAnalytic
         foreach ($objects as $object) {
             /** @var ObjectWork $object */
             if (
-                $this->checkStringsDiff($targetObject->name, $object->name, 30) &&
+                $this->checkStringsDiff($targetObject->name, $object->name, 70) &&
                 $this->checkNumbersDiff($targetObject->getSquare(), $object->getSquare(), 100) &&
                 $this->checkNumbersDiff($targetObject->cost, $object->cost, 200)
             ) {
@@ -129,7 +129,7 @@ class ObjectAnalytic
      * @param int $percent минимальный процент совпадения строк
      * @return bool
      */
-    private function checkStringsDiff(string $str1, string $str2, int $percent)
+    public function checkStringsDiff(string $str1, string $str2, int $percent)
     {
         $shingleCount = 3; // Количество символов в шингле (можно изменить по необходимости)
 
@@ -151,7 +151,32 @@ class ObjectAnalytic
         $diffPercent = max(count($shingles1), count($shingles2)) !== 0 ? (1 - count($commonShingles) / max(count($shingles1), count($shingles2))) * 100 : 100;
 
         // Проверяем, превышено ли указанное различие в процентах
-        return $diffPercent < $percent;
+        return (100 - $diffPercent) > $percent;
+    }
+
+    public function checkStringsDiffT(string $str1, string $str2)
+    {
+        $shingleCount = 3; // Количество символов в шингле (можно изменить по необходимости)
+
+        $shingles1 = [];
+        $shingles2 = [];
+
+        // Создаем шинглы для первой строки
+        for ($i = 0; $i <= strlen($str1) - $shingleCount; $i++) {
+            $shingles1[] = substr($str1, $i, $shingleCount);
+        }
+
+        // Создаем шинглы для второй строки
+        for ($i = 0; $i <= strlen($str2) - $shingleCount; $i++) {
+            $shingles2[] = substr($str2, $i, $shingleCount);
+        }
+
+        // Подсчитываем количество общих шинглов
+        $commonShingles = array_intersect($shingles1, $shingles2);
+        $diffPercent = max(count($shingles1), count($shingles2)) !== 0 ? (1 - count($commonShingles) / max(count($shingles1), count($shingles2))) * 100 : 100;
+
+        // Проверяем, превышено ли указанное различие в процентах
+        return $diffPercent;
     }
 
     /**

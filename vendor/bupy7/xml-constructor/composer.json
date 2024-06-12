@@ -1,0 +1,37 @@
+{
+  "name": "bupy7/xml-constructor",
+  "description": "The array-like constructor of XML document structure.",
+  "type": "library",
+  "keywords": [
+    "php",
+    "library",
+    "xml",
+    "xml constructor",
+    "xml writter",
+    "xml maker"
+  ],
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Vasily Belosloodcev",
+      "email": "vasily.belosloodcev@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.6",
+    "ext-xmlwriter": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": ">=5.7.27"
+  },
+  "autoload": {
+    "psr-4": {
+      "bupy7\\xml\\constructor\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "bupy7\\xml\\constructor\\tests\\": "tests/"
+    }
+  }
+}

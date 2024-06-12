@@ -6,6 +6,7 @@ use app\components\arrangement\TemplatesManager;
 use app\components\arrangement\TerritoryConcept;
 use app\facades\TerritoryFacade;
 use app\models\ObjectExtended;
+use app\models\work\ObjectWork;
 use app\models\work\TerritoryWork;
 use app\models\search\SearchTerritoryWork;
 use yii\web\Controller;
@@ -43,20 +44,20 @@ class DemoController extends Controller
 
             $resultObjList[] = [
                 'id' => $objectExt->object->id,
-                'height' => $objectExt->object->height,
-                'width' => $objectExt->object->width,
-                'length' => $objectExt->object->length,
+                'height' => ObjectWork::convertDistanceToCells($objectExt->object->height, TerritoryConcept::STEP),
+                'width' => ObjectWork::convertDistanceToCells($objectExt->object->width, TerritoryConcept::STEP),
+                'length' => ObjectWork::convertDistanceToCells($objectExt->object->length, TerritoryConcept::STEP),
                 'rotate' => $objectExt->positionType == TerritoryConcept::HORIZONTAL_POSITION ? TerritoryConcept::HORIZONTAL_POSITION : 90,
                 'link' => $objectExt->object->model_path,
                 'dotCenter' => [
                     'x' =>
                         $objectExt->positionType == TerritoryConcept::HORIZONTAL_POSITION ?
-                            $objectExt->left + $objectExt->object->length / 2 :
-                            $objectExt->top + $objectExt->object->width / 2,
+                            ObjectWork::convertDistanceToCells($objectExt->left + $objectExt->object->length / 2, TerritoryConcept::STEP) :
+                            ObjectWork::convertDistanceToCells($objectExt->top + $objectExt->object->width / 2, TerritoryConcept::STEP),
                     'y' =>
                         $objectExt->positionType == TerritoryConcept::HORIZONTAL_POSITION ?
-                            $objectExt->top + $objectExt->object->width / 2 :
-                            $objectExt->left + $objectExt->object->length / 2,
+                            ObjectWork::convertDistanceToCells($objectExt->top + $objectExt->object->width / 2, TerritoryConcept::STEP) :
+                            ObjectWork::convertDistanceToCells($objectExt->left + $objectExt->object->length / 2, TerritoryConcept::STEP),
                 ],
             ];
         }
@@ -67,7 +68,7 @@ class DemoController extends Controller
                     'matrixCount' => [
                         'width' => count($matrix[0]),
                         'height' => count($matrix),
-                        'maxHeight' => $maxHeight,
+                        'maxHeight' => ObjectWork::convertDistanceToCells($maxHeight, TerritoryConcept::STEP),
                     ],
                     'matrix' => $matrix,
                     'objects' => $resultObjList,

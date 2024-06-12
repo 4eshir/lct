@@ -87,9 +87,11 @@ $this->params['breadcrumbs'][] = $this->title;
 
 <style>
     #scene-container {
-        width: 800px;
         height: 600px;
-        margin: 0 auto;
+        //display: none;
+    }
+    #scene-container canvas {
+        border-radius: 15px;
     }
     .carousel-item {
         width: 100%;
@@ -220,8 +222,8 @@ $this->params['breadcrumbs'][] = $this->title;
     }
 
     .result {
-        margin-top: 50px;
-        height: 700px;
+        /*margin-top: 50px;
+        height: 700px;*/
     }
 </style>
 
@@ -275,9 +277,10 @@ $this->params['breadcrumbs'][] = $this->title;
             xhr.onload = function() {
                 if (xhr.status >= 200 && xhr.status < 300) {
                     var resultDiv = document.querySelector(".result");
-                    resultDiv.textContent = xhr.responseText;
+                    //resultDiv.textContent = xhr.responseText;
                     scrollToAnchor('resultId');
                     init(xhr.responseText);
+                    //document.getElementById('scene-container').style.display = block;
                 } else {
                     console.error("Ошибка при загрузке данных: " + xhr.status);
                 }
@@ -362,11 +365,10 @@ $this->params['breadcrumbs'][] = $this->title;
 
     function init(date) {
         var dateObj = JSON.parse(date);
-        console.log(dateObj.result.matrix);
 
         // Создаем сцену
-        gridSizeX = dateObj.result.matrixCount.width;
-        gridSizeY = dateObj.result.matrixCount.height;
+        gridSizeX = dateObj.result.matrixCount.width + 1;
+        gridSizeY = dateObj.result.matrixCount.height + 1;
         gridSizeZ += dateObj.result.matrixCount.maxHeight;
 
         var gridColor = new THREE.Color('#808080'); // Серый цвет
@@ -397,10 +399,18 @@ $this->params['breadcrumbs'][] = $this->title;
             const oneObject = new THREE.Mesh( geometry, material );
 
             var rotation = dateObj.result.objects[i].rotate === 0 ? 0 : Math.PI / 2;
+
             var rotateX = (dateObj.result.objects[i].length % 2 === 0) ? drift : 0;
             var rotateY = (dateObj.result.objects[i].width % 2 === 0) ? drift : 0;
 
-            oneObject.position.set(dateObj.result.objects[i].dotCenter.x + rotateX - 1, dateObj.result.objects[i].dotCenter.y + rotateY, 0.5);
+            if (rotation !== 0)
+            {
+                var temp = rotateX;
+                rotateX = rotateY;
+                rotateY = temp;
+            }
+
+            oneObject.position.set(dateObj.result.objects[i].dotCenter.x + rotateX, dateObj.result.objects[i].dotCenter.y + rotateY, 0.5);
             oneObject.rotation.z = rotation;
             scene.add(oneObject);
         }

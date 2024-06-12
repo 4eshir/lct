@@ -1,5 +1,6 @@
 <?php
 
+namespace app\components\coordinates;
 
 use app\components\arrangement\TerritoryConcept;
 use app\models\ObjectExtended;

@@ -4,6 +4,7 @@ namespace app\controllers\backend;
 
 use app\components\arrangement\TemplatesManager;
 use app\components\arrangement\TerritoryConcept;
+use app\components\coordinates\LocalCoordinatesManager;
 use app\facades\TerritoryFacade;
 use app\models\ObjectExtended;
 use app\models\work\ObjectWork;
@@ -36,6 +37,8 @@ class DemoController extends Controller
         $resultObjList = [];
         $maxHeight = 0;
 
+        $territory = TerritoryWork::find()->where(['id' => $tId])->one();
+
         foreach ($objectsList as $objectExt) {
             /** @var ObjectExtended $objectExt */
             if ($maxHeight < $objectExt->object->height) {
@@ -50,14 +53,8 @@ class DemoController extends Controller
                 'rotate' => $objectExt->positionType == TerritoryConcept::HORIZONTAL_POSITION ? TerritoryConcept::HORIZONTAL_POSITION : 90,
                 'link' => $objectExt->object->model_path,
                 'dotCenter' => [
-                    'x' =>
-                        $objectExt->positionType == TerritoryConcept::HORIZONTAL_POSITION ?
-                            ObjectWork::convertDistanceToCells($objectExt->left + $objectExt->object->length / 2, TerritoryConcept::STEP) :
-                            ObjectWork::convertDistanceToCells($objectExt->top + $objectExt->object->width / 2, TerritoryConcept::STEP),
-                    'y' =>
-                        $objectExt->positionType == TerritoryConcept::HORIZONTAL_POSITION ?
-                            ObjectWork::convertDistanceToCells($objectExt->top + $objectExt->object->width / 2, TerritoryConcept::STEP) :
-                            ObjectWork::convertDistanceToCells($objectExt->left + $objectExt->object->length / 2, TerritoryConcept::STEP),
+                    'x' => LocalCoordinatesManager::calculateLocalCoordinates($territory, $objectExt)['x'],
+                    'y' => LocalCoordinatesManager::calculateLocalCoordinates($territory, $objectExt)['y'],
                 ],
             ];
         }

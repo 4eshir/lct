@@ -25,4 +25,33 @@ class TerritoryWork extends Territory
 
         return $result;
     }
+
+    public function getPrettyPriorityType()
+    {
+        switch ($this->priority_type) {
+            case ObjectWork::TYPE_RECREATION:
+                return 'Рекреационная';
+            case ObjectWork::TYPE_SPORT:
+                return 'Спортивная';
+            case ObjectWork::TYPE_EDUCATION:
+                return 'Развивающая';
+            case ObjectWork::TYPE_GAME:
+                return 'Игровая';
+            default:
+                return 'Не определена';
+        }
+    }
+
+    public function getPrettyPriorityCoef()
+    {
+        $style = 'color: green';
+        if ($this->priority_coef < 0.8 && $this->priority_coef > 0.4) {
+            $style = 'color: orange';
+        }
+        if ($this->priority_coef <= 0.4) {
+            $style = 'color: red';
+        }
+
+        return '<span style="'.$style.'"><b>'.$this->priority_coef.'</b></span>';
+    }
 }

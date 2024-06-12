@@ -14,6 +14,8 @@ use Yii;
  * @property string|null $address
  * @property float|null $latitude Широта
  * @property float|null $longitude Долгота
+ * @property int|null $priority_type 1 - рекреация, 2 - спорт, 3 - развивающая, 4 - игровая
+ * @property float|null $priority_coef
  *
  * @property AgesWeightChangeable[] $agesWeightChangeables
  * @property Arrangement[] $arrangements
@@ -40,8 +42,8 @@ class Territory extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['length', 'width'], 'integer'],
-            [['latitude', 'longitude'], 'number'],
+            [['length', 'width', 'priority_type'], 'integer'],
+            [['latitude', 'longitude', 'priority_coef'], 'number'],
             [['name'], 'string', 'max' => 128],
             [['address'], 'string', 'max' => 255],
         ];
@@ -60,6 +62,8 @@ class Territory extends \yii\db\ActiveRecord
             'address' => 'Address',
             'latitude' => 'Latitude',
             'longitude' => 'Longitude',
+            'priority_type' => 'Priority Type',
+            'priority_coef' => 'Priority Coef',
         ];
     }
 

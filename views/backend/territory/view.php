@@ -5,6 +5,7 @@ use yii\widgets\DetailView;
 
 /** @var yii\web\View $this */
 /** @var app\models\work\TerritoryWork $model */
+/** @var app\models\work\NeighboringTerritoryWork $modelNeighbor */
 
 $this->title = $model->name;
 $this->params['breadcrumbs'][] = [
@@ -34,10 +35,44 @@ $this->params['breadcrumbs'][] = $this->title;
         'model' => $model,
         'attributes' => [
             'id',
+            'name',
+            'address',
             'length',
             'width',
-            'name',
         ],
     ]) ?>
+
+    <br>
+    <h2>Соседствующие территории</h2>
+    <?php if (count($modelNeighbor) > 0): ?>
+        <table class="table table-active">
+            <tr>
+                <td><b>Названия территорий</b></td>
+                    <?php foreach ($modelNeighbor as $item): ?>
+                    <td>
+                        <?= $item->territory->name ?>
+                    </td>
+                    <?php endforeach; ?>
+            </tr>
+
+            <tr>
+                <td><b>Приоритетные направленности</b></td>
+                <?php foreach ($modelNeighbor as $item): ?>
+                    <td>
+                        <?= $item->territoryWork->prettyPriorityType ?>
+                    </td>
+                <?php endforeach; ?>
+            </tr>
+
+            <tr>
+                <td><b>Веса приоритетов</b></td>
+                <?php foreach ($modelNeighbor as $item): ?>
+                    <td>
+                        <?= $item->territoryWork->prettyPriorityCoef ?>
+                    </td>
+                <?php endforeach; ?>
+            </tr>
+        </table>
+    <?php endif; ?>
 
 </div>

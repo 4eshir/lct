@@ -2,6 +2,7 @@
 
 namespace app\controllers\backend;
 
+use app\models\work\NeighboringTerritoryWork;
 use app\models\work\TerritoryWork;
 use app\models\search\SearchTerritoryWork;
 use yii\web\Controller;
@@ -55,8 +56,12 @@ class TerritoryController extends Controller
      */
     public function actionView($id)
     {
+        $model = $this->findModel($id);
+        $modelNeighbor = NeighboringTerritoryWork::find()->where(['neighboring_territory_id' => $id])->all();
+
         return $this->render('view', [
-            'model' => $this->findModel($id),
+            'model' => $model,
+            'modelNeighbor' => $modelNeighbor,
         ]);
     }
 

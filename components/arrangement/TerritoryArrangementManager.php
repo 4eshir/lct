@@ -9,6 +9,7 @@ use app\models\ObjectExtended;
 use app\models\work\AgesWeightChangeableWork;
 use app\models\work\AgesWeightWork;
 use app\models\work\ArrangementWork;
+use app\models\work\NeighboringTerritoryWork;
 use app\models\work\ObjectWork;
 use app\models\work\PeopleTerritoryWork;
 use app\models\work\TerritoryWork;
@@ -81,6 +82,8 @@ class TerritoryArrangementManager
                 default:
                     throw new \DomainException('Неизвестный тип генерации');
             }
+
+            $this->correctWeightsByNeighbors($territoryId, $weights);
 
             if ($genType !== TerritoryConcept::TYPE_SELF_VOTES) {
                 $recreationPart += $interval->count * $weights->recreation_weight;
@@ -406,6 +409,33 @@ class TerritoryArrangementManager
         }
 
         return $allowedFlag ? $point : false;
+    }
+
+
+    public function correctWeightsByNeighbors($territoryId, &$weights)
+    {
+        $delim = 4;
+
+        $neighbors = NeighboringTerritoryWork::find()->where(['neighboring_territory_id' => $territoryId])->all();
+        if (count($neighbors) != 0) {
+            foreach ($neighbors as $neighbor) {
+                /** @var NeighboringTerritoryWork $neighbor */
+                switch ($neighbor->territory->priority_type) {
+                    case ObjectWork::TYPE_RECREATION:
+                        $weights->recreation_coef = $weights->recreation_coef - $neighbor->territory->priority_coef / $delim;
+                        break;
+                    case ObjectWork::TYPE_SPORT:
+                        $weights->sport_coef = $weights->sport_coef - $neighbor->territory->priority_coef / $delim;
+                        break;
+                    case ObjectWork::TYPE_EDUCATION:
+                        $weights->education_coef = $weights->education_coef - $neighbor->territory->priority_coef / $delim;
+                        break;
+                    case ObjectWork::TYPE_GAME:
+                        $weights->game_coef = $weights->game_coef - $neighbor->territory->priority_coef / $delim;
+                        break;
+                }
+            }
+        }
     }
 
     /**

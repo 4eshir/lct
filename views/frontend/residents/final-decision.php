@@ -1,6 +1,7 @@
 <?php
 
 /** @var $model QuestionDecisionForm */
+/** @var $territoryId int */
 
 use app\models\forms\QuestionDecisionForm;
 use app\models\forms\QuestionForm;
@@ -24,15 +25,15 @@ use yii\widgets\ActiveForm;
 <div class="territories">
     <div class="base-weights">
         <h2>Вариант 1</h2>
-        <?= var_dump($model->territoires[0]->getRawMatrix()) ?>
+        <?= var_dump($model->territoires[0]->getDataForScene($territoryId)) ?>
     </div>
     <div class="change-weights">
         <h2>Вариант 2</h2>
-        <?= var_dump($model->territoires[1]->getRawMatrix()) ?>
+        <?= var_dump($model->territoires[1]->getDataForScene($territoryId)) ?>
     </div>
     <div class="votes">
         <h2>Вариант 3</h2>
-        <?= var_dump($model->territoires[2]->getRawMatrix()) ?>
+        <?= var_dump($model->territoires[2]->getDataForScene($territoryId)) ?>
     </div>
 </div>
 

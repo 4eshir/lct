@@ -103,6 +103,7 @@ class ResidentsController extends Controller
 
         return $this->render('final-decision', [
             'model' => $model,
+            'territoryId' => $questionForm->territory,
         ]);
     }
 

@@ -4,7 +4,11 @@
 namespace app\facades;
 
 
+use app\components\arrangement\TerritoryConcept;
+use app\components\coordinates\LocalCoordinatesManager;
 use app\models\ObjectExtended;
+use app\models\work\ObjectWork;
+use app\models\work\TerritoryWork;
 
 class ArrangementModelFacade
 {
@@ -92,5 +96,49 @@ class ArrangementModelFacade
         }
 
         return $sum;
+    }
+
+    public function getDataForScene($tId)
+    {
+        $matrix = $this->getRawMatrix();
+        $objectsList = $this->objectsPosition;
+        $resultObjList = [];
+        $maxHeight = 0;
+
+        $territory = TerritoryWork::find()->where(['id' => $tId])->one();
+
+        foreach ($objectsList as $objectExt) {
+            /** @var ObjectExtended $objectExt */
+            if ($maxHeight < $objectExt->object->height) {
+                $maxHeight = $objectExt->object->height;
+            }
+
+            $resultObjList[] = [
+                'id' => $objectExt->object->id,
+                'height' => ObjectWork::convertDistanceToCells($objectExt->object->height, TerritoryConcept::STEP),
+                'width' => ObjectWork::convertDistanceToCells($objectExt->object->width, TerritoryConcept::STEP),
+                'length' => ObjectWork::convertDistanceToCells($objectExt->object->length, TerritoryConcept::STEP),
+                'rotate' => $objectExt->positionType == TerritoryConcept::HORIZONTAL_POSITION ? TerritoryConcept::HORIZONTAL_POSITION : 90,
+                'link' => $objectExt->object->model_path,
+                'dotCenter' => [
+                    'x' => LocalCoordinatesManager::calculateLocalCoordinates($territory, $objectExt)['x'],
+                    'y' => LocalCoordinatesManager::calculateLocalCoordinates($territory, $objectExt)['y'],
+                ],
+            ];
+        }
+
+        return json_encode(
+            [
+                'result' => [
+                    'matrixCount' => [
+                        'width' => count($matrix[0]),
+                        'height' => count($matrix),
+                        'maxHeight' => ObjectWork::convertDistanceToCells($maxHeight, TerritoryConcept::STEP),
+                    ],
+                    'matrix' => $matrix,
+                    'objects' => $resultObjList,
+                ],
+            ],
+        );
     }
 }

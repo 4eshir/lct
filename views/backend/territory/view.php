@@ -48,18 +48,18 @@ $this->params['breadcrumbs'][] = $this->title;
         <table class="table table-active">
             <tr>
                 <td><b>Названия территорий</b></td>
-                    <?php foreach ($modelNeighbor as $item): ?>
+                <?php foreach ($modelNeighbor as $item): ?>
                     <td>
-                        <?= $item->territory->name ?>
+                        <?= $item->neighboringTerritoryWork->name ?>
                     </td>
-                    <?php endforeach; ?>
+                <?php endforeach; ?>
             </tr>
 
             <tr>
                 <td><b>Приоритетные направленности</b></td>
                 <?php foreach ($modelNeighbor as $item): ?>
                     <td>
-                        <?= $item->territoryWork->prettyPriorityType ?>
+                        <?= $item->neighboringTerritoryWork->prettyPriorityType ?>
                     </td>
                 <?php endforeach; ?>
             </tr>
@@ -68,7 +68,16 @@ $this->params['breadcrumbs'][] = $this->title;
                 <td><b>Веса приоритетов</b></td>
                 <?php foreach ($modelNeighbor as $item): ?>
                     <td>
-                        <?= $item->territoryWork->prettyPriorityCoef ?>
+                        <?= $item->neighboringTerritoryWork->prettyPriorityCoef ?>
+                    </td>
+                <?php endforeach; ?>
+            </tr>
+
+            <tr>
+                <td><b>Ожидаемое влияние на расстановку МАФ на территории</b></td>
+                <?php foreach ($modelNeighbor as $item): ?>
+                    <td>
+                        <?= $item->neighboringTerritoryWork->influence ?>
                     </td>
                 <?php endforeach; ?>
             </tr>

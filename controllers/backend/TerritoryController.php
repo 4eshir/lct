@@ -57,7 +57,7 @@ class TerritoryController extends Controller
     public function actionView($id)
     {
         $model = $this->findModel($id);
-        $modelNeighbor = NeighboringTerritoryWork::find()->where(['neighboring_territory_id' => $id])->all();
+        $modelNeighbor = NeighboringTerritoryWork::find()->where(['territory_id' => $id])->all();
 
         return $this->render('view', [
             'model' => $model,

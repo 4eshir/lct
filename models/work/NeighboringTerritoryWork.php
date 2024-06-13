@@ -11,4 +11,9 @@ class NeighboringTerritoryWork extends NeighboringTerritory
         return $this->hasOne(TerritoryWork::class, ['id' => 'territory_id']);
     }
 
+    public function getNeighboringTerritoryWork()
+    {
+        return $this->hasOne(TerritoryWork::class, ['id' => 'neighboring_territory_id']);
+    }
+
 }

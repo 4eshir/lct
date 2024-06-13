@@ -54,4 +54,17 @@ class TerritoryWork extends Territory
 
         return '<span style="'.$style.'"><b>'.$this->priority_coef.'</b></span>';
     }
+
+    public function getInfluence()
+    {
+        $data = '<span>Сильное</span>';
+        if ($this->priority_coef < 0.8 && $this->priority_coef > 0.4) {
+            $data = '<span>Среднее</span>';
+        }
+        if ($this->priority_coef <= 0.4) {
+            $data = '<span>Слабое</span>';
+        }
+
+        return $data;
+    }
 }

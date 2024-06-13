@@ -33,7 +33,7 @@ use yii\widgets\ActiveForm;
         <ul class="category-list">
             <li><?= Html::a('Генератор расстановок МАФ по заданным параметрам', ['/backend/demo/generate']) ?></li>
             <li><?= Html::a('Генератор аналогов существующим расстановок МАФ', ['/backend/demo/analog']) ?></li>
-            <li><?= Html::a('Генератор расстановок МАФ по шаблонам', ['/backend/user/template']) ?></li>
+            <li><?= Html::a('Генератор расстановок МАФ по шаблонам', ['/frontend/administration/templates']) ?></li>
         </ul>
     </div>
 </div>

@@ -141,4 +141,108 @@ class ArrangementModelFacade
             ],
         );
     }
+
+    public function getSumCost()
+    {
+        $sum = 0;
+        foreach ($this->objectsPosition as $objectExt) {
+            /** @var ObjectExtended $objectExt */
+            $sum += $objectExt->object->cost;
+        }
+
+        return $sum;
+    }
+
+    public function getWorkersCount()
+    {
+        $sum = 0;
+        foreach ($this->objectsPosition as $objectExt) {
+            /** @var ObjectExtended $objectExt */
+            $sum += $objectExt->object->worker_count;
+        }
+
+        return $sum;
+    }
+
+    /**
+     * @param bool $parallel разрешена ли параллельная установка
+     * @return float|int|null
+     */
+    public function getInstallTime($parallel = true)
+    {
+        if ($parallel) {
+            $max = 0;
+            foreach ($this->objectsPosition as $objectExt) {
+                /** @var ObjectExtended $objectExt */
+                if ($objectExt->object->install_time > $max) {
+                    $max = $objectExt->object->install_time;
+                }
+            }
+
+            return $max;
+        }
+        else {
+            $sum = 0;
+            foreach ($this->objectsPosition as $objectExt) {
+                /** @var ObjectExtended $objectExt */
+                $sum += $objectExt->object->install_time;
+            }
+
+            return $sum;
+        }
+    }
+
+    /**
+     * @param bool $parallel разрешено ли параллельное создание
+     * @return int|null
+     */
+    public function getCreatedTime($parallel = true)
+    {
+        if ($parallel) {
+            $max = 0;
+            foreach ($this->objectsPosition as $objectExt) {
+                /** @var ObjectExtended $objectExt */
+                if ($objectExt->object->created_time > $max) {
+                    $max = $objectExt->object->created_time;
+                }
+            }
+
+            return $max;
+        }
+        else {
+            $sum = 0;
+            foreach ($this->objectsPosition as $objectExt) {
+                /** @var ObjectExtended $objectExt */
+                $sum += $objectExt->object->created_time;
+            }
+
+            return $sum;
+        }
+    }
+
+    public function getCreatorsList()
+    {
+        $creators = [];
+        foreach ($this->objectsPosition as $objectExt) {
+            /** @var ObjectExtended $objectExt */
+            if (!in_array($objectExt->object->creator, $creators)) {
+                $creators[] = $objectExt->object->creator;
+            }
+        }
+
+        return $creators;
+    }
+
+    public function getGeneralStyle()
+    {
+        $styles = [];
+        foreach ($this->objectsPosition as $objectExt) {
+            /** @var ObjectExtended $objectExt */
+            if (!in_array($objectExt->object->style, $styles)) {
+                $styles[] = $objectExt->object->style;
+            }
+        }
+
+        return $styles;
+    }
 }

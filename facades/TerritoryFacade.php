@@ -135,4 +135,19 @@ class TerritoryFacade
     {
         return $this->model->getObjectsCount();
     }
+
+    public function getAnalyticData()
+    {
+        return
+            [
+                'summary' => $this->model->getSumCost(),
+                'workers_count' => $this->model->getWorkersCount(),
+                'install_time_parallel' => $this->model->getInstallTime(),
+                'install_time_sequence' => $this->model->getInstallTime(false),
+                'created_time_parallel' => $this->model->getCreatedTime(),
+                'created_time_sequence' => $this->model->getCreatedTime(false),
+                'creators_list' => $this->model->getCreatorsList(),
+                'style' => $this->model->getGeneralStyle(),
+            ];
+    }
 }

@@ -6,13 +6,16 @@ use app\components\arrangement\TemplatesManager;
 use app\components\arrangement\TerritoryConcept;
 use app\components\coordinates\LocalCoordinatesManager;
 use app\facades\TerritoryFacade;
+use app\models\forms\demo\GenerateByParamsForm;
 use app\models\ObjectExtended;
 use app\models\work\ObjectWork;
 use app\models\work\TerritoryWork;
 use app\models\search\SearchTerritoryWork;
+use Yii;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use yii\web\Response;
 
 /**
  * TerritoryController implements the CRUD actions for TerritoryWork model.
@@ -37,7 +40,7 @@ class DemoController extends Controller
         $resultObjList = [];
         $maxHeight = 0;
 
-        $territory = TerritoryWork::find()->where(['id' => $tId])->one();
+        $territory = TerritoryWork::find()->where(['id' => 1])->one();
 
         foreach ($objectsList as $objectExt) {
             /** @var ObjectExtended $objectExt */
@@ -70,7 +73,42 @@ class DemoController extends Controller
                     'matrix' => $matrix,
                     'objects' => $resultObjList,
                 ],
+                'analytic' => [
+                    'data' => $this->facade->getAnalyticData(),
+                ],
             ],
         );
+    }
+
+    public function actionGenerate()
+    {
+        $model = new GenerateByParamsForm();
+
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            $this->facade->generateTerritoryArrangement(
+                TerritoryConcept::TYPE_SELF_VOTES,
+                1,
+                $model->addGenerateType,
+                null,
+                [
+                    'votes' =>
+                    [
+                        ObjectWork::TYPE_RECREATION => $model->recreation * 10,
+                        ObjectWork::TYPE_SPORT => $model->sport * 10,
+                        ObjectWork::TYPE_EDUCATION => $model->education * 10,
+                        ObjectWork::TYPE_GAME => $model->game * 10,
+                    ]
+                ]
+            );
+            return $this->render('generate', [
+                'model' => $model,
+                'data' => $this->facade->model->getDataForScene(1),
+            ]);
+
+        }
+
+        return $this->render('generate', [
+            'model' => $model,
+        ]);
     }
 }

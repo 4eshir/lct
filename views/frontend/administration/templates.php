@@ -83,6 +83,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 </div>
 <div id="scene-container"></div>
+<div id="anal-block"></div>
 
 
 <style>

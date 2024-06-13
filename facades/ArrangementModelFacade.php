@@ -138,8 +138,26 @@ class ArrangementModelFacade
                     'matrix' => $matrix,
                     'objects' => $resultObjList,
                 ],
+                'analytic' => [
+                    'data' => $this->getAnalyticData(),
+                ],
             ],
         );
+    }
+
+    public function getAnalyticData()
+    {
+        return
+            [
+                'summary' => $this->getSumCost(),
+                'workers_count' => $this->getWorkersCount(),
+                'install_time_parallel' => $this->getInstallTime(),
+                'install_time_sequence' => $this->getInstallTime(false),
+                'created_time_parallel' => $this->getCreatedTime(),
+                'created_time_sequence' => $this->getCreatedTime(false),
+                'creators_list' => $this->getCreatorsList(),
+                'style' => $this->getGeneralStyle(),
+            ];
     }
 
     public function getSumCost()

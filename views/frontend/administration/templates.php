@@ -279,6 +279,7 @@ $this->params['breadcrumbs'][] = $this->title;
                     var resultDiv = document.querySelector(".result");
                     //resultDiv.textContent = xhr.responseText;
                     scrollToAnchor('resultId');
+                    removeFromScene();
                     init(xhr.responseText);
                     //document.getElementById('scene-container').style.display = block;
                 } else {
@@ -340,28 +341,10 @@ $this->params['breadcrumbs'][] = $this->title;
     var degreeCamera = 0;
     var previousMouseX = 0;
 
+    var objectsToRemove = [];
+
     // Основные механики
     //--------------------------------
-
-    function convertMatrixToCoordinates(matrix) {
-        const coordinates = [];
-
-        const centerX = Math.floor(matrix[0].length / 2);
-        const centerY = Math.floor(matrix.length / 2);
-
-        for (let y = 0; y < matrix.length; y++) {
-            for (let x = 0; x < matrix[y].length; x++) {
-                const coordX = x - centerX;
-                const coordY = y - centerY;
-                if (!coordinates[coordY]) {
-                    coordinates[coordY] = [];
-                }
-                coordinates[coordY][coordX] = matrix[y][x];
-            }
-        }
-
-        return coordinates;
-    }
 
     function init(date) {
         var dateObj = JSON.parse(date);
@@ -385,11 +368,12 @@ $this->params['breadcrumbs'][] = $this->title;
             cell.position.set(i % gridSizeX - gridSizeX / 2 + driftCellX, Math.floor(i / gridSizeX) - gridSizeY / 2 + driftCellY, 0);
             gridMesh.add(cell);
             cell.add(edges); // Добавляем границы к ячейке
+            objectsToRemove.push(cell);
         }
 
         scene.add(gridMesh);
 
-        camera.position.set(-(gridSizeX / 2), 0, gridSizeZ);
+        camera.position.set(0, -(gridSizeY / 2), gridSizeZ);
 
         for (var i = 0; i < dateObj.result.objects.length; i++)
         {
@@ -413,6 +397,7 @@ $this->params['breadcrumbs'][] = $this->title;
             oneObject.position.set(dateObj.result.objects[i].dotCenter.x + rotateX, dateObj.result.objects[i].dotCenter.y + rotateY, 0.5);
             oneObject.rotation.z = rotation;
             scene.add(oneObject);
+            objectsToRemove.push(oneObject);
         }
     }
 
@@ -483,6 +468,12 @@ $this->params['breadcrumbs'][] = $this->title;
     sceneContainer.addEventListener('mousedown', onMouseDown, false);
     sceneContainer.addEventListener('mouseup', onMouseUp, false);
 
+    function removeFromScene() {
+        for (let object of objectsToRemove) {
+            scene.remove(object);
+        }
+        objectsToRemove = [];
+    }
 
     //------------------------------------
 

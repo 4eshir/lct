@@ -14,6 +14,8 @@ class TerritoryWork extends Territory
             'length' => 'Длина (в см)',
             'width' => 'Ширина (в см)',
             'name' => 'Название',
+            'address' => 'Адрес',
+            'geo_coord' => 'Координаты (wgs84)',
         ];
     }
 

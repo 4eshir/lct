@@ -39,6 +39,12 @@ $this->params['breadcrumbs'][] = $this->title;
             'address',
             'length',
             'width',
+            [
+                'attribute' => 'geo_coord',
+                'value' => function($model) {
+                    return '[' . $model->latitude . ' ; ' . $model->longitude . ']';
+                }
+            ]
         ],
     ]) ?>
 

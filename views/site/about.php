@@ -65,6 +65,7 @@ $this->params['breadcrumbs'][] = $this->title;
 <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/controls/OrbitControls.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/dat.gui"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/loaders/GLTFLoader.js"></script>
 <script>
     // Создание сцены
     const scene = new THREE.Scene();
@@ -117,11 +118,11 @@ $this->params['breadcrumbs'][] = $this->title;
 
     // Тестовые объекты для отладки
     //-----------------------------------------------
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    /*const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
     const cube = new THREE.Mesh( geometry, material );
     cube.position.set(0, 0, 0.5);
-    scene.add(cube);
+    scene.add(cube);*/
 
     var rectangleGeometry = new THREE.BoxGeometry(2, 2, 1);
     var rectangleMaterial = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0.8, color: 0x0000ff });
@@ -135,6 +136,25 @@ $this->params['breadcrumbs'][] = $this->title;
     sphere.position.set(-3, 0, 0.5);
     scene.add(sphere);
 
+    // Создаем загрузчик
+    const loader = new THREE.GLTFLoader();
+    loader.load(
+        'models/recreation/информационный стенд.glb',
+        function (gltf) {
+            // Получаем модель из загруженных данных
+            const model = gltf.scene;
+            // Изменяем масштаб модели, чтобы соответствовать желаемым размерам
+            model.scale.set(0.5, 2, 1);
+            model.position.set(0, 0, 0.5);
+
+            // Добавляем модель в сцену
+            scene.add(model);
+        },
+        undefined,
+        function (error) {
+            console.error('Error loading 3D model', error);
+        }
+    );
 
     // Основные механики
     //--------------------------------

@@ -136,15 +136,13 @@ $this->params['breadcrumbs'][] = $this->title;
     sphere.position.set(-3, 0, 0.5);
     scene.add(sphere);
 
-    // Создаем загрузчик
+    // Создаем загрузчик и добавляем модели
     const loader = new THREE.GLTFLoader();
     loader.load(
         'models/recreation/информационный стенд.glb',
         function (gltf) {
-            // Получаем модель из загруженных данных
             const model = gltf.scene;
-            // Изменяем масштаб модели, чтобы соответствовать желаемым размерам
-            model.scale.set(0.5, 2, 1);
+            model.scale.set(0, 0, 0);
             model.position.set(0, 0, 0.5);
 
             // Добавляем модель в сцену

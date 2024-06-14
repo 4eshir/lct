@@ -309,9 +309,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dat.gui"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/loaders/GLTFLoader.js"></script>
 <script>
     // Создание сцены
     const scene = new THREE.Scene();
@@ -376,15 +374,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
         camera.position.set(0, -(gridSizeY / 2), gridSizeZ);
 
+        // Создаем загрузчик и добавляем модели
+        const loader = new THREE.GLTFLoader();
+
         for (var i = 0; i < dateObj.result.objects.length; i++)
         {
-            const geometry = new THREE.BoxGeometry(dateObj.result.objects[i].length, dateObj.result.objects[i].width, dateObj.result.objects[i].height);
-            const randomColor = Math.floor(Math.random()*16777215).toString(16);
-            const material = new THREE.MeshBasicMaterial( { color: parseInt(randomColor, 16) } );
-            const oneObject = new THREE.Mesh( geometry, material );
-
             var rotation = dateObj.result.objects[i].rotate === 0 ? 0 : Math.PI / 2;
-
             var rotateX = (dateObj.result.objects[i].length % 2 === 0) ? drift : 0;
             var rotateY = (dateObj.result.objects[i].width % 2 === 0) ? drift : 0;
 
@@ -395,10 +390,32 @@ $this->params['breadcrumbs'][] = $this->title;
                 rotateY = temp;
             }
 
-            oneObject.position.set(dateObj.result.objects[i].dotCenter.x + rotateX, dateObj.result.objects[i].dotCenter.y + rotateY, 0.5);
-            oneObject.rotation.z = rotation;
-            scene.add(oneObject);
-            objectsToRemove.push(oneObject);
+            loader.load(
+                'models/recreation/информационный стенд.glb',
+                function (gltf) {
+                    const model = gltf.scene;
+                    model.scale.set(dateObj.result.objects[i].length, dateObj.result.objects[i].width, dateObj.result.objects[i].height);
+                    model.position.set(dateObj.result.objects[i].dotCenter.x + rotateX, dateObj.result.objects[i].dotCenter.y + rotateY, 0.5);
+
+                    // Добавляем модель в сцену
+                    scene.add(model);
+                    objectsToRemove.push(oneObject);
+                },
+                function () {
+                    const geometry = new THREE.BoxGeometry(dateObj.result.objects[i].length, dateObj.result.objects[i].width, dateObj.result.objects[i].height);
+                    const randomColor = Math.floor(Math.random()*16777215).toString(16);
+                    const material = new THREE.MeshBasicMaterial( { color: parseInt(randomColor, 16) } );
+                    const oneObject = new THREE.Mesh( geometry, material );
+
+                    oneObject.position.set(dateObj.result.objects[i].dotCenter.x + rotateX, dateObj.result.objects[i].dotCenter.y + rotateY, 0.5);
+                    oneObject.rotation.z = rotation;
+                    scene.add(oneObject);
+                    objectsToRemove.push(oneObject);
+                },
+                function (error) {
+                    console.error('Error loading 3D model', error);
+                }
+            );
         }
     }
 

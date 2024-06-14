@@ -111,4 +111,11 @@ class DemoController extends Controller
             'model' => $model,
         ]);
     }
+
+    public function actionIndex()
+    {
+        Yii::$app->session->set('header-active', 'demo');
+
+        return $this->render('index');
+    }
 }

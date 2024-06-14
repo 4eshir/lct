@@ -87,10 +87,10 @@ $username = $user ? $user->login : '---';
                 'options' => ['class' => $headerActive == 'api' ? 'custom-li-class' : 'default-li-class']
             ],
             [
-                'label' => 'Пользователи',
-                'url' => ['/user/index'],
-                'linkOptions' => ['class' => $headerActive == 'user' ? 'header-link-active' : 'header-link'],
-                'options' => ['class' => $headerActive == 'user' ? 'custom-li-class' : 'default-li-class']
+                'label' => 'Демо',
+                'url' => ['/backend/demo/index'],
+                'linkOptions' => ['class' => $headerActive == 'demo' ? 'header-link-active' : 'header-link'],
+                'options' => ['class' => $headerActive == 'demo' ? 'custom-li-class' : 'default-li-class']
             ],
             [
                 'label' => $username == '---' ? '---' : "Выйти ($username)",

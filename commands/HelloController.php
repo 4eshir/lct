@@ -127,7 +127,7 @@ class HelloController extends Controller
     public function actionFixed()
     {
         $facade = Yii::createObject(TerritoryFacade::class);
-        $facade->assemblyFixedArrangementByTerritoryId(8);
+        $facade->assemblyFixedArrangementByTerritoryId(5);
 
         $facade->model->showMatrix(fopen('php://stdout', 'w'));
     }

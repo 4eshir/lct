@@ -22,6 +22,19 @@ class TerritoryConcept
     const TYPE_SELF_VOTES = 'self';
     const TYPE_MANUAL = 'manual';
 
+    /**
+     * Типы наполненности площадок
+     * 0 - оригинальная наполненность (при наличии площадки-эталона)
+     * 1 - максимальная наполненность (занято от 60% свободного пространства)
+     * 2 - средняя наполненность (занято от 30% до 59% свободного пространства)
+     * 3 - минимальная наполненность (занято менее 30%)
+     * Проценты могут варьироваться, в зависимости от зон безопасности вокруг объектов
+     */
+    const TYPE_FULLNESS_ORIGINAL = 0;
+    const TYPE_FULLNESS_MAX = 1;
+    const TYPE_FULLNESS_MID = 2;
+    const TYPE_FULLNESS_MIN = 3;
+
     const HORIZONTAL_POSITION = 0;
     const VERTICAL_POSITION = 1;
     const STEP = 50; // размер "ячейки" в сантиметрах
@@ -56,6 +69,22 @@ class TerritoryConcept
         $entity->matrix = array_fill(0, $entity->widthCellCount, array_fill(0, $entity->lengthCellCount, '0'));
 
         return $entity;
+    }
+
+    public static function getExceptedFullness($fullness)
+    {
+        switch ($fullness) {
+            case self::TYPE_FULLNESS_ORIGINAL:
+                return [];
+            case self::TYPE_FULLNESS_MAX:
+                return [0.6, 1];
+            case self::TYPE_FULLNESS_MID:
+                return [0.3, 0.59];
+            case self::TYPE_FULLNESS_MIN:
+                return [0, 0.29];
+            default:
+                return [0, 1];
+        }
     }
 
     /**
@@ -137,5 +166,10 @@ class TerritoryConcept
         }
 
         return $counter;
+    }
+
+    public function calculateCurrentFullness()
+    {
+        return ((count($this->matrix) * count($this->matrix[0])) - $this->calculateEmptyCells()) / (count($this->matrix) * count($this->matrix[0]));
     }
 }

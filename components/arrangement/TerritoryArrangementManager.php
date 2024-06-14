@@ -422,16 +422,16 @@ class TerritoryArrangementManager
                 /** @var NeighboringTerritoryWork $neighbor */
                 switch ($neighbor->territory->priority_type) {
                     case ObjectWork::TYPE_RECREATION:
-                        $weights->recreation_coef = $weights->recreation_coef - $neighbor->territory->priority_coef / $delim;
+                        $weights->recreation_weight = $weights->recreation_weight - $neighbor->territory->priority_coef / $delim;
                         break;
                     case ObjectWork::TYPE_SPORT:
-                        $weights->sport_coef = $weights->sport_coef - $neighbor->territory->priority_coef / $delim;
+                        $weights->sport_weight = $weights->sport_weight - $neighbor->territory->priority_coef / $delim;
                         break;
                     case ObjectWork::TYPE_EDUCATION:
-                        $weights->education_coef = $weights->education_coef - $neighbor->territory->priority_coef / $delim;
+                        $weights->education_weight = $weights->education_weight - $neighbor->territory->priority_coef / $delim;
                         break;
                     case ObjectWork::TYPE_GAME:
-                        $weights->game_coef = $weights->game_coef - $neighbor->territory->priority_coef / $delim;
+                        $weights->game_weight = $weights->game_weight - $neighbor->territory->priority_coef / $delim;
                         break;
                 }
             }
@@ -453,5 +453,41 @@ class TerritoryArrangementManager
         $entity->generate_type = $generateType;
         $entity->territory_id = $territoryId;
         $entity->save();
+    }
+
+    public function correctArrangement(int $fullness)
+    {
+        $exceptedFullness = TerritoryConcept::getExceptedFullness($fullness); // ожидаемый уровень заполненности (интервал в долях от 1)
+        $currentFullness = $this->territory->calculateCurrentFullness(); // текущий уровень заполненности (в долях от 1)
+
+        // выберем случайное число из интервала, меньше которого нельзя опускаться
+        $borderPercent = random_int($exceptedFullness[0] * 100, $exceptedFullness[1] * 100) / 100;
+
+        // удаляем объекты пока заполненность не снизится
+        while ($currentFullness > $borderPercent) {
+            $this->deleteRedundantObject();
+            $currentFullness = $this->territory->calculateCurrentFullness();
+        }
+    }
+
+    private function deleteRedundantObject()
+    {
+        $objIds = $this->territory->state->objectIds;
+        arsort($objIds);
+        $delId = array_keys($objIds)[0];
+        $left = 0;
+        $top = 0;
+        $position = TerritoryConcept::HORIZONTAL_POSITION;
+
+        foreach ($this->territory->state->objectsList as $objectExt) {
+            if ($objectExt->object->id == $delId) {
+                $left = $objectExt->left;
+                $top = $objectExt->top;
+                $position = $objectExt->positionType;
+                break;
+            }
+        }
+
+        $this->removeObject(ObjectWork::findOne(['id' => $delId]), $left, $top, $position);
     }
 }

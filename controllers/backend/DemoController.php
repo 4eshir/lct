@@ -6,6 +6,7 @@ use app\components\arrangement\TemplatesManager;
 use app\components\arrangement\TerritoryConcept;
 use app\components\coordinates\LocalCoordinatesManager;
 use app\facades\TerritoryFacade;
+use app\models\forms\demo\GenerateAnalogForm;
 use app\models\forms\demo\GenerateByParamsForm;
 use app\models\ObjectExtended;
 use app\models\work\ObjectWork;
@@ -117,5 +118,40 @@ class DemoController extends Controller
         Yii::$app->session->set('header-active', 'demo');
 
         return $this->render('index');
+    }
+
+    public function actionAnalog()
+    {
+        $model = new GenerateAnalogForm();
+
+        $data = '';
+        if ($model->load(Yii::$app->request->post()) && $model->validate()) {
+            $arMatrix = $this->facade->assemblyFixedArrangementByTerritoryId($model->analogTerritoryId);
+            $this->facade->generateTerritoryArrangement(
+                TerritoryConcept::TYPE_BASE_WEIGHTS,
+                $model->analogTerritoryId,
+                TerritoryFacade::OPTIONS_SIMILAR,
+                null,
+                ['arrangement' => $arMatrix->objectsPosition]);
+
+            return $this->render('analog', [
+                'model' => $model,
+                'data' => $this->facade->model->getDataForScene($model->analogTerritoryId),
+            ]);
+        }
+
+        return $this->render('analog', [
+            'model' => $model,
+            'data' => $data,
+        ]);
+    }
+
+    public function actionRenderArrangementAjax($territoryId)
+    {
+        if (!$territoryId) {
+            return json_encode(['status' => 'error']);
+        }
+        $this->facade->assemblyFixedArrangementByTerritoryId($territoryId);
+        return $this->facade->model->getDataForScene($territoryId);
     }
 }

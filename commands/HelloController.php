@@ -42,12 +42,9 @@ class HelloController extends Controller
         $matrixModel = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, 1, TerritoryFacade::OPTIONS_DEFAULT);
         $matrixModel->showMatrix(fopen('php://stdout', 'w'));
 
-
-        $arModel = $facade->model;
-
-        $facade1 = Yii::createObject(TerritoryFacade::class);
-        $matrixModel1 = $facade1->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, 1, TerritoryFacade::OPTIONS_SIMILAR, null, ['arrangement' => $arModel->objectsPosition]);
-        $matrixModel1->showMatrix(fopen('php://stdout', 'w'));
+        $facade->correctArrangement(TerritoryConcept::TYPE_FULLNESS_MIN);
+        $facade->model->showMatrix(fopen('php://stdout', 'w'));
+        var_dump ($facade->manager->territory->calculateCurrentFullness());
     }
 
     public function actionTest()

@@ -8,6 +8,7 @@ use app\models\common\FixedArrangement;
 use app\models\work\FixedArrangementWork;
 use app\models\work\ObjectWork;
 use app\models\work\TerritoryWork;
+use yii\db\Exception;
 
 class TerritoryFacade
 {
@@ -76,6 +77,23 @@ class TerritoryFacade
         return $this->model;
     }
 
+    /**
+     * Корректирует расстановку площадки
+     * @param int $fullness тип наполненности площадки
+     * @param array $params список дополнительных параметров
+     *          ('originalFullness' => float) - уровень заполненности оригинальной площадки
+     * @throws Exception
+     */
+    public function correctArrangement($fullness = TerritoryConcept::TYPE_FULLNESS_MID, $params = [])
+    {
+        if (!isset($this->model)) {
+            throw new Exception('Невозможно скорректировать расстановку. Расстановка не задана');
+        }
+
+        $this->manager->correctArrangement($fullness);
+        $this->model = new ArrangementModelFacade($this->manager->territory->matrix, $this->manager->territory->state->objectIds, $this->manager->territory->state->objectsList);
+    }
+
     public function assemblyFixedArrangementByTerritoryId($territoryId)
     {
         $this->prepare($territoryId);
@@ -94,9 +112,11 @@ class TerritoryFacade
                 default:
                     throw new \Exception('Неизвестный тип позиционирования');
             }
+
+            $this->manager->territory->state->addToObjectIds($object->object_id);
+            $this->manager->territory->state->addToObjectsList($object->objectWork, $object->left, $object->top, $object->position);
         }
 
-        var_dump(count($this->manager->territory->matrix));
         $this->model = new ArrangementModelFacade($this->manager->territory->matrix, $this->manager->territory->state->objectIds, $this->manager->territory->state->objectsList);
         return $this->model;
     }

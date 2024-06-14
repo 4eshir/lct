@@ -7,7 +7,7 @@ use yii\helpers\ArrayHelper;
 
 class TerritoryWork extends Territory
 {
-    public function attributeLabels()
+        public function attributeLabels()
     {
         return [
             'id' => 'ID',
@@ -26,6 +26,14 @@ class TerritoryWork extends Territory
         $result = ArrayHelper::map($data, 'id', 'name');
 
         return $result;
+    }
+
+    public static function getFixedTerritories()
+    {
+        $tIds = PeopleTerritoryWork::find()->where(['count' => 1])->all();
+        $territories = TerritoryWork::find()->where(['IN', 'id', ArrayHelper::getColumn($tIds, 'territory_id')])->all();
+
+        return ArrayHelper::map($territories, 'id', 'name');
     }
 
     public function getPrettyPriorityType()

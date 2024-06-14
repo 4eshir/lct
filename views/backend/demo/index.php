@@ -12,7 +12,7 @@ use yii\helpers\Html;
     <div class="block2">
         <h2 class="block-header">Генерация аналогов существующим расстановкам МАФ</h2>
         <img src="/img/analog-pic.png" class="block-image"/>
-        <?= Html::a('Перейти к демо', ['choose-constructor'], ['class' => 'btn btn-primary block-btn']) ?>
+        <?= Html::a('Перейти к демо', ['analog'], ['class' => 'btn btn-primary block-btn']) ?>
     </div>
     <div class="block3">
         <h2 class="block-header">Генерация расстановок МАФ по шаблонам</h2>

@@ -4,6 +4,8 @@ namespace app\facades;
 
 use app\components\arrangement\TerritoryArrangementManager;
 use app\components\arrangement\TerritoryConcept;
+use app\models\common\FixedArrangement;
+use app\models\work\FixedArrangementWork;
 use app\models\work\ObjectWork;
 use app\models\work\TerritoryWork;
 
@@ -71,6 +73,31 @@ class TerritoryFacade
 
         $this->model = new ArrangementModelFacade($this->manager->territory->matrix, $this->manager->territory->state->objectIds, $this->manager->territory->state->objectsList);
 
+        return $this->model;
+    }
+
+    public function assemblyFixedArrangementByTerritoryId($territoryId)
+    {
+        $this->prepare($territoryId);
+
+        $objects = FixedArrangementWork::find()->where(['territory_id' => $territoryId])->all();
+
+        foreach ($objects as $object) {
+            /** @var FixedArrangementWork $object */
+            switch ($object->position) {
+                case TerritoryConcept::HORIZONTAL_POSITION:
+                    $this->manager->territory->installHorizontalObject($object->objectWork, $object->left, $object->top);
+                    break;
+                case TerritoryConcept::VERTICAL_POSITION:
+                    $this->manager->territory->installVerticalObject($object->objectWork, $object->left, $object->top);
+                    break;
+                default:
+                    throw new \Exception('Неизвестный тип позиционирования');
+            }
+        }
+
+        var_dump(count($this->manager->territory->matrix));
+        $this->model = new ArrangementModelFacade($this->manager->territory->matrix, $this->manager->territory->state->objectIds, $this->manager->territory->state->objectsList);
         return $this->model;
     }
 

@@ -7,6 +7,8 @@
 
 namespace app\commands;
 
+use app\components\arrangement\TerritoryConcept;
+use app\models\work\FixedArrangementWork;
 use app\models\work\NeighboringTerritoryWork;
 use app\models\work\ObjectTypeWork;
 use app\models\work\ObjectWork;
@@ -227,6 +229,22 @@ class FillController extends Controller
         $neighbor->save();
         // --------------
 
+        // Заглушки people_territory
+        for ($i = 1; $i < 7; $i++) {
+            $pt = new PeopleTerritoryWork();
+            $pt->territory_id = $parentId1;
+            $pt->ages_interval_id = $i;
+            $pt->count = 1;
+            $pt->save();
+
+            $pt = new PeopleTerritoryWork();
+            $pt->territory_id = $parentId2;
+            $pt->ages_interval_id = $i;
+            $pt->count = 1;
+            $pt->save();
+        }
+        // -------------------------
+
     }
 
     public function actionFixedObjects()
@@ -393,5 +411,149 @@ class FillController extends Controller
         $object->right_age = 130;
         $object->save();
 
+    }
+
+    public function actionFixedArrangement()
+    {
+        $territoryId = TerritoryWork::find()->where(['name' => 'Детская площадка на 3-м Волоколамском проезде 14'])->one()->id;
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Турник F'])->one()->id;
+        $fixedArr->left = 26;
+        $fixedArr->top = 18;
+        $fixedArr->position = TerritoryConcept::HORIZONTAL_POSITION;
+        $fixedArr->save();
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Брусья F'])->one()->id;
+        $fixedArr->left = 27;
+        $fixedArr->top = 0;
+        $fixedArr->position = TerritoryConcept::HORIZONTAL_POSITION;
+        $fixedArr->save();
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Скамейка F'])->one()->id;
+        $fixedArr->left = 18;
+        $fixedArr->top = 20;
+        $fixedArr->position = TerritoryConcept::HORIZONTAL_POSITION;
+        $fixedArr->save();
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Скамейка F'])->one()->id;
+        $fixedArr->left = 28;
+        $fixedArr->top = 6;
+        $fixedArr->position = TerritoryConcept::VERTICAL_POSITION;
+        $fixedArr->save();
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Качели балансир F'])->one()->id;
+        $fixedArr->left = 0;
+        $fixedArr->top = 17;
+        $fixedArr->position = TerritoryConcept::VERTICAL_POSITION;
+        $fixedArr->save();
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Скамейка F'])->one()->id;
+        $fixedArr->left = 0;
+        $fixedArr->top = 2;
+        $fixedArr->position = TerritoryConcept::VERTICAL_POSITION;
+        $fixedArr->save();
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Песочница F'])->one()->id;
+        $fixedArr->left = 12;
+        $fixedArr->top = 16;
+        $fixedArr->position = TerritoryConcept::HORIZONTAL_POSITION;
+        $fixedArr->save();
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Комплекс детский F'])->one()->id;
+        $fixedArr->left = 4;
+        $fixedArr->top = 0;
+        $fixedArr->position = TerritoryConcept::VERTICAL_POSITION;
+        $fixedArr->save();
+
+
+        $territoryId = TerritoryWork::find()->where(['name' => 'Детская площадка на 1-м Волоколамском проезде 15/16'])->one()->id;
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Качели стационарные F'])->one()->id;
+        $fixedArr->left = 33;
+        $fixedArr->top = 29;
+        $fixedArr->position = TerritoryConcept::VERTICAL_POSITION;
+        $fixedArr->save();
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Скамейка F'])->one()->id;
+        $fixedArr->left = 0;
+        $fixedArr->top = 24;
+        $fixedArr->position = TerritoryConcept::VERTICAL_POSITION;
+        $fixedArr->save();
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Скамейка F'])->one()->id;
+        $fixedArr->left = 34;
+        $fixedArr->top = 22;
+        $fixedArr->position = TerritoryConcept::VERTICAL_POSITION;
+        $fixedArr->save();
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Качели балансир F'])->one()->id;
+        $fixedArr->left = 6;
+        $fixedArr->top = 32;
+        $fixedArr->position = TerritoryConcept::HORIZONTAL_POSITION;
+        $fixedArr->save();
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Песочница F'])->one()->id;
+        $fixedArr->left = 1;
+        $fixedArr->top = 1;
+        $fixedArr->position = TerritoryConcept::HORIZONTAL_POSITION;
+        $fixedArr->save();
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Скамейка F'])->one()->id;
+        $fixedArr->left = 15;
+        $fixedArr->top = 0;
+        $fixedArr->position = TerritoryConcept::HORIZONTAL_POSITION;
+        $fixedArr->save();
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Качалка F'])->one()->id;
+        $fixedArr->left = 17;
+        $fixedArr->top = 4;
+        $fixedArr->position = TerritoryConcept::HORIZONTAL_POSITION;
+        $fixedArr->save();
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Карусель F'])->one()->id;
+        $fixedArr->left = 31;
+        $fixedArr->top = 6;
+        $fixedArr->position = TerritoryConcept::HORIZONTAL_POSITION;
+        $fixedArr->save();
+
+        $fixedArr = new FixedArrangementWork();
+        $fixedArr->territory_id = $territoryId;
+        $fixedArr->object_id = ObjectWork::find()->where(['name' => 'Комплекс детский F'])->one()->id;
+        $fixedArr->left = 6;
+        $fixedArr->top = 6;
+        $fixedArr->position = TerritoryConcept::HORIZONTAL_POSITION;
+        $fixedArr->save();
     }
 }

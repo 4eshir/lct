@@ -161,7 +161,7 @@ class TerritoryArrangementManager
             }
         }
         catch (\Exception $e) {
-            return;
+            return false;
         }
 
         $this->territory->state->addToObjectIds($object->id);

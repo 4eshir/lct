@@ -53,7 +53,7 @@ class TerritoryConcept
         $entity = Yii::createObject(self::class);
         $entity->lengthCellCount = intdiv($length, $step);
         $entity->widthCellCount = intdiv($width, $step);
-        $entity->matrix = array_fill(0, $entity->widthCellCount, array_fill('0', $entity->lengthCellCount, '0'));
+        $entity->matrix = array_fill(0, $entity->widthCellCount, array_fill(0, $entity->lengthCellCount, '0'));
 
         return $entity;
     }

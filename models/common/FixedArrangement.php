@@ -35,7 +35,7 @@ class FixedArrangement extends \yii\db\ActiveRecord
         return [
             [['territory_id', 'object_id', 'left', 'top', 'position'], 'integer'],
             [['territory_id'], 'exist', 'skipOnError' => true, 'targetClass' => Territory::class, 'targetAttribute' => ['territory_id' => 'id']],
-            [['object_id'], 'exist', 'skipOnError' => true, 'targetClass' => Object::class, 'targetAttribute' => ['object_id' => 'id']],
+            [['object_id'], 'exist', 'skipOnError' => true, 'targetClass' => ObjectT::class, 'targetAttribute' => ['object_id' => 'id']],
         ];
     }
 
@@ -61,7 +61,7 @@ class FixedArrangement extends \yii\db\ActiveRecord
      */
     public function getObject()
     {
-        return $this->hasOne(Object::class, ['id' => 'object_id']);
+        return $this->hasOne(ObjectT::class, ['id' => 'object_id']);
     }
 
     /**

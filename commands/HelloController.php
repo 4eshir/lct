@@ -123,4 +123,12 @@ class HelloController extends Controller
         var_dump(LocalCoordinatesManager::calculateLocalCoordinates($territory, $objExt3));
         var_dump(LocalCoordinatesManager::calculateLocalCoordinates($territory, $objExt4));
     }
+
+    public function actionFixed()
+    {
+        $facade = Yii::createObject(TerritoryFacade::class);
+        $facade->assemblyFixedArrangementByTerritoryId(8);
+
+        $facade->model->showMatrix(fopen('php://stdout', 'w'));
+    }
 }

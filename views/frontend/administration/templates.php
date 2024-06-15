@@ -384,7 +384,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         // Создаем загрузчик для добавления моделей
         const loader = new THREE.GLTFLoader();
-        for (let i = 0; i < 1/*dateObj.result.objects.length*/; i++)
+        for (let i = 0; i < dateObj.result.objects.length; i++)
         {
             (function (index) {
 

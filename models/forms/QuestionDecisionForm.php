@@ -26,8 +26,16 @@ class QuestionDecisionForm extends Model
     public function generateVariants(array $votes, $territoryId)
     {
         $facade = Yii::createObject(TerritoryFacade::class);
-        $this->territoires[] = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, $territoryId);
-        $this->territoires[] = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_CHANGE_WEIGHTS, $territoryId);
-        $this->territoires[] = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_SELF_VOTES, $territoryId, TerritoryFacade::OPTIONS_DEFAULT, null, ['votes' => $votes]);
+        $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, $territoryId);
+        $facade->correctArrangement();
+        $this->territoires[] = $facade->model;
+
+        $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_CHANGE_WEIGHTS, $territoryId);
+        $facade->correctArrangement();
+        $this->territoires[] = $facade->model;
+
+        $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_SELF_VOTES, $territoryId, TerritoryFacade::OPTIONS_DEFAULT, null, ['votes' => $votes]);
+        $facade->correctArrangement();
+        $this->territoires[] = $facade->model;
     }
 }

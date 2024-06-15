@@ -90,7 +90,7 @@ class TerritoryFacade
             throw new Exception('Невозможно скорректировать расстановку. Расстановка не задана');
         }
 
-        $this->manager->correctArrangement($fullness);
+        $this->manager->correctArrangement($fullness, $params);
         $this->model = new ArrangementModelFacade($this->manager->territory->matrix, $this->manager->territory->state->objectIds, $this->manager->territory->state->objectsList);
     }
 

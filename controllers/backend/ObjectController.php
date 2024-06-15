@@ -128,11 +128,10 @@ class ObjectController extends Controller
         header('Content-Type: text/xml');
         header('Content-Disposition: attachment; filename="filename.xml"');
 
-        $facade = Yii::createObject(TerritoryFacade::class);
-        $matrixModel = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, 1, TerritoryFacade::OPTIONS_DEFAULT);
-
-        //echo XmlHelper::generateObjectsListFile(ObjectWork::find()->all());
-        echo XmlHelper::generateArrangementFile($facade->model);
+        //$facade = Yii::createObject(TerritoryFacade::class);
+        //$matrixModel = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, 1, TerritoryFacade::OPTIONS_DEFAULT);
+        echo XmlHelper::generateObjectsListFile(ObjectWork::find()->all());
+        //echo XmlHelper::generateArrangementFile($facade->model);
 
         exit();
     }

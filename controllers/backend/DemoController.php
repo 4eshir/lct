@@ -127,12 +127,17 @@ class DemoController extends Controller
         $data = '';
         if ($model->load(Yii::$app->request->post()) && $model->validate()) {
             $arMatrix = $this->facade->assemblyFixedArrangementByTerritoryId($model->analogTerritoryId);
+            $originalFullness = $this->facade->manager->territory->calculateCurrentFullness();
             $this->facade->generateTerritoryArrangement(
                 TerritoryConcept::TYPE_BASE_WEIGHTS,
                 $model->analogTerritoryId,
                 TerritoryFacade::OPTIONS_SIMILAR,
                 null,
                 ['arrangement' => $arMatrix->objectsPosition]);
+
+            $this->facade->correctArrangement(
+                $model->fullness,
+                $model->fullness == TerritoryConcept::TYPE_FULLNESS_ORIGINAL ? ['originalFullness' => $originalFullness] : []);
 
             return $this->render('analog', [
                 'model' => $model,

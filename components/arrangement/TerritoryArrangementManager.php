@@ -455,13 +455,17 @@ class TerritoryArrangementManager
         $entity->save();
     }
 
-    public function correctArrangement(int $fullness)
+    public function correctArrangement(int $fullness, $params = [])
     {
         $exceptedFullness = TerritoryConcept::getExceptedFullness($fullness); // ожидаемый уровень заполненности (интервал в долях от 1)
         $currentFullness = $this->territory->calculateCurrentFullness(); // текущий уровень заполненности (в долях от 1)
 
         // выберем случайное число из интервала, меньше которого нельзя опускаться
         $borderPercent = random_int($exceptedFullness[0] * 100, $exceptedFullness[1] * 100) / 100;
+
+        if (isset($params['originalFullness'])) {
+            $borderPercent = $params['originalFullness'];
+        }
 
         // удаляем объекты пока заполненность не снизится
         while ($currentFullness > $borderPercent) {

@@ -58,9 +58,7 @@ use yii\widgets\ActiveForm;
 <?php ActiveForm::end() ?>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/controls/OrbitControls.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.7/dat.gui.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dat.gui"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/loaders/GLTFLoader.js"></script>
 <script>
     const scenes = [];
     const cameras = [];
@@ -93,6 +91,7 @@ use yii\widgets\ActiveForm;
 
         sceneContainer.addEventListener('mousedown', onMouseDown, false);
         sceneContainer.addEventListener('mouseup', onMouseUp, false);
+        sceneContainer.addEventListener('wheel', zoom, false);
         renderers.push(renderer);
 
         var date = document.getElementById(`v${i+1}`).innerText;
@@ -113,7 +112,7 @@ use yii\widgets\ActiveForm;
         var driftCellX = gridSizeX % 2 == 0 ? 0 : drift;
         var driftCellY = gridSizeY % 2 == 0 ? 0 : drift;
 
-        for (var i = 0; i < gridSizeX * gridSizeY; i++) {
+        for (let i = 0; i < gridSizeX * gridSizeY; i++) {
             var cellGeometry = new THREE.BoxBufferGeometry(1, 1, 0.01);
             var cellMaterial = new THREE.MeshBasicMaterial({ color: gridColor, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
             var cell = new THREE.Mesh(cellGeometry, cellMaterial);
@@ -125,9 +124,10 @@ use yii\widgets\ActiveForm;
 
         scene.add(gridMesh);
         camera.position.set(0, -(gridSizeY / 2), gridSizeZ);
+        const loader = new THREE.GLTFLoader();
 
-        for (var i = 0; i < dateObj.result.objects.length; i++) {
-            const geometry = new THREE.BoxGeometry(dateObj.result.objects[i].length, dateObj.result.objects[i].width, dateObj.result.objects[i].height);
+        for (let i = 0; i < dateObj.result.objects.length; i++) {
+            /*const geometry = new THREE.BoxGeometry(dateObj.result.objects[i].length, dateObj.result.objects[i].width, dateObj.result.objects[i].height);
             const randomColor = Math.floor(Math.random() * 16777215).toString(16);
             const material = new THREE.MeshBasicMaterial({ color: parseInt(randomColor, 16) });
             const oneObject = new THREE.Mesh(geometry, material);
@@ -145,7 +145,56 @@ use yii\widgets\ActiveForm;
 
             oneObject.position.set(dateObj.result.objects[i].dotCenter.x + rotateX, dateObj.result.objects[i].dotCenter.y + rotateY, 0.5);
             oneObject.rotation.z = rotation;
-            scene.add(oneObject);
+            scene.add(oneObject);*/
+
+            (function (index) {
+                var rotation = dateObj.result.objects[index].rotate === 0 ? 0 : Math.PI / 2;
+                var rotateX = (dateObj.result.objects[index].length % 2 === 0) ? drift : 0;
+                var rotateY = (dateObj.result.objects[index].width % 2 === 0) ? drift : 0;
+
+                if (rotation !== 0) {
+                    var temp = rotateX;
+                    rotateX = rotateY;
+                    rotateY = temp;
+                }
+
+                const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+                var material = new THREE.MeshBasicMaterial({color: parseInt(randomColor, 16)});
+
+                loader.load(
+                    dateObj.result.objects[index].link,
+                    //'models/game/качели (1).glb',
+                    function (gltf) {
+                        const model = gltf.scene;
+                        // Найдем все материалы модели и установим для них текстуры
+                        model.traverse((child) => {
+                            if (child.isMesh) {
+                                if (child.material.map)
+                                {
+                                    material = new THREE.MeshBasicMaterial({ map: child.material.map });
+                                }
+                                child.material = material;
+                            }
+                        });
+                        model.scale.set(dateObj.result.objects[index].length, dateObj.result.objects[index].width, dateObj.result.objects[index].height);
+                        model.position.set(dateObj.result.objects[index].dotCenter.x + rotateX, dateObj.result.objects[index].dotCenter.y + rotateY, 0.5);
+
+                        // Добавляем модель в сцену
+                        scene.add(model);
+                    },
+                    undefined,
+                    function (error) {
+                        // Если модель отсутствует, то заменяем её на примитивный полигон (параллелепипед)
+                        const geometry = new THREE.BoxGeometry(dateObj.result.objects[index].length, dateObj.result.objects[index].width, dateObj.result.objects[index].height);
+                        const oneObject = new THREE.Mesh(geometry, material);
+
+                        oneObject.position.set(dateObj.result.objects[index].dotCenter.x + rotateX, dateObj.result.objects[index].dotCenter.y + rotateY, 0.5);
+                        oneObject.rotation.z = rotation;
+                        scene.add(oneObject);
+                        console.error('Error loading 3D model', error);
+                    }
+                );
+            })(i);
         }
     }
 
@@ -212,6 +261,12 @@ use yii\widgets\ActiveForm;
             whereGoCamera(event);
             updateCamera();
         }
+    }
+
+    function zoom(event) {
+        const delta = event.deltaY > 0 ? 1 : -1;
+        cameras[id].position.z += delta;
+        event.preventDefault();
     }
 
     function animate()

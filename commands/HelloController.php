@@ -42,7 +42,7 @@ class HelloController extends Controller
         $matrixModel = $facade->generateTerritoryArrangement(TerritoryConcept::TYPE_BASE_WEIGHTS, 1, TerritoryFacade::OPTIONS_DEFAULT);
         $matrixModel->showMatrix(fopen('php://stdout', 'w'));
 
-        $facade->correctArrangement(TerritoryConcept::TYPE_FULLNESS_MIN);
+        $facade->correctArrangement(TerritoryConcept::TYPE_FULLNESS_MID);
         $facade->model->showMatrix(fopen('php://stdout', 'w'));
         var_dump ($facade->manager->territory->calculateCurrentFullness());
     }

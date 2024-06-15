@@ -329,9 +329,8 @@ $this->params['breadcrumbs'][] = $this->title;
 
     // Объявляем переменные для сетки
     const drift = 0.5;
-    var gridSizeX = 10;
-    var gridSizeY = 10;
-    var gridSizeZ = 10;
+    var gridSizeX, gridSizeY, gridSizeZ;
+    var normalGridSizeZ = 10;
     var gridGeometry = new THREE.PlaneBufferGeometry(1, 1);
     var gridMesh = new THREE.Group();
 
@@ -345,13 +344,14 @@ $this->params['breadcrumbs'][] = $this->title;
     // Основные механики
     //--------------------------------
 
+    // Инициализация объектов на сцене
     function init(date) {
         var dateObj = JSON.parse(date);
 
         // Создаем сцену
         gridSizeX = dateObj.result.matrixCount.width + 1;
         gridSizeY = dateObj.result.matrixCount.height + 1;
-        gridSizeZ += dateObj.result.matrixCount.maxHeight;
+        gridSizeZ = dateObj.result.matrixCount.maxHeight + 10;
 
         var gridColor = new THREE.Color('#808080'); // Серый цвет
 
@@ -359,7 +359,8 @@ $this->params['breadcrumbs'][] = $this->title;
         var driftCellX = gridSizeX % 2 == 0 ? 0 : drift;
         var driftCellY = gridSizeY % 2 == 0 ? 0 : drift;
 
-        for (var i = 0; i < gridSizeX * gridSizeY; i++) {
+        // Отрисовка сцены
+        for (let i = 0; i < gridSizeX * gridSizeY; i++) {
             var cellGeometry = new THREE.BoxBufferGeometry(1, 1, 0.01);
             var cellMaterial = new THREE.MeshBasicMaterial({ color: gridColor, transparent: true, opacity: 0.5, side: THREE.DoubleSide }); // Один цвет и полупрозрачность
             var cell = new THREE.Mesh(cellGeometry, cellMaterial);
@@ -376,8 +377,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
         // Создаем загрузчик для добавления моделей
         const loader = new THREE.GLTFLoader();
-
-        for (var i = 0; i < dateObj.result.objects.length; i++)
+        for (let i = 0; i < dateObj.result.objects.length; i++)
         {
             (function (index) {
                 var rotation = dateObj.result.objects[index].rotate === 0 ? 0 : Math.PI / 2;
@@ -390,22 +390,34 @@ $this->params['breadcrumbs'][] = $this->title;
                     rotateY = temp;
                 }
 
+                const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+                var material = new THREE.MeshBasicMaterial({color: parseInt(randomColor, 16)});
+
                 loader.load(
                     dateObj.result.objects[index].link,
                     function (gltf) {
                         const model = gltf.scene;
+                        // Найдем все материалы модели и установим для них текстуры
+                        model.traverse((child) => {
+                            if (child.isMesh) {
+                                if (child.material.map)
+                                {
+                                    material = new THREE.MeshBasicMaterial({ map: child.material.map });
+                                }
+                                child.material = material;
+                            }
+                        });
                         model.scale.set(dateObj.result.objects[index].length, dateObj.result.objects[index].width, dateObj.result.objects[index].height);
                         model.position.set(dateObj.result.objects[index].dotCenter.x + rotateX, dateObj.result.objects[index].dotCenter.y + rotateY, 0.5);
 
                         // Добавляем модель в сцену
                         scene.add(model);
-                        objectsToRemove.push(oneObject);
+                        objectsToRemove.push(model);
                     },
                     undefined,
                     function (error) {
+                        // Если модель отсутствует, то заменяем её на примитивный полигон (параллелепипед)
                         const geometry = new THREE.BoxGeometry(dateObj.result.objects[index].length, dateObj.result.objects[index].width, dateObj.result.objects[index].height);
-                        const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-                        const material = new THREE.MeshBasicMaterial({color: parseInt(randomColor, 16)});
                         const oneObject = new THREE.Mesh(geometry, material);
 
                         oneObject.position.set(dateObj.result.objects[index].dotCenter.x + rotateX, dateObj.result.objects[index].dotCenter.y + rotateY, 0.5);
@@ -439,7 +451,7 @@ $this->params['breadcrumbs'][] = $this->title;
         degreeCamera += 90 * directionX(event);
     }
 
-    // Обновляем данные каеры для поворота
+    // Обновляем данные камеры для поворота
     function updateCamera()
     {
         if (Math.abs(degreeCamera) === 360 || degreeCamera === 0)
@@ -483,8 +495,16 @@ $this->params['breadcrumbs'][] = $this->title;
         }
     }
 
+    function zoom(event)
+    {
+        const delta = event.deltaY > 0 ? 1 : -1;
+        camera.position.z += delta;
+        event.preventDefault();
+    }
+
     sceneContainer.addEventListener('mousedown', onMouseDown, false);
     sceneContainer.addEventListener('mouseup', onMouseUp, false);
+    sceneContainer.addEventListener('wheel', zoom, false);
 
     function removeFromScene() {
         for (let object of objectsToRemove) {

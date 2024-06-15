@@ -422,7 +422,6 @@ $this->params['breadcrumbs'][] = $this->title;
                             }
                         });
                         model.scale.set(1, 1, 1);
-                        model.position.set(0.5, 0, 0);
                         //model.scale.set(dateObj.result.objects[index].length, dateObj.result.objects[index].width, dateObj.result.objects[index].height);
                         model.position.set(dateObj.result.objects[index].dotCenter.x + rotateX, dateObj.result.objects[index].dotCenter.y + rotateY, 0);
 

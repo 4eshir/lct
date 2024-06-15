@@ -60,6 +60,7 @@ use yii\widgets\ActiveForm;
 <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/loaders/GLTFLoader.js"></script>
 <script>
+    // Объявили переменные для работы с тремя сценами
     const scenes = [];
     const cameras = [];
     const sceneContainers = [];
@@ -71,6 +72,7 @@ use yii\widgets\ActiveForm;
     var id;
     var gridSizeX, gridSizeY, gridSizeZ;
 
+    // Инициализировали создание сцен и добавление триггеров
     for (let i = 0; i < 3; i++) {
         const scene = new THREE.Scene();
         scene.background = new THREE.Color('#F0F8FF');
@@ -98,6 +100,7 @@ use yii\widgets\ActiveForm;
         init(date, scene, camera);
     }
 
+    // Отрисовываем сетку и объекты на ней
     function init(date, scene, camera) {
         var dateObj = JSON.parse(date.substring(date.indexOf('{'), date.lastIndexOf('}}}') + 3));
         var gridMesh = new THREE.Group();
@@ -112,6 +115,7 @@ use yii\widgets\ActiveForm;
         var driftCellX = gridSizeX % 2 == 0 ? 0 : drift;
         var driftCellY = gridSizeY % 2 == 0 ? 0 : drift;
 
+        // Тут сетка пола
         for (let i = 0; i < gridSizeX * gridSizeY; i++) {
             var cellGeometry = new THREE.BoxBufferGeometry(1, 1, 0.01);
             var cellMaterial = new THREE.MeshBasicMaterial({ color: gridColor, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
@@ -126,6 +130,7 @@ use yii\widgets\ActiveForm;
         camera.position.set(0, -(gridSizeY / 2), gridSizeZ);
         const loader = new THREE.GLTFLoader();
 
+        // Тут загрузка моделей
         for (let i = 0; i < dateObj.result.objects.length; i++) {
             (function (index) {
                 var rotation = dateObj.result.objects[index].rotate === 0 ? 0 : Math.PI / 2;
@@ -183,6 +188,7 @@ use yii\widgets\ActiveForm;
         }
     }
 
+    // Направление курсора по оси ОХ
     function directionX(event)
     {
         var currentMouseX = event.clientX;
@@ -196,11 +202,13 @@ use yii\widgets\ActiveForm;
         return direction;
     }
 
+    // Изменяем угол поворота
     function whereGoCamera(event)
     {
         degreeCameras[id] += 90 * directionX(event);
     }
 
+    // Обновляем данные позиции и поворота камеры
     function updateCamera()
     {
         if (Math.abs(degreeCameras[id]) === 360 || degreeCameras[id] === 0)
@@ -228,6 +236,7 @@ use yii\widgets\ActiveForm;
         cameras[id].updateMatrixWorld();
     }
 
+    // Определяем какая сцена выбрана
     function getIdScene(event)
     {
         var elem = event.target.parentNode.id.split('-');

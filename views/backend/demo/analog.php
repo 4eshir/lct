@@ -11,10 +11,11 @@ use yii\widgets\ActiveForm;
 ?>
 
 <style>
-    #scene-container {
+    .scene-container {
         height: 600px;
+        margin-bottom: 1rem;
     }
-    #scene-container canvas {
+    .scene-container canvas {
         border-radius: 15px;
     }
 </style>
@@ -42,15 +43,19 @@ use yii\widgets\ActiveForm;
 
     </div>
 
-    <div class="result">
+    <div class="result" style="display: none">
         <?= $data ?>
     </div>
 
-    <div id="scene-container"></div>
-    <div id="anal-block"></div>
+    <h3>Оригинальное размещение объектов на территории</h3>
+    <div id="scene-container-1" class="scene-container"></div>
+    <div id="anal-block-1"></div>
+
+    <h3>Сгенерированное размещение объектов на территории</h3>
+    <div id="scene-container-2" class="scene-container"></div>
+    <div id="anal-block-2"></div>
 
 </div>
-
 
 <?php
 $script = <<< JS
@@ -61,7 +66,9 @@ $script = <<< JS
             type: 'GET',
             data: {territoryId: territoryId},
             success: function(response){
-                $('.pre-data').html(response);
+                //$('.pre-data').html(response);
+                if (!response.includes("error"))
+                    init(response, 0);
             },
             error: function(xhr){
                 console.log('Ошибка ' + xhr.status);
@@ -76,9 +83,9 @@ $script = <<< JS
             type: 'GET',
             data: {territoryId: territoryId},
             success: function(response){
-                $('.pre-data').html(response);
-                console.log(response);
-                init(response);
+                //$('.pre-data').html(response);
+                if (!response.includes("error"))
+                    init(response, 0);
             },
             error: function(xhr){
                 console.log('Ошибка ' + xhr.status);
@@ -94,84 +101,102 @@ $this->registerJs($script);
 <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.130.1/examples/js/loaders/GLTFLoader.js"></script>
 <script>
-    // Создание сцены
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color('#F0F8FF');
-    const sceneContainer = document.getElementById('scene-container');
-
-    const camera = new THREE.PerspectiveCamera( 75, sceneContainer.clientWidth / sceneContainer.clientHeight, 1, 1000 );
-    camera.position.z = 10;
-    camera.position.y = -5;
-    camera.rotation.x = 0.5;
-
-    const renderer = new THREE.WebGLRenderer();
-    renderer.setSize(sceneContainer.clientWidth, sceneContainer.clientHeight);
-    sceneContainer.appendChild(renderer.domElement);
-
-    //-----------------------------------------------
-
-    // Объявляем переменные для сетки
+    // Объявили переменные для работы с тремя сценами
+    const scenes = [];
+    const cameras = [];
+    const sceneContainers = [];
+    const renderers = [];
     const drift = 0.5;
+    var isRotateCameras = [false, false, false];
+    var degreeCameras = [0, 0];
+    var previousMouseX = [0, 0];
+    var id;
     var gridSizeX = 10, gridSizeY = 10, gridSizeZ = 10;
-    var normalGridSizeZ = 10;
-    var gridGeometry = new THREE.PlaneBufferGeometry(1, 1);
-    var gridMesh = new THREE.Group();
-
-    // Объявляем переменные для отслеживания поворота камеры
-    var isRotateCamera = false;
-    var degreeCamera = 0;
-    var previousMouseX = 0;
-
     var objectsToRemove = [];
-
-    //----------------------------------------------
-
-    for (let i = 0; i < gridSizeX * gridSizeY; i++) {
-        var cellGeometry = new THREE.BoxBufferGeometry(1, 1, 0.01);
-        var cellMaterial = new THREE.MeshBasicMaterial({ color: '#000000', transparent: true, opacity: 0.5, side: THREE.DoubleSide }); // Один цвет и полупрозрачность
-        var cell = new THREE.Mesh(cellGeometry, cellMaterial);
-        cell.position.set(i % gridSizeX - gridSizeX / 2, Math.floor(i / gridSizeX) - gridSizeY / 2, 0);
-        objectsToRemove.push(cell);
-        scene.add(cell);
+    for (let i = 0; i < 2; i++)
+    {
+        objectsToRemove[i] = [];
     }
 
-    // Основные механики
-    //--------------------------------
+    // Инициализировали создание сцен и добавление триггеров
+    for (let i = 0; i < 2; i++) {
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color('#F0F8FF');
+        scenes.push(scene);
 
-    // Инициализация объектов на сцене
-    function init(date) {
-        var dateObj = JSON.parse(date);
+        const sceneContainer = document.getElementById(`scene-container-${i+1}`);
+        sceneContainers.push(sceneContainer);
 
-        // Создаем сцену
+        const camera = new THREE.PerspectiveCamera(75, sceneContainer.clientWidth / sceneContainer.clientHeight, 1, 1000);
+        camera.position.z = 10;
+        camera.position.y = -5;
+        camera.rotation.x = 0.5;
+        cameras.push(camera);
+
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(sceneContainer.clientWidth, sceneContainer.clientHeight);
+        sceneContainer.appendChild(renderer.domElement);
+
+        sceneContainer.addEventListener('mousedown', onMouseDown, false);
+        sceneContainer.addEventListener('mouseup', onMouseUp, false);
+        sceneContainer.addEventListener('wheel', zoom, false);
+        renderers.push(renderer);
+
+        for (let j = 0; j < gridSizeX * gridSizeY; j++) {
+            var cellGeometry = new THREE.BoxBufferGeometry(1, 1, 0.01);
+            var cellMaterial = new THREE.MeshBasicMaterial({ color: '#000000', transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+            var cell = new THREE.Mesh(cellGeometry, cellMaterial);
+            cell.position.set(j % gridSizeX - gridSizeX / 2, Math.floor(j / gridSizeX) - gridSizeY / 2, 0);
+            objectsToRemove[i].push(cell);
+            scene.add(cell);
+        }
+    }
+
+    // Очистка сцены
+    function removeFromScene() {
+        for (let object of objectsToRemove[id]) {
+            scenes[id].remove(object);
+        }
+        objectsToRemove[id] = [];
+    }
+
+    // Отрисовываем сетку и объекты на ней
+    function init(date, type) {
+        id = type;
+
+        var dateObj = JSON.parse(date.substring(date.indexOf('{'), date.lastIndexOf('}}}') + 3));
+        var gridMesh = new THREE.Group();
+
+        removeFromScene();
+
         gridSizeX = dateObj.result.matrixCount.width + 1;
         gridSizeY = dateObj.result.matrixCount.height + 1;
         gridSizeZ = dateObj.result.matrixCount.maxHeight + 10;
 
-        var gridColor = new THREE.Color('#808080'); // Серый цвет
+        var gridColor = new THREE.Color('#808080');
 
-        var edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000 }); // Черный цвет для границ
+        var edgesMaterial = new THREE.LineBasicMaterial({ color: 0x000000 });
         var driftCellX = gridSizeX % 2 == 0 ? 0 : drift;
         var driftCellY = gridSizeY % 2 == 0 ? 0 : drift;
 
-        // Отрисовка сцены
+        // Тут сетка пола
         for (let i = 0; i < gridSizeX * gridSizeY; i++) {
             var cellGeometry = new THREE.BoxBufferGeometry(1, 1, 0.01);
-            var cellMaterial = new THREE.MeshBasicMaterial({ color: gridColor, transparent: true, opacity: 0.5, side: THREE.DoubleSide }); // Один цвет и полупрозрачность
+            var cellMaterial = new THREE.MeshBasicMaterial({ color: gridColor, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
             var cell = new THREE.Mesh(cellGeometry, cellMaterial);
             var edges = new THREE.LineSegments(new THREE.EdgesGeometry(cellGeometry), edgesMaterial);
             cell.position.set(i % gridSizeX - gridSizeX / 2 + driftCellX, Math.floor(i / gridSizeX) - gridSizeY / 2 + driftCellY, 0);
             gridMesh.add(cell);
-            cell.add(edges); // Добавляем границы к ячейке
-            objectsToRemove.push(cell);
+            cell.add(edges);
         }
 
-        scene.add(gridMesh);
-        camera.position.set(0, -(gridSizeY / 2), gridSizeZ);
-
-        // Создаем загрузчик для добавления моделей
+        scenes[id].add(gridMesh);
+        objectsToRemove[type].push(gridMesh);
+        cameras[id].position.set(0, -(gridSizeY / 2), gridSizeZ);
         const loader = new THREE.GLTFLoader();
-        for (let i = 0; i < dateObj.result.objects.length; i++)
-        {
+
+        // Тут загрузка моделей
+        for (let i = 0; i < dateObj.result.objects.length; i++) {
             (function (index) {
                 var rotation = dateObj.result.objects[index].rotate === 0 ? 0 : Math.PI / 2;
                 var rotateX = (dateObj.result.objects[index].length % 2 === 0) ? drift : 0;
@@ -205,13 +230,13 @@ $this->registerJs($script);
                                 child.material = material;
                             }
                         });
-                        model.scale.set(1, 1, 1);
                         //model.scale.set(dateObj.result.objects[index].length, dateObj.result.objects[index].width, dateObj.result.objects[index].height);
-                        model.position.set(dateObj.result.objects[index].dotCenter.x + rotateX, dateObj.result.objects[index].dotCenter.y + rotateY, 0.5);
+                        model.scale.set(1, 1, 1);
+                        model.position.set(dateObj.result.objects[index].dotCenter.x + rotateX, dateObj.result.objects[index].dotCenter.y + rotateY, 0);
 
                         // Добавляем модель в сцену
-                        scene.add(model);
-                        objectsToRemove.push(model);
+                        scenes[id].add(model);
+                        objectsToRemove[id].push(model);
                     },
                     undefined,
                     function (error) {
@@ -221,8 +246,8 @@ $this->registerJs($script);
 
                         oneObject.position.set(dateObj.result.objects[index].dotCenter.x + rotateX, dateObj.result.objects[index].dotCenter.y + rotateY, 0.5);
                         oneObject.rotation.z = rotation;
-                        scene.add(oneObject);
-                        objectsToRemove.push(oneObject);
+                        scenes[id].add(oneObject);
+                        objectsToRemove[id].push(oneObject);
                         console.error('Error loading 3D model', error);
                     }
                 );
@@ -230,96 +255,93 @@ $this->registerJs($script);
         }
     }
 
-    // Направление по оси OX
+    // Направление курсора по оси ОХ
     function directionX(event)
     {
         var currentMouseX = event.clientX;
         var direction = 1;
 
-        if (currentMouseX < previousMouseX) {
+        if (currentMouseX < previousMouseX[id]) {
             direction *=  -1;
         }
 
-        previousMouseX = currentMouseX;
+        previousMouseX[id] = currentMouseX;
         return direction;
     }
 
-    // Обновляем угол поворота камеры
+    // Изменяем угол поворота
     function whereGoCamera(event)
     {
-        degreeCamera += 90 * directionX(event);
+        degreeCameras[id] += 90 * directionX(event);
     }
 
-    // Обновляем данные камеры для поворота
+    // Обновляем данные позиции и поворота камеры
     function updateCamera()
     {
-        if (Math.abs(degreeCamera) === 360 || degreeCamera === 0)
+        if (Math.abs(degreeCameras[id]) === 360 || degreeCameras[id] === 0)
         {
-            degreeCamera = 0;
-            camera.position.set(0, -(gridSizeY / 2), gridSizeZ);
-            camera.rotation.set(0.5, 0, 0);
+            degreeCameras[id] = 0;
+            cameras[id].position.set(0, -(gridSizeY / 2), gridSizeZ);
+            cameras[id].rotation.set(0.5, 0, 0);
         }
-        else if (degreeCamera === 90 || degreeCamera === -270)
+        else if (degreeCameras[id] === 90 || degreeCameras[id] === -270)
         {
-            camera.position.set(-(gridSizeX / 2), 0, gridSizeZ);
-            camera.rotation.set(0, -0.5, -Math.PI/2);
+            cameras[id].position.set(-(gridSizeX / 2), 0, gridSizeZ);
+            cameras[id].rotation.set(0, -0.5, -Math.PI/2);
         }
-        else if (Math.abs(degreeCamera) === 180)
+        else if (Math.abs(degreeCameras[id]) === 180)
         {
-            camera.position.set(0, gridSizeY / 2, gridSizeZ);
-            camera.rotation.set(-0.5, 0, Math.PI);
+            cameras[id].position.set(0, gridSizeY / 2, gridSizeZ);
+            cameras[id].rotation.set(-0.5, 0, Math.PI);
         }
-        else if (degreeCamera === -90 || degreeCamera === 270)
+        else if (degreeCameras[id] === -90 || degreeCameras[id] === 270)
         {
-            camera.position.set(gridSizeX / 2, 0, gridSizeZ);
-            camera.rotation.set(0, 0.5, Math.PI/2);
+            cameras[id].position.set(gridSizeX / 2, 0, gridSizeZ);
+            cameras[id].rotation.set(0, 0.5, Math.PI/2);
         }
 
-        camera.updateMatrixWorld();
+        cameras[id].updateMatrixWorld();
     }
 
-    function onMouseDown()
+    // Определяем какая сцена выбрана
+    function getIdScene(event)
     {
-        isRotateCamera = true;
-        previousMouseX = event.clientX;
+        var elem = event.target.parentNode.id.split('-');
+        id = elem[elem.length - 1] - 1;
     }
 
-    function onMouseUp()
-    {
-        if (isRotateCamera )
-        {
-            isRotateCamera = false;
+    function onMouseDown(event) {
+        getIdScene(event);
+        isRotateCameras[id] = true;
+        previousMouseX[id] = event.clientX;
+    }
+
+    function onMouseUp(event) {
+        if (isRotateCameras[id]) {
+            isRotateCameras[id] = false;
             whereGoCamera(event);
             updateCamera();
         }
     }
 
-    function zoom(event)
-    {
+    function zoom(event) {
         const delta = event.deltaY > 0 ? 1 : -1;
-        camera.position.z += delta;
+        cameras[id].position.z += delta;
         event.preventDefault();
     }
-
-    sceneContainer.addEventListener('mousedown', onMouseDown, false);
-    sceneContainer.addEventListener('mouseup', onMouseUp, false);
-    sceneContainer.addEventListener('wheel', zoom, false);
-
-    function removeFromScene() {
-        for (let object of objectsToRemove) {
-            scene.remove(object);
-        }
-        objectsToRemove = [];
-    }
-
-    //------------------------------------
 
     function animate()
     {
         requestAnimationFrame( animate );
-        renderer.render( scene, camera );
+        for (let i = 0; i < 2; i++) {
+            renderers[i].render(scenes[i], cameras[i]);
+        }
     }
     animate();
-
 </script>
 
+<script>
+    var date = '<?php echo $data; ?>';
+    console.log(date);
+    init(date, 1);
+</script>

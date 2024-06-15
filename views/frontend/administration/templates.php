@@ -89,7 +89,6 @@ $this->params['breadcrumbs'][] = $this->title;
 <style>
     #scene-container {
         height: 600px;
-        //display: none;
     }
     #scene-container canvas {
         border-radius: 15px;
@@ -277,12 +276,10 @@ $this->params['breadcrumbs'][] = $this->title;
 
             xhr.onload = function() {
                 if (xhr.status >= 200 && xhr.status < 300) {
-                    var resultDiv = document.querySelector(".result");
-                    //resultDiv.textContent = xhr.responseText;
                     scrollToAnchor('resultId');
                     removeFromScene();
+
                     init(xhr.responseText);
-                    //document.getElementById('scene-container').style.display = block;
                 } else {
                     console.error("Ошибка при загрузке данных: " + xhr.status);
                 }
@@ -329,7 +326,7 @@ $this->params['breadcrumbs'][] = $this->title;
 
     // Объявляем переменные для сетки
     const drift = 0.5;
-    var gridSizeX, gridSizeY, gridSizeZ;
+    var gridSizeX = 10, gridSizeY = 10, gridSizeZ = 10;
     var normalGridSizeZ = 10;
     var gridGeometry = new THREE.PlaneBufferGeometry(1, 1);
     var gridMesh = new THREE.Group();
@@ -340,6 +337,17 @@ $this->params['breadcrumbs'][] = $this->title;
     var previousMouseX = 0;
 
     var objectsToRemove = [];
+
+    //----------------------------------------------
+
+    for (let i = 0; i < gridSizeX * gridSizeY; i++) {
+        var cellGeometry = new THREE.BoxBufferGeometry(1, 1, 0.01);
+        var cellMaterial = new THREE.MeshBasicMaterial({ color: '#000000', transparent: true, opacity: 0.5, side: THREE.DoubleSide }); // Один цвет и полупрозрачность
+        var cell = new THREE.Mesh(cellGeometry, cellMaterial);
+        cell.position.set(i % gridSizeX - gridSizeX / 2, Math.floor(i / gridSizeX) - gridSizeY / 2, 0);
+        objectsToRemove.push(cell);
+        scene.add(cell);
+    }
 
     // Основные механики
     //--------------------------------
@@ -372,14 +380,14 @@ $this->params['breadcrumbs'][] = $this->title;
         }
 
         scene.add(gridMesh);
-
         camera.position.set(0, -(gridSizeY / 2), gridSizeZ);
 
         // Создаем загрузчик для добавления моделей
         const loader = new THREE.GLTFLoader();
-        for (let i = 0; i < dateObj.result.objects.length; i++)
+        for (let i = 0; i < 1/*dateObj.result.objects.length*/; i++)
         {
             (function (index) {
+
                 var rotation = dateObj.result.objects[index].rotate === 0 ? 0 : Math.PI / 2;
                 var rotateX = (dateObj.result.objects[index].length % 2 === 0) ? drift : 0;
                 var rotateY = (dateObj.result.objects[index].width % 2 === 0) ? drift : 0;
@@ -392,6 +400,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
                 const randomColor = Math.floor(Math.random() * 16777215).toString(16);
                 var material = new THREE.MeshBasicMaterial({color: parseInt(randomColor, 16)});
+
+                if (!dateObj.result.objects[index].link)
+                {
+                    //dateObj.result.objects[index].link = 'models/0.glb';
+                    dateObj.result.objects[index].link = 'models/educational/Маятник Ньютона с подложкой.glb';
+                }
 
                 loader.load(
                     dateObj.result.objects[index].link,
@@ -407,8 +421,10 @@ $this->params['breadcrumbs'][] = $this->title;
                                 child.material = material;
                             }
                         });
-                        model.scale.set(dateObj.result.objects[index].length, dateObj.result.objects[index].width, dateObj.result.objects[index].height);
-                        model.position.set(dateObj.result.objects[index].dotCenter.x + rotateX, dateObj.result.objects[index].dotCenter.y + rotateY, 0.5);
+                        model.scale.set(1, 1, 1);
+                        model.position.set(0.5, 0, 0);
+                        //model.scale.set(dateObj.result.objects[index].length, dateObj.result.objects[index].width, dateObj.result.objects[index].height);
+                        model.position.set(dateObj.result.objects[index].dotCenter.x + rotateX, dateObj.result.objects[index].dotCenter.y + rotateY, 0);
 
                         // Добавляем модель в сцену
                         scene.add(model);

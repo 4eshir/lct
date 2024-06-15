@@ -127,26 +127,6 @@ use yii\widgets\ActiveForm;
         const loader = new THREE.GLTFLoader();
 
         for (let i = 0; i < dateObj.result.objects.length; i++) {
-            /*const geometry = new THREE.BoxGeometry(dateObj.result.objects[i].length, dateObj.result.objects[i].width, dateObj.result.objects[i].height);
-            const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-            const material = new THREE.MeshBasicMaterial({ color: parseInt(randomColor, 16) });
-            const oneObject = new THREE.Mesh(geometry, material);
-
-            var rotation = dateObj.result.objects[i].rotate === 0 ? 0 : Math.PI / 2;
-
-            var rotateX = (dateObj.result.objects[i].length % 2 === 0) ? drift : 0;
-            var rotateY = (dateObj.result.objects[i].width % 2 === 0) ? drift : 0;
-
-            if (rotation !== 0) {
-                var temp = rotateX;
-                rotateX = rotateY;
-                rotateY = temp;
-            }
-
-            oneObject.position.set(dateObj.result.objects[i].dotCenter.x + rotateX, dateObj.result.objects[i].dotCenter.y + rotateY, 0.5);
-            oneObject.rotation.z = rotation;
-            scene.add(oneObject);*/
-
             (function (index) {
                 var rotation = dateObj.result.objects[index].rotate === 0 ? 0 : Math.PI / 2;
                 var rotateX = (dateObj.result.objects[index].length % 2 === 0) ? drift : 0;
@@ -161,9 +141,13 @@ use yii\widgets\ActiveForm;
                 const randomColor = Math.floor(Math.random() * 16777215).toString(16);
                 var material = new THREE.MeshBasicMaterial({color: parseInt(randomColor, 16)});
 
+                if (!dateObj.result.objects[index].link)
+                {
+                    dateObj.result.objects[index].link = 'models/0.glb';
+                }
+
                 loader.load(
                     dateObj.result.objects[index].link,
-                    //'models/game/качели (1).glb',
                     function (gltf) {
                         const model = gltf.scene;
                         // Найдем все материалы модели и установим для них текстуры
@@ -176,8 +160,9 @@ use yii\widgets\ActiveForm;
                                 child.material = material;
                             }
                         });
-                        model.scale.set(dateObj.result.objects[index].length, dateObj.result.objects[index].width, dateObj.result.objects[index].height);
-                        model.position.set(dateObj.result.objects[index].dotCenter.x + rotateX, dateObj.result.objects[index].dotCenter.y + rotateY, 0.5);
+                        //model.scale.set(dateObj.result.objects[index].length, dateObj.result.objects[index].width, dateObj.result.objects[index].height);
+                        model.scale.set(1, 1, 1);
+                        model.position.set(dateObj.result.objects[index].dotCenter.x + rotateX, dateObj.result.objects[index].dotCenter.y + rotateY, 0);
 
                         // Добавляем модель в сцену
                         scene.add(model);

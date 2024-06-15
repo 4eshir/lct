@@ -36,6 +36,17 @@ use app\models\work\ObjectWork;
 <div id="scene-container"></div>
 <div id="anal-block"></div>
 
+<?php
+    $jsonString = ObjectWork::getAllObjectsJson();
+    $data = json_decode($jsonString, true);
+
+    // Перебираем массив данных
+    foreach($data['data'] as $item) {
+        // Создаем кнопку с данными из массива
+        echo '<button class="btn btn-primary" onclick="addObject(' . $item['id'] . ', ' . $item['width'] . ', ' . $item['length'] . ', ' . $item['height'] . ', \'' . $item['link'] . '\')">id: ' . $item['id'] . '</button>';
+    }
+?>
+
 <script>
     var gridSizeX = '<?php echo json_decode($model->getSize(), true)['width'];?>';
     var gridSizeY = '<?php echo json_decode($model->getSize(), true)['length'];?>';
@@ -62,10 +73,6 @@ use app\models\work\ObjectWork;
 
     const drift = 0.5;
 
-    // Создаем материал для ячеек сетки
-    /*var gridSizeX = 10;
-    var gridSizeY = 10;*/
-
     // Создаем сетку
     var gridGeometry = new THREE.PlaneBufferGeometry(1, 1);
     var gridMesh = new THREE.Group();
@@ -89,33 +96,17 @@ use app\models\work\ObjectWork;
     // Добавили сетку на сцену
     scene.add(gridMesh);
 
-    // Тестовые объекты для отладки
     //-----------------------------------------------
-    /*const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-    const cube = new THREE.Mesh( geometry, material );
-    cube.position.set(0, 0, 0.5);
-    scene.add(cube);*/
 
-    function addObject(idObject)
+    // Добавление объектов
+    function addObject(idObject, width, lenght, height, link)
     {
         const loader = new THREE.GLTFLoader();
-        //var rotation = dateObj.result.objects[index].rotate === 0 ? 0 : Math.PI / 2;
-        //var rotateX = (dateObj.result.objects[index].length % 2 === 0) ? drift : 0;
-        //var rotateY = (dateObj.result.objects[index].width % 2 === 0) ? drift : 0;
-        var rotation = 0;
-        var rotateX = 0;
-        var rotateY = 0;
-
-        if (rotation !== 0) {
-            var temp = rotateX;
-            rotateX = rotateY;
-            rotateY = temp;
-        }
+        var rotateX = (lenght % 2 === 0) ? drift : 0;
+        var rotateY = (width % 2 === 0) ? drift : 0;
 
         const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-        var material = new THREE.MeshBasicMaterial({color: parseInt(randomColor, 16)});
-        var link = '';
+        var material = new THREE.MeshBasicMaterial({transparent: true, color: parseInt(randomColor, 16), side: THREE.DoubleSide });
 
         if (!link)
         {
@@ -141,18 +132,17 @@ use app\models\work\ObjectWork;
 
                 // Добавляем модель в сцену
                 scene.add(model);
-                objectsToRemove.push(model);
+                interactiveObjects.push(model);
             },
             undefined,
             function (error) {
                 // Если модель отсутствует, то заменяем её на примитивный полигон (параллелепипед)
-                const geometry = new THREE.BoxGeometry(1, 1, 1);
+                const geometry = new THREE.BoxGeometry(lenght, width, height);
                 const oneObject = new THREE.Mesh(geometry, material);
 
-                oneObject.position.set(0 + rotateX, 0 + rotateY, 0.5);
-                oneObject.rotation.z = rotation;
+                oneObject.position.set(0 + rotateX, 0 + rotateY, height/2);
                 scene.add(oneObject);
-                objectsToRemove.push(oneObject);
+                interactiveObjects.push(oneObject);
                 console.error('Error loading 3D model', error);
             }
         );
@@ -242,6 +232,7 @@ use app\models\work\ObjectWork;
 
     // переменная для отслеживания поворота камеры
     var isRotateCamera = false;
+    var isZoom = false;
     var degreeCamera = 0;
     var previousMouseX = 0;
     var previousMouseY = 0;
@@ -310,8 +301,11 @@ use app\models\work\ObjectWork;
 
     // Масштабирование камеры
     function zoom(event) {
-        camera.position.z += directionY;
-        event.preventDefault();
+        if (isZoom)
+        {
+            camera.position.z += event.deltaY > 0 ? 1 : -1;;
+            event.preventDefault();
+        }
     }
 
     //---------------------------------------------
@@ -552,7 +546,7 @@ use app\models\work\ObjectWork;
             selectedObjectRotateX = selectedObject.geometry.parameters.width % 2 === 0;
             selectedObjectRotateY = selectedObject.geometry.parameters.height % 2 === 0;
 
-            controls.enableZoom = false;
+            isZoom = false;
         }
         else
         {
@@ -592,13 +586,29 @@ use app\models\work\ObjectWork;
             updateCamera();
         }
 
-        controls.enableZoom = true;
+        isZoom = true;
     }
 
-    document.addEventListener('mousemove', dragAndDrop, false);
-    document.addEventListener('mousedown', onMouseDown, false);
-    document.addEventListener('mouseup', onMouseUp, false);
-    document.addEventListener('mousemove', addOutlineOnHover, false);
+    // Обработчик события для нажатия правой кнопки мыши
+    function onMouseRightClick(event) {
+        event.preventDefault(); // Отключаем стандартное контекстное меню
+        if (selectedObject)
+        {
+            scene.remove(selectedObject);
+            gridMesh.children.forEach((cell) => {
+                cell.material.color.set('#808080');
+            });
+        }
+    }
+
+    // Добавляем обработчик события на клик правой кнопкой мыши
+    window.addEventListener('contextmenu', onMouseRightClick, false);
+
+    sceneContainer.addEventListener('mousemove', dragAndDrop, false);
+    sceneContainer.addEventListener('mousedown', onMouseDown, false);
+    sceneContainer.addEventListener('mouseup', onMouseUp, false);
+    sceneContainer.addEventListener('mousemove', addOutlineOnHover, false);
+    sceneContainer.addEventListener('wheel', zoom, false);
 
     //------------------------------------
 

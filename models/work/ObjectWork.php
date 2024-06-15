@@ -61,6 +61,24 @@ class ObjectWork extends ObjectT
         ];
     }
 
+    public static function getAllObjectsJson()
+    {
+        $objects = ObjectWork::find()->all();
+        $result = [];
+        foreach ($objects as $object) {
+            /** @var ObjectWork $object */
+            $result['data'][] = [
+                'id' => $object->id,
+                'width' => self::convertDistanceToCells($object->width, TerritoryConcept::STEP),
+                'length' => self::convertDistanceToCells($object->length, TerritoryConcept::STEP),
+                'height' => self::convertDistanceToCells($object->height, TerritoryConcept::STEP),
+                'link' => $object->model_path,
+            ];
+        }
+
+        return json_encode($result);
+    }
+
     public function convertDimensionsToCells()
     {
         $this->lengthCells = self::convertDistanceToCells($this->length, TerritoryConcept::STEP);

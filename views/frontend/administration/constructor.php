@@ -16,10 +16,14 @@ use app\models\work\ObjectWork;
 </div>
 
 <div>
-    <h3>Жители чаще всего выбирают примерно такую планировку:</h3>
-    <span><?php var_dump($model->generatePriorityArrangement()->getRawMatrix()) ?></span>
+    <!--<h3>Жители чаще всего выбирают примерно такую планировку:</h3>
+    <span><?php /*var_dump($model->generatePriorityArrangement()->getRawMatrix()) */?></span>
     <h2>Бюджет на данную планировку: </h2>
-    <span><?= $model->generatePriorityArrangement()->calculateBudget(); ?>₽</span>
+    <span><?php /*= $model->generatePriorityArrangement()->calculateBudget(); */?>₽</span>
     <h2>Время изготовления/установки объектов: </h2>
-    <span><?= $model->generatePriorityArrangement()->calculateCreatedTime(); ?>д. / <?= $model->generatePriorityArrangement()->calculateInstallationTime(); ?>д.</span>
+    <span><?php /*= $model->generatePriorityArrangement()->calculateCreatedTime(); */?>д. / <?php /*= $model->generatePriorityArrangement()->calculateInstallationTime(); */?>д.</span>-->
+</div>
+
+<div class="data">
+    <?= $model->getSize() ?>
 </div>

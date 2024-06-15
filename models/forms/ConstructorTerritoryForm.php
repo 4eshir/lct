@@ -7,6 +7,7 @@ use app\facades\TerritoryFacade;
 use app\helpers\MathHelper;
 use app\models\work\ObjectWork;
 use app\models\work\QuestionnaireWork;
+use app\models\work\TerritoryWork;
 use Yii;
 use yii\base\Model;
 
@@ -98,5 +99,14 @@ class ConstructorTerritoryForm extends Model
         }
 
         return $this->facade->generateTerritoryArrangement($this->getMaxTerritoriesCount(), $this->territoryId, $votes);
+    }
+
+    public function getSize()
+    {
+        $territory = TerritoryWork::find()->where(['id' => $this->territoryId])->one();
+        return json_encode([
+            'width' => ObjectWork::convertDistanceToCells($territory->width, TerritoryConcept::STEP),
+            'length' => ObjectWork::convertDistanceToCells($territory->length, TerritoryConcept::STEP),
+        ]);
     }
 }

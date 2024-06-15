@@ -33,7 +33,7 @@ class MathHelper
         $sum = array_sum($values);
         $rateValues = [];
         foreach ($values as $value) {
-            $rateValues[] = round(($value / $sum) * $basis, $precision);
+            $rateValues[] = $sum == 0 ? 0 : round(($value / $sum) * $basis, $precision);
         }
 
         //корректировка нормирования

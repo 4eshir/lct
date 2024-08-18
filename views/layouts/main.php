@@ -57,14 +57,14 @@ $username = $user ? $user->login : '---';
         'options' => ['class' => 'navbar-nav'],
         'items' => [
             [
-                'label' => 'Каталог МАФ',
-                'url' => ['/frontend/residents/objects-list'],
+                'label' => 'Онлайн-ревизор',
+                'url' => ['/revisor/index'],
                 'linkOptions' => ['class' => $headerActive == 'objects' ? 'header-link-active' : 'header-link'],
                 'options' => ['class' => $headerActive == 'objects' ? 'custom-li-class' : 'default-li-class']
             ],
             [
-                'label' => 'Голосование',
-                'url' => ['/frontend/residents/start-questionnaire'],
+                'label' => 'Жалобы и предложения',
+                'url' => ['/classificator/send-appeal'],
                 'linkOptions' => ['class' => $headerActive == 'residents' ? 'header-link-active' : 'header-link'],
                 'options' => ['class' => $headerActive == 'residents' ? 'custom-li-class' : 'default-li-class']
             ],

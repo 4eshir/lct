@@ -20,9 +20,9 @@
             'dev_requirement' => true,
         ),
         'bower-asset/bootstrap' => array(
-            'pretty_version' => 'v5.2.3',
-            'version' => '5.2.3.0',
-            'reference' => 'cb021439c683d9805e2864c58095b92d405e9b11',
+            'pretty_version' => 'v5.3.3',
+            'version' => '5.3.3.0',
+            'reference' => '6e1f75f420f68e1d52733b8e407fc7c3766c9dba',
             'type' => 'bower-asset',
             'install_path' => __DIR__ . '/../bower-asset/bootstrap',
             'aliases' => array(),
@@ -860,6 +860,15 @@
             'install_path' => __DIR__ . '/../yiisoft/yii2-gii',
             'aliases' => array(),
             'dev_requirement' => true,
+        ),
+        'yiisoft/yii2-httpclient' => array(
+            'pretty_version' => '2.0.15',
+            'version' => '2.0.15.0',
+            'reference' => '5a8350e15f2db3555ba52830c9c701587c136e87',
+            'type' => 'yii2-extension',
+            'install_path' => __DIR__ . '/../yiisoft/yii2-httpclient',
+            'aliases' => array(),
+            'dev_requirement' => false,
         ),
         'yiisoft/yii2-jui' => array(
             'pretty_version' => '2.0.7',

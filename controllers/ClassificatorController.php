@@ -15,11 +15,15 @@ class ClassificatorController extends Controller
 
     public function actionIndex()
     {
+        Yii::$app->session->set('header-active', 'appeal');
+
         return $this->render('index');
     }
 
     public function actionSendAppeal()
     {
+        Yii::$app->session->set('header-active', 'appeal');
+
         $model = new Appeal();
 
         if (Yii::$app->request->post() && $model->load(Yii::$app->request->post())) {

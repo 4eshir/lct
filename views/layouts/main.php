@@ -57,28 +57,28 @@ $username = $user ? $user->login : '---';
         'options' => ['class' => 'navbar-nav'],
         'items' => [
             [
+                'label' => 'Интерактивная карта',
+                'url' => ['/map/index'],
+                'linkOptions' => ['class' => $headerActive == 'map' ? 'header-link-active' : 'header-link'],
+                'options' => ['class' => $headerActive == 'map' ? 'custom-li-class' : 'default-li-class']
+            ],
+            [
                 'label' => 'Онлайн-ревизор',
                 'url' => ['/revisor/index'],
-                'linkOptions' => ['class' => $headerActive == 'objects' ? 'header-link-active' : 'header-link'],
-                'options' => ['class' => $headerActive == 'objects' ? 'custom-li-class' : 'default-li-class']
+                'linkOptions' => ['class' => $headerActive == 'revisor' ? 'header-link-active' : 'header-link'],
+                'options' => ['class' => $headerActive == 'revisor' ? 'custom-li-class' : 'default-li-class']
             ],
             [
                 'label' => 'Жалобы и предложения',
                 'url' => ['/classificator/send-appeal'],
-                'linkOptions' => ['class' => $headerActive == 'residents' ? 'header-link-active' : 'header-link'],
-                'options' => ['class' => $headerActive == 'residents' ? 'custom-li-class' : 'default-li-class']
+                'linkOptions' => ['class' => $headerActive == 'appeal' ? 'header-link-active' : 'header-link'],
+                'options' => ['class' => $headerActive == 'appeal' ? 'custom-li-class' : 'default-li-class']
             ],
             [
                 'label' => 'Администрация',
                 'url' => ['/frontend/administration/index'],
                 'linkOptions' => ['class' => $headerActive == 'administration' ? 'header-link-active' : 'header-link'],
                 'options' => ['class' => $headerActive == 'administration' ? 'custom-li-class' : 'default-li-class']
-            ],
-            [
-                'label' => 'Админ-панель',
-                'url' => ['/site/admin-login'],
-                'linkOptions' => ['class' => $headerActive == 'admin-login' ? 'header-link-active' : 'header-link'],
-                'options' => ['class' => $headerActive == 'admin-login' ? 'custom-li-class' : 'default-li-class']
             ],
             [
                 'label' => 'Разработчикам',

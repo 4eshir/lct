@@ -12,6 +12,8 @@ class RevisorController extends Controller
 {
     public function actionIndex()
     {
+        Yii::$app->session->set('header-active', 'revisor');
+
         return $this->render('index');
     }
 

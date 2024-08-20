@@ -6,6 +6,7 @@ use yii\helpers\Url; ?>
     h1 {
         color: white;
         font-family: "Nunito", sans-serif;
+        margin-bottom: 25px;
     }
 
     .fancy-list {
@@ -43,7 +44,15 @@ use yii\helpers\Url; ?>
     }
 
     .badge:hover {
-        background-color: #8860D0; /* Увеличение при наведении */
+        background-color: #6430c4;
+        text-decoration: none;
+        color: white;
+    }
+
+    .badge:active {
+        background-color: #401d80;
+        color: white;
+        box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
     }
 
 </style>

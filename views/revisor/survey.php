@@ -6,6 +6,7 @@ use app\models\forms\QuestionForm;
 use app\models\work\AgesIntervalWork;
 use app\models\work\TerritoryWork;
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\jui\SliderInput;
 use yii\widgets\ActiveForm;
 ?>
@@ -86,7 +87,7 @@ use yii\widgets\ActiveForm;
 
 <div class="form-group">
     <div>
-        <?= Html::button('Перейти к выбору варианта', ['class' => 'btn btn-success btn-custom', 'name' => 'decision-button', 'id' => 'pseudo-submit']) ?>
+        <?= Html::button('Завершить опрос', ['class' => 'btn btn-success btn-custom', 'name' => 'decision-button', 'id' => 'pseudo-submit']) ?>
     </div>
 </div>
 
@@ -97,8 +98,9 @@ use yii\widgets\ActiveForm;
 <!-- Модальное окно -->
 <div id="confirmationModal" style="display:none;">
     <div class="modal-content">
+        <img src="<?= Url::to('@web/img/city.png') ?>" style="width: 70%; margin: auto"/>
         <h3>Спасибо за ваше участие в опросе! Вы помогаете своему городу</h3>
-        <p>Вы получили 12 🔅</p>
+        <p class="main-text">Вы получили <b>12 🔅</b></p>
         <button id="confirmSubmit" class="btn btn-success">Вернуться к опросам</button>
     </div>
 </div>
@@ -117,12 +119,23 @@ use yii\widgets\ActiveForm;
         background-color: rgba(0,0,0,0.4);
         display: none;
     }
+
     .modal-content {
         background-color: #fefefe;
         margin: 15% auto;
         padding: 20px;
         border: 1px solid #888;
-        width: 80%;
+        width: 60%;
+        border-radius: 10px;
+        text-align: center;
+    }
+
+    .main-text {
+        margin-top: 15px;
+        padding: 20px 10px;
+        border-radius: 5px;
+        background-color: #ebd6ff;
+        font-size: 22px;
     }
 </style>
 

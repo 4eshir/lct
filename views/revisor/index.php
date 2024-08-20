@@ -17,7 +17,7 @@ use yii\helpers\Url; ?>
 
     .fancy-list li {
         background: #fff;
-        border: 2px solid #8860D0;
+        border: 0;
         border-radius: 8px;
         margin: 10px 0;
         padding: 15px;
@@ -29,11 +29,12 @@ use yii\helpers\Url; ?>
 
     .fancy-list li:hover {
         transform: scale(1.05); /* Увеличение при наведении */
+        border: 2px solid #3B47EB;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Тень при наведении */
     }
 
     .badge {
-        background-color: #8860D0;
+        background-color: rgba(59, 71, 235, 0.75);
         color: white;
         text-decoration: none;
         padding: 10px 15px;
@@ -44,13 +45,13 @@ use yii\helpers\Url; ?>
     }
 
     .badge:hover {
-        background-color: #6430c4;
+        background-color: rgba(0, 196, 55, 0.75);
         text-decoration: none;
         color: white;
     }
 
     .badge:active {
-        background-color: #401d80;
+        background-color: rgba(0, 147, 40, 0.75);
         color: white;
         box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
     }

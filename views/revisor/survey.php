@@ -99,9 +99,9 @@ use yii\widgets\ActiveForm;
 <div id="confirmationModal" style="display:none;">
     <div class="modal-content">
         <img src="<?= Url::to('@web/img/city.png') ?>" style="width: 70%; margin: auto"/>
-        <h3>Спасибо за ваше участие в опросе! Вы помогаете своему городу</h3>
-        <p class="main-text">Вы получили <b>12 🔅</b></p>
-        <button id="confirmSubmit" class="btn btn-success">Вернуться к опросам</button>
+        <h3>Спасибо за ваше участие в опросе! Вы помогаете своему городу становиться лучше</h3>
+        <p class="main-text">Вы получили: <b>12 🔅</b></p>
+        <button id="confirmSubmit" class="btn btn-success btn-green">Вернуться к опросам</button>
     </div>
 </div>
 
@@ -125,7 +125,7 @@ use yii\widgets\ActiveForm;
         margin: 15% auto;
         padding: 20px;
         border: 1px solid #888;
-        width: 60%;
+        width: 30%;
         border-radius: 10px;
         text-align: center;
     }
@@ -134,8 +134,12 @@ use yii\widgets\ActiveForm;
         margin-top: 15px;
         padding: 20px 10px;
         border-radius: 5px;
-        background-color: #ebd6ff;
+        background-color: #EFEFEF;
         font-size: 22px;
+    }
+
+    .btn-green {
+        background-color: rgba(0, 147, 40, 0.75);
     }
 </style>
 

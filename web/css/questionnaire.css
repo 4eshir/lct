@@ -6,7 +6,7 @@
 }
 
 .description-block {
-    border: 1px solid #8860D0;
+    border: 1px solid rgba(0, 196, 55, 0.75);
     margin-bottom: 50px;
     margin-top: 20px;
     padding: 10px;
@@ -15,7 +15,7 @@
 }
 
 .question-block {
-    border: 1px solid #88B6F4;
+    border: 1px solid rgba(59, 71, 235, 0.75);
     margin-bottom: 20px;
     margin-top: 20px;
     padding: 10px;
@@ -25,14 +25,14 @@
 
 .description-head {
     height: 10px;
-    background-color: #8860D0;
+    background-color: rgba(0, 196, 55, 0.75);
     margin: -10px -10px 5px -10px;
     border-radius: 10px 10px 0 0;
 }
 
 .question-head {
     height: 10px;
-    background-color: #88B6F4;
+    background-color: rgba(59, 71, 235, 0.75);
     margin: -10px -10px 5px -10px;
     border-radius: 10px 10px 0 0;
 }

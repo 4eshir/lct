@@ -54,15 +54,15 @@ $this->registerJsFile(Url::to('@web/js/points-algorithm.js'), ['depends' => [\yi
 
     input {
         border-radius: 5px;
-        border: 1px solid #c2a9ec;
-        background-color: #ece4f8;
+        border: 0;
+        background-color: white;
     }
 
     .service {
          max-width: 600px;
          border: 1px solid gray;
          border-radius: 5px;
-         background-color: white;
+         background-color: #EFEFEF;
          padding: 20px;
          display: inline-block;
      }
@@ -72,16 +72,16 @@ $this->registerJsFile(Url::to('@web/js/points-algorithm.js'), ['depends' => [\yi
         border-radius: 5px;
         border: 0;
         padding: 5px 10px 5px 10px;
-        background-color: #8960ce;
+        background-color: #000000;
         color: white;
     }
 
     .clear:hover {
-        background-color: #754eb2;
+        background-color: #0c0c0c;
     }
 
     .clear:active {
-        background-color: #64409a;
+        background-color: #151515;
         box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
     }
 
@@ -90,16 +90,16 @@ $this->registerJsFile(Url::to('@web/js/points-algorithm.js'), ['depends' => [\yi
         border-radius: 5px;
         border: 0;
         padding: 5px 10px 5px 10px;
-        background-color: #56b739;
-        color: white;
+        background-color: rgba(0, 196, 55, 0.75);
+        color: black;
     }
 
     .clusters:hover {
-        background-color: #4b9d33;
+        background-color: rgba(0, 147, 40, 0.75);
     }
 
     .clusters:active {
-        background-color: #347022;
+        background-color: rgba(0, 147, 40, 0.75);
         box-shadow: 0 3px 3px rgba(0, 0, 0, 0.3);
     }
 
@@ -130,6 +130,7 @@ $this->registerJsFile(Url::to('@web/js/points-algorithm.js'), ['depends' => [\yi
         background-repeat: no-repeat;
         background-position: center center;
         background-size: 50% 50%;
+        background-color: white;
     }
 
     /* стили при наведении курсора на радио */

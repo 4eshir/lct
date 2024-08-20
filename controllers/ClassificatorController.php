@@ -79,28 +79,36 @@ class ClassificatorController extends Controller
             }
 
             $resultMessage = '';
+            $type = '';
             switch ($responseData['data'][0]) {
                 case Appeal::MTYPE_CONNECTION:
                     $resultMessage = 'Ваше обращение успешно зарегистрировано с номером ' . rand(1000, 5000) . '. Обращение будет направлено в отдел по <b>связи и Интернету</b>';
+                    $type = 'good';
                     break;
                 case Appeal::MTYPE_ELECTRIC:
                     $resultMessage = 'Ваше обращение успешно зарегистрировано с номером ' . rand(1000, 5000) . '. Обращение будет направлено в отдел по <b>электроснабжению</b>';
+                    $type = 'good';
                     break;
                 case Appeal::MTYPE_SEWERAGE:
                     $resultMessage = 'Ваше обращение успешно зарегистрировано с номером ' . rand(1000, 5000) . '. Обращение будет направлено в отдел по <b>эксплуатации канализационных систем</b>';
+                    $type = 'good';
                     break;
                 case Appeal::MTYPE_WATER_SUPPLY:
                     $resultMessage = 'Ваше обращение успешно зарегистрировано с номером ' . rand(1000, 5000) . '. Обращение будет направлено в отдел по <b>водоснабжению</b>';
+                    $type = 'good';
                     break;
                 case Appeal::MTYPE_PERSONAL:
                     $resultMessage = 'Ваше обращение успешно зарегистрировано с номером ' . rand(1000, 5000) . '. Обращение будет рассмотрено в <b>индивидуальном порядке</b>';
+                    $type = 'special';
                     break;
                 default:
                     $resultMessage = 'К сожалению, ваше обращение было расценено нашей системой как <b>спам</b>. Повторите попытку, избегайте оскорбительных и лишенных смысловой нагрузки выражений';
+                    $type = 'bad';
             }
 
             return $this->render('result-message', [
-                'result' => $resultMessage
+                'result' => $resultMessage,
+                'type' => $type
             ]);
         }
 

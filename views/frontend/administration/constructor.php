@@ -129,7 +129,7 @@ use app\models\work\ObjectWork;
     const camera = new THREE.PerspectiveCamera( 75, sceneContainer.clientWidth / sceneContainer.clientHeight, 1, 1000 );
     camera.position.z = 5;
     camera.position.y = -5;
-    camera.rotation.x = 0.5;
+    camera.rotation.x = 1;
 
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize(sceneContainer.clientWidth, sceneContainer.clientHeight);

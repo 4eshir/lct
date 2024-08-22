@@ -376,22 +376,26 @@ use app\models\work\ObjectWork;
         {
             degreeCamera = 0;
             camera.position.set(0, -(gridSizeY / 2), gridSizeZ / 2);
-            camera.rotation.set(0.5, 0, 0);
+            //camera.rotation.set(0.5, 0, 0);
+            camera.rotation.set(1, 0, 0);
         }
         else if (degreeCamera === 90 || degreeCamera === -270)
         {
             camera.position.set(-(gridSizeY / 2), 0, gridSizeZ / 2);
-            camera.rotation.set(0, -0.5, -Math.PI/2);
+            //camera.rotation.set(0, -0.5, -Math.PI/2);
+            camera.rotation.set(0, -1, -Math.PI/2);
         }
         else if (Math.abs(degreeCamera) === 180)
         {
             camera.position.set(0, gridSizeX / 2, gridSizeZ / 2);
-            camera.rotation.set(-0.5, 0, Math.PI);
+            //camera.rotation.set(-0.5, 0, Math.PI);
+            camera.rotation.set(-1, 0, Math.PI);
         }
         else if (degreeCamera === -90 || degreeCamera === 270)
         {
             camera.position.set(gridSizeX / 2, 0, gridSizeZ / 2);
-            camera.rotation.set(0, 0.5, Math.PI/2);
+            //camera.rotation.set(0, 0.5, Math.PI/2);
+            camera.rotation.set(0, 1, Math.PI/2);
         }
 
         camera.updateMatrixWorld();

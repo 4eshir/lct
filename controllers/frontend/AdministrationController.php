@@ -75,9 +75,9 @@ class AdministrationController extends Controller
         ]);
     }
 
-    public function actionConstructor($tId)
+    public function actionConstructor()
     {
-        $model = new ConstructorTerritoryForm($tId);
+        $model = new ConstructorTerritoryForm(1);
 
         return $this->render('constructor', [
             'model' => $model

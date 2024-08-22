@@ -171,8 +171,8 @@ use app\models\work\ObjectWork;
     scene.add(gridMesh);
 
     // Создаем фон
-    //const texturesUrl = 'https://st3.depositphotos.com/2419757/31826/v/450/depositphotos_318267308-stock-illustration-street-with-buildings-and-cars.jpg';
-    const texturesUrl = 'https://fastapi.schooltech.ru/3036.jpg';
+    const texturesUrl = 'https://st3.depositphotos.com/2419757/31826/v/450/depositphotos_318267308-stock-illustration-street-with-buildings-and-cars.jpg';
+    //const texturesUrl = 'https://fastapi.schooltech.ru/3036.jpg';
     const textureLoader = new THREE.TextureLoader();
     const texture = textureLoader.load(texturesUrl);
 

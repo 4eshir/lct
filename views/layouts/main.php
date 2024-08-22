@@ -75,8 +75,8 @@ $username = $user ? $user->login : '---';
                 'options' => ['class' => $headerActive == 'appeal' ? 'custom-li-class' : 'default-li-class']
             ],
             [
-                'label' => 'Администрация',
-                'url' => ['/frontend/administration/index'],
+                'label' => '3D-Конструктор',
+                'url' => ['/frontend/administration/constructor'],
                 'linkOptions' => ['class' => $headerActive == 'administration' ? 'header-link-active' : 'header-link'],
                 'options' => ['class' => $headerActive == 'administration' ? 'custom-li-class' : 'default-li-class']
             ],

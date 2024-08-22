@@ -71,7 +71,7 @@ use app\models\work\ObjectWork;
     $jsonString = ObjectWork::getAllObjectsJson();
     $data = json_decode($jsonString, true);
     var_dump($data);
-    $buttons = [];
+    /*$buttons = [];
 
     foreach ($data['data'] as $item) {
         $colors = [
@@ -109,7 +109,7 @@ use app\models\work\ObjectWork;
                 block.innerHTML += `'.implode('', $btnList).'`;
             }
         </script>';
-    }
+    }*/
 ?>
 
 <script>

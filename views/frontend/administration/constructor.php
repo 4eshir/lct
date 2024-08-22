@@ -127,7 +127,7 @@ use app\models\work\ObjectWork;
     const sceneContainer = document.getElementById('scene-container');
 
     const camera = new THREE.PerspectiveCamera( 75, sceneContainer.clientWidth / sceneContainer.clientHeight, 1, 1000 );
-    camera.position.z = 10;
+    camera.position.z = 5;
     camera.position.y = -5;
     camera.rotation.x = 0.5;
 

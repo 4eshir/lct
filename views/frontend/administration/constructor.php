@@ -70,6 +70,7 @@ use app\models\work\ObjectWork;
 <?php
     $jsonString = ObjectWork::getAllObjectsJson();
     $data = json_decode($jsonString, true);
+    var_dump($data);
     $buttons = [];
 
     foreach ($data['data'] as $item) {

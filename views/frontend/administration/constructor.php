@@ -497,7 +497,7 @@ use app\models\work\ObjectWork;
         selectedObject.position.set(newDot.x, newDot.y, newZ);
         boxHelper.position.set(newDot.x, newDot.y, newZ);
 
-        setColorGridMesh(); // Обновляем тени
+        //setColorGridMesh(); // Обновляем тени
     }
 
     // Поворот объектов вокруг своей оси
@@ -700,7 +700,7 @@ use app\models\work\ObjectWork;
             updatePositionSelectedObject(coordinate.getPoint());
 
             updateBoxHelper();
-            setColorGridMesh();
+            //setColorGridMesh();
         }
     }
 

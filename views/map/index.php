@@ -6,7 +6,7 @@ $this->registerJsFile(Url::to('@web/js/points-algorithm.js'), ['depends' => [\yi
 
 ?>
 
-<canvas id="clusterCanvas" width="600" height="800"></canvas>
+<canvas id="clusterCanvas" width="585" height="1066"></canvas>
 <div></div>
 <div class="service">
     <h5>Для того, чтобы установить точку - выберите цвет и кликните на карту</h5>
@@ -59,7 +59,7 @@ $this->registerJsFile(Url::to('@web/js/points-algorithm.js'), ['depends' => [\yi
     }
 
     .service {
-         max-width: 600px;
+         max-width: 585px;
          border: 1px solid gray;
          border-radius: 5px;
          background-color: #EFEFEF;
@@ -189,7 +189,7 @@ $this->registerJsFile(Url::to('@web/js/points-algorithm.js'), ['depends' => [\yi
     const backgroundImage = new Image();
 
     // Укажите путь к вашему изображению
-    backgroundImage.src = '<?= Yii::$app->request->baseUrl ?>/background.png';
+    backgroundImage.src = '<?= Yii::$app->request->baseUrl ?>/background2.png';
 
     backgroundImage.onload = () => {
         ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);

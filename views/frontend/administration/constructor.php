@@ -218,7 +218,7 @@ use app\models\work\ObjectWork;
         }
 
         loader.load(
-            link,
+            'https://test.schooltech.ru/lct/web/'.link,
             function (gltf) {
                 const model = gltf.scene;
                 // Найдем все материалы модели и установим для них текстуры

@@ -9,9 +9,9 @@ $this->registerJsFile(Url::to('@web/js/points-algorithm.js'), ['depends' => [\yi
 <canvas id="clusterCanvas" width="585" height="1066"></canvas>
 <div></div>
 <div class="service">
-    <h5>Для того, чтобы установить точку - выберите цвет и кликните на карту</h5>
+    <h5>Чтобы установить точку - выберите цвет и кликните на карту</h5>
     <div style="display: flex; align-items: center; justify-content: space-between;">
-        <div style="width: 55%; align-items: center; display: flex; justify-content: space-between;">
+        <div style="width: 55%; align-items: center; display: flex; justify-content: space-between; font-size: 1.2em;">
             <div class="radio">
                 <input class="custom-radio red-radio" type="radio" id="color-1" name="color" value="0">
                 <label for="color-1">Красная</label>
@@ -30,7 +30,7 @@ $this->registerJsFile(Url::to('@web/js/points-algorithm.js'), ['depends' => [\yi
         </div>
     </div>
 
-    <div style="display: flex; align-items: center; margin-top: 10px; justify-content: space-between;">
+    <div style="display: flex; align-items: center; margin-top: 10px; justify-content: space-between; font-size: 1.2em;">
         <div style="width: 55%; display: flex; justify-content: space-between">
             <div style="width: 50%; display: flex;"><span style="margin-right: 10px; min-width: 10%">X: </span><input type="text" id="coordX" readonly style="width: 75%;"></div>
             <div style="width: 50%; display: flex; margin-right: -14px;"><span style="margin-right: 10px; min-width: 10%">Y: </span><input type="text" id="coordY" readonly style="width: 75%;"></div>
@@ -49,7 +49,8 @@ $this->registerJsFile(Url::to('@web/js/points-algorithm.js'), ['depends' => [\yi
     }
 
     h5 {
-        margin-bottom: 30px;
+        margin-bottom: 20px;
+        font-size: 1.5em;
     }
 
     input {

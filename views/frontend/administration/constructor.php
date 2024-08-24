@@ -231,7 +231,7 @@ use app\models\work\ObjectWork;
                         child.material = material;
                     }
                 });
-                model.scale.set(1, 1, 1);
+                model.scale.set(1, 0, 0);
                 model.position.set(0 + rotateX, 0 + rotateY, 0);
                 model.userData.name = name;
 

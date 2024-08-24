@@ -497,7 +497,7 @@ use app\models\work\ObjectWork;
         selectedObject.position.set(newDot.x, newDot.y, newZ);
         boxHelper.position.set(newDot.x, newDot.y, newZ);
 
-        //setColorGridMesh(); // Обновляем тени
+        setColorGridMesh(); // Обновляем тени
     }
 
     // Поворот объектов вокруг своей оси
@@ -587,7 +587,7 @@ use app\models\work\ObjectWork;
         }
 
         var cellDot = Object.create(dot);
-        gridMesh.children.forEach((cell) => {
+        /*gridMesh.children.forEach((cell) => {
             cellDot.addDot(cell.position.x, cell.position.y);
             cell.material.color.set(gridColor);
             for (var i = 0; i < dotsObject.length; i++)
@@ -599,7 +599,7 @@ use app\models\work\ObjectWork;
                     break;
                 }
             }
-        })
+        })*/
     }
 
     // Проверка пересечения
@@ -700,7 +700,7 @@ use app\models\work\ObjectWork;
             updatePositionSelectedObject(coordinate.getPoint());
 
             updateBoxHelper();
-            //setColorGridMesh();
+            setColorGridMesh();
         }
     }
 
@@ -742,9 +742,9 @@ use app\models\work\ObjectWork;
             selectedObjectRotateY = false;
             selectedObjectRotatePoint.clear();
 
-            gridMesh.children.forEach((cell) => {
+            /*gridMesh.children.forEach((cell) => {
                 cell.material.color.set(gridColor);
-            });
+            });*/
             /*selectedObject = null;
             isModel = false;
 
@@ -780,9 +780,9 @@ use app\models\work\ObjectWork;
             costElement.textContent = parseFloat(costElement.textContent) - cost;
 
             scene.remove(selectedObject);
-            gridMesh.children.forEach((cell) => {
+            /*gridMesh.children.forEach((cell) => {
                 cell.material.color.set(gridColor);
-            });
+            });*/
 
             selectedObjectRotateX = false;
             selectedObjectRotateY = false;

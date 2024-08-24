@@ -224,7 +224,7 @@ use app\models\work\ObjectWork;
             link = 'models/educational/качели-балансир Бревно пробный.glb';
         }
 
-        var rotation = (name === '21000' || name === '12500') ? true : false;
+        var rotation = (name == '21000' || name == '12500') ? true : false;
 
         loader.load(
             link,

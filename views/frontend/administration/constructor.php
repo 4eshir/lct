@@ -503,8 +503,8 @@ use app\models\work\ObjectWork;
         if (selectedObject && isDragging) {
             event.preventDefault();
             const direction = event.deltaY > 0 ? 1 : -1;
-console.log(selectedObject, selectedObject.userData.name);
-            if (name == '21000' || name == '12500') {
+
+            if (selectedObject.userData.name == '21000' || selectedObject.userData.name == '12500') {
                 selectedObject.rotation.y += (Math.PI / 2) * direction;
 
                 if (Math.abs(selectedObject.rotation.y / Math.PI) === 2)

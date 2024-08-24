@@ -87,7 +87,7 @@ use app\models\work\ObjectWork;
         $button = '<button class="btn btn-primary" style="'.$style.'" 
             onmouseover="this.style.backgroundColor=\''.$colorHover.'\'" 
             onmouseout="this.style.backgroundColor=\''.$color.'\'" 
-            onclick="addObject(' . $item['id'] . ', ' . $item['width'] . ', ' . $item['length'] . ', ' . $item['height'] . ', \'' . $item['link'] . '\', ' . $item['cost'] . ')">'
+            onclick="addObject(' . $item['id'] . ', ' . $item['width'] . ', ' . $item['length'] . ', ' . $item['height'] . ', \'https://test.schooltech.ru/lct/web/.' . $item['link'] . '\', ' . $item['cost'] . ')">'
             . $item['name'] . '</button>';
 
         $blockId = [
@@ -218,7 +218,7 @@ use app\models\work\ObjectWork;
         }
 
         loader.load(
-            'https://test.schooltech.ru/lct/web/'.link,
+            link,
             function (gltf) {
                 const model = gltf.scene;
                 // Найдем все материалы модели и установим для них текстуры

@@ -504,7 +504,7 @@ use app\models\work\ObjectWork;
             event.preventDefault();
             const direction = event.deltaY > 0 ? 1 : -1;
 
-            if (selectedObject.userData.name == '21000' || selectedObject.userData.name == '12500') {
+            if (selectedObject.userData.name == '21000' || selectedObject.userData.name == '12500' || selectedObject.userData.name == '34000') {
                 selectedObject.rotation.y += (Math.PI / 2) * direction;
 
                 if (Math.abs(selectedObject.rotation.y / Math.PI) === 2)

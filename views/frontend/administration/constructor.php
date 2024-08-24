@@ -224,6 +224,8 @@ use app\models\work\ObjectWork;
             link = 'models/educational/качели-балансир Бревно пробный.glb';
         }
 
+        var rotation = (name === '21000' || name === '12500') ? true : false;
+
         loader.load(
             link,
             function (gltf) {
@@ -239,7 +241,7 @@ use app\models\work\ObjectWork;
                     }
                 });
                 model.scale.set(1, 1, 1);
-                if (name == '21000' || name == '12500')
+                if (rotation)
                     model.rotation.x = Math.PI / 2;
                 model.position.set(0 + rotateX, 0 + rotateY, 0);
                 model.userData.name = name;

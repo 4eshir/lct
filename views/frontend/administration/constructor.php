@@ -84,11 +84,18 @@ use app\models\work\ObjectWork;
         $colorHover = $colors[$item['type']][1];
         $style = 'background-color: '.$color.'!important; border-color: black; color: black; width: 120px;';
 
-        $button = '<button class="btn btn-primary" style="'.$style.'" 
+        //боевой
+        $button = '<button class="btn btn-primary" style="'.$style.'"
             onmouseover="this.style.backgroundColor=\''.$colorHover.'\'" 
             onmouseout="this.style.backgroundColor=\''.$color.'\'" 
             onclick="addObject(' . $item['id'] . ', ' . $item['width'] . ', ' . $item['length'] . ', ' . $item['height'] . ', \'https://test.schooltech.ru/lct/web/' . $item['link'] . '\', ' . $item['cost'] . ')">'
             . $item['name'] . '</button>';
+        //локаль
+        /*$button = '<button class="btn btn-primary" style="'.$style.'"
+            onmouseover="this.style.backgroundColor=\''.$colorHover.'\'" 
+            onmouseout="this.style.backgroundColor=\''.$color.'\'" 
+            onclick="addObject(' . $item['id'] . ', ' . $item['width'] . ', ' . $item['length'] . ', ' . $item['height'] . ', \'http://kazan/' . $item['link'] . '\', ' . $item['cost'] . ')">'
+            . $item['name'] . '</button>';*/
 
         $blockId = [
             1 => 'btn-recreation',
@@ -231,7 +238,8 @@ use app\models\work\ObjectWork;
                         child.material = material;
                     }
                 });
-                model.scale.set(1, 0, 0);
+                model.scale.set(1, 1, 1);
+                model.rotation.x = Math.PI / 2;
                 model.position.set(0 + rotateX, 0 + rotateY, 0);
                 model.userData.name = name;
 
@@ -495,10 +503,10 @@ use app\models\work\ObjectWork;
         {
             event.preventDefault();
             const direction = event.deltaY > 0 ? 1 : -1;
-            selectedObject.rotation.z += (Math.PI / 2) * direction;
+            selectedObject.rotation.y += (Math.PI / 2) * direction;
 
-            if (Math.abs(selectedObject.rotation.z / Math.PI) === 2)
-                selectedObject.rotation.z = 0;
+            if (Math.abs(selectedObject.rotation.y / Math.PI) === 2)
+                selectedObject.rotation.y = 0;
 
             // Проверка на необходимость "доворота" фигуры, чтобы попасть в сетку
             if (selectedObjectRotateX || selectedObjectRotateY)
